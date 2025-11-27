@@ -1,0 +1,159 @@
+/* Input styles using design system CSS variables */
+
+.container {
+  width: 100%;
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: rgb(var(--text-strong));
+}
+
+.label.disabled {
+  color: rgb(var(--text-disabled));
+}
+
+.optional {
+  color: rgb(var(--text-weak));
+  margin-left: 4px;
+}
+
+.required {
+  color: rgb(var(--text-error));
+  margin-left: 4px;
+}
+
+.inputWrapper {
+  position: relative;
+}
+
+.iconWrapper {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: rgb(var(--text-weak));
+}
+
+.iconWrapper.disabled {
+  opacity: 0.5;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.iconLarge {
+  width: 20px;
+  height: 20px;
+}
+
+.input {
+  width: 100%;
+  border-radius: 8px;
+  border: none;
+  box-shadow: var(--stroke-weak);
+  background: rgb(var(--background-base));
+  transition: all var(--duration-fast) var(--ease-out-cubic);
+}
+
+.input::placeholder {
+  color: rgb(var(--text-weak));
+}
+
+.input:hover:not(:disabled) {
+  background: rgba(var(--fill-weak), 0.5);
+  box-shadow: var(--stroke-weak-hover);
+}
+
+.input:focus {
+  outline: none;
+  box-shadow: var(--stroke-focus);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgb(var(--fill-weaker));
+}
+
+.input.invalid {
+  box-shadow: var(--stroke-error-strong);
+}
+
+.small {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.small.withIcon {
+  padding-left: 36px;
+}
+
+.large {
+  height: 48px;
+  padding: 0 16px;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.large.withIcon {
+  padding-left: 44px;
+}
+
+.textarea {
+  width: 100%;
+  border-radius: 8px;
+  border: none;
+  box-shadow: var(--stroke-weak);
+  background: rgb(var(--background-base));
+  resize: vertical;
+  max-height: 300px;
+  transition: all var(--duration-fast) var(--ease-out-cubic);
+}
+
+.textarea::placeholder {
+  color: rgb(var(--text-weak));
+}
+
+.textarea:hover:not(:disabled) {
+  background: rgba(var(--fill-weak), 0.5);
+  box-shadow: var(--stroke-weak-hover);
+}
+
+.textarea:focus {
+  outline: none;
+  box-shadow: var(--stroke-focus);
+}
+
+.textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgb(var(--fill-weaker));
+}
+
+.textarea.invalid {
+  border-color: rgb(var(--stroke-error-strong));
+}
+
+.textareaSmall {
+  min-height: 96px;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.textareaLarge {
+  min-height: 128px;
+  padding: 16px;
+  font-size: 16px;
+  line-height: 24px;
+}

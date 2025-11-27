@@ -1,0 +1,135 @@
+/* Theme Toggle styles using design system CSS variables */
+
+.themeToggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  box-shadow: var(--stroke-weak);
+  background: transparent;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out-cubic);
+}
+
+.themeToggle:hover {
+  box-shadow: var(--stroke-weak-hover), var(--fill-hover);
+}
+
+.themeToggle:focus-visible {
+  box-shadow: var(--stroke-focus);
+}
+
+.themeToggle:hover:focus-visible {
+  box-shadow: var(--fill-hover-focus);
+}
+
+.themeToggle:active {
+  transform: scale(0.95);
+}
+
+.iconWrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  color: rgb(var(--text-strong));
+}
+
+/* Expanded theme toggle */
+.expandedToggle {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: rgb(var(--fill-weak));
+  border-radius: 8px;
+  border: none;
+  box-shadow: var(--stroke-weak);
+}
+
+.toggleButton {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out-cubic);
+}
+
+.toggleButton.active {
+  color: rgb(var(--text-strong));
+}
+
+.toggleButton.inactive {
+  color: rgb(var(--text-weak));
+}
+
+.toggleIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.slidingBackground {
+  position: absolute;
+  top: 4px;
+  height: calc(100% - 8px);
+  background: rgb(var(--background-base));
+  border-radius: 6px;
+  border: none;
+  box-shadow: var(--stroke-weak), var(--elevation-raised);
+  transition: left var(--duration-normal) var(--ease-out-cubic),
+              width var(--duration-normal) var(--ease-out-cubic);
+}
+
+/* Skeleton loading state */
+.skeleton {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  box-shadow: var(--stroke-weak);
+  background: rgb(var(--fill-weak));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skeletonIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.skeletonExpanded {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: rgb(var(--fill-weak));
+  border-radius: 8px;
+  border: none;
+  box-shadow: var(--stroke-weak);
+}
+
+.skeletonButton {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}

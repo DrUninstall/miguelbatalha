@@ -1,0 +1,74 @@
+/* Accordion styles using design system CSS variables */
+
+.accordion {
+  border: none;
+  box-shadow: var(--stroke-weak);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.item {
+  border-bottom: 1px solid var(--stroke-color-weak);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  transition: background-color var(--duration-fast) var(--ease-out-cubic);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  box-shadow: var(--fill-hover);
+}
+
+.button:active:not(:disabled) {
+  box-shadow: var(--fill-press);
+}
+
+.button:focus-visible {
+  box-shadow: var(--stroke-focus);
+}
+
+.button:hover:focus-visible:not(:disabled) {
+  box-shadow: var(--fill-hover-focus);
+}
+
+.button:active:focus-visible:not(:disabled) {
+  box-shadow: var(--fill-press-focus);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.title {
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 600;
+  color: rgb(var(--text-strong));
+}
+
+.iconWrapper {
+  width: 20px;
+  height: 20px;
+  color: rgb(var(--text-weak));
+}
+
+.content {
+  overflow: hidden;
+}
+
+.contentInner {
+  padding: 0 24px 16px;
+}

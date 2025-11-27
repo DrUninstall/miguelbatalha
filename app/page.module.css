@@ -1,0 +1,228 @@
+/* Homepage styles using design system CSS variables */
+
+.page {
+  min-height: 100vh;
+}
+
+/* Navigation */
+.nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 50;
+  border-bottom: 1px solid var(--stroke-color-weak);
+  background: rgba(var(--background-base), 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.navContainer {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-weight: 600;
+  color: rgb(var(--text-strong));
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navLink {
+  font-size: 14px;
+  line-height: 20px;
+  color: rgb(var(--text-weak));
+  transition: color var(--duration-fast) var(--ease-out-cubic);
+}
+
+.navLink:hover {
+  color: rgb(var(--text-strong));
+}
+
+/* Hero Section */
+.hero {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 128px 24px 64px;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.heroTitle {
+  font-size: 48px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+@media (min-width: 768px) {
+  .heroTitle {
+    font-size: 60px;
+  }
+}
+
+.heroDescription {
+  font-size: 20px;
+  line-height: 28px;
+  color: rgb(var(--text-weak));
+  max-width: 672px;
+  line-height: 1.625;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 16px;
+}
+
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgb(var(--fill-brand-strong));
+  color: rgb(var(--text-inverse-strong));
+  border-radius: 8px;
+  font-weight: 500;
+  transition: opacity var(--duration-fast) var(--ease-out-cubic);
+}
+
+.primaryButton:hover {
+  opacity: 0.9;
+}
+
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  box-shadow: var(--stroke-weak);
+  border-radius: 8px;
+  transition: background-color var(--duration-fast) var(--ease-out-cubic),
+              box-shadow var(--duration-fast) var(--ease-out-cubic);
+}
+
+.secondaryButton:hover {
+  background: rgb(var(--fill-weak));
+  box-shadow: var(--stroke-weak-hover);
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Work Experience Section */
+.work {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 64px 24px;
+}
+
+.workTitle {
+  font-size: 30px;
+  line-height: 36px;
+  font-weight: 600;
+  margin-bottom: 48px;
+}
+
+.workList {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.jobHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.jobTitle {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.jobCompany {
+  color: rgb(var(--text-weak));
+}
+
+.jobDate {
+  font-size: 14px;
+  line-height: 20px;
+  color: rgb(var(--text-weak));
+}
+
+.jobList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: rgb(var(--text-weak));
+}
+
+.jobItem {
+  display: flex;
+  gap: 8px;
+}
+
+.bullet {
+  color: rgb(var(--fill-brand-strong));
+  margin-top: 8px;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid var(--stroke-color-weak);
+  margin-top: 96px;
+}
+
+.footerContainer {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.footerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footerText {
+  font-size: 14px;
+  line-height: 20px;
+  color: rgb(var(--text-weak));
+}
+
+.footerLinks {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.footerLink {
+  font-size: 14px;
+  line-height: 20px;
+  color: rgb(var(--text-weak));
+  transition: color var(--duration-fast) var(--ease-out-cubic);
+}
+
+.footerLink:hover {
+  color: rgb(var(--text-strong));
+}

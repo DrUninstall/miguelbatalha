@@ -1,0 +1,47 @@
+@keyframes reveal {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.container {
+  text-align: center;
+}
+
+.h1 {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  color: rgb(var(--text-strong));
+  overflow: hidden;
+}
+
+.h1 span {
+  display: inline-block;
+  animation: reveal 1.3s cubic-bezier(0.19, 1, 0.22, 1) backwards;
+  animation-delay: calc(0.03s * var(--index));
+}
+
+.button {
+  width: 100%;
+  max-width: 200px;
+  margin-top: 24px;
+  position: relative;
+  height: 32px;
+  font-size: 14px;
+  padding-inline: 12px;
+  font-weight: 500;
+  border-radius: 9999px;
+  background: rgb(var(--background-raised));
+  box-shadow: var(--stroke-weak), var(--elevation-raised);
+  color: rgb(var(--text-strong));
+  border: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: rgb(var(--background-raised-hover));
+}

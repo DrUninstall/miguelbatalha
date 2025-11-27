@@ -1,0 +1,219 @@
+/* ─────────── Shared Layout Tabs Demo ─────────── */
+
+.tabsContainer {
+  width: 100%;
+}
+
+.tabsContent {
+  position: relative;
+  height: 200px;
+  border-radius: 12px;
+  box-shadow: var(--stroke-weak);
+  background: rgb(var(--background-raised));
+}
+
+/* Position classes - shared by circle and labels */
+.posCenter {
+  top: calc(50% - 20px);
+  left: calc(50% - 48px);
+}
+
+.posTopRight {
+  top: var(--space-4);
+  right: var(--space-4);
+}
+
+.posTopLeft {
+  top: var(--space-4);
+  left: var(--space-4);
+}
+
+.posBottomLeft {
+  bottom: var(--space-4);
+  left: var(--space-4);
+}
+
+.posBottomRight {
+  bottom: var(--space-4);
+  right: var(--space-4);
+}
+
+/* Circle - animated background */
+.circle {
+  position: absolute;
+  width: 96px;
+  height: 40px;
+  border-radius: 20px;
+  background: rgb(var(--fill-brand-strong));
+}
+
+/* Position labels (clickable buttons) */
+.positionLabel {
+  position: absolute;
+  width: 96px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 1;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out-cubic);
+}
+
+.labelActive {
+  color: rgb(var(--text-inverse-strong));
+}
+
+.labelInactive {
+  color: rgb(var(--text-weak));
+}
+
+.labelInactive:hover {
+  color: rgb(var(--text-strong));
+}
+
+/* ─────────── Shared Layout Swap Demo ─────────── */
+
+.swapContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.swapCircles {
+  display: flex;
+  gap: var(--space-8);
+  align-items: center;
+  justify-content: center;
+}
+
+.swapCircle {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+
+.circleBrand {
+  background: rgb(var(--fill-brand-strong));
+}
+
+.circleError {
+  background: rgb(var(--fill-error-strong));
+}
+
+.circleSuccess {
+  background: rgb(var(--fill-success-strong));
+}
+
+.shuffleButton {
+  padding: var(--space-2) var(--space-6);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  color: rgb(var(--text-strong));
+  background: rgb(var(--fill-weak));
+  box-shadow: var(--stroke-weak);
+  transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
+}
+
+.shuffleButton:hover {
+  box-shadow: var(--stroke-weak-hover);
+}
+
+/* ─────────── Shared Layout Card Demo ─────────── */
+
+.cardContainer {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 200px;
+  padding: var(--space-6);
+  background: rgb(var(--background-raised));
+  box-shadow: var(--stroke-weak), var(--elevation-raised);
+  cursor: pointer;
+  transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
+}
+
+.card:hover {
+  box-shadow: var(--stroke-weak-hover), var(--elevation-raised);
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgb(var(--text-strong));
+  margin-bottom: var(--space-1);
+}
+
+.cardSubtitle {
+  font-size: 14px;
+  color: rgb(var(--text-weak));
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, calc(100vw - 48px));
+  padding: var(--space-6);
+  background: rgb(var(--background-overlay));
+  box-shadow: var(--stroke-weak), var(--elevation-overlay);
+  z-index: 101;
+}
+
+.dialogTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: rgb(var(--text-strong));
+  margin-bottom: var(--space-1);
+}
+
+.dialogSubtitle {
+  font-size: 14px;
+  color: rgb(var(--text-weak));
+  margin-bottom: var(--space-4);
+}
+
+.dialogContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dialogContent p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgb(var(--text-weak));
+}
+
+.closeButton {
+  align-self: flex-end;
+  padding: var(--space-2) var(--space-4);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  color: rgb(var(--text-inverse-strong));
+  background: rgb(var(--fill-strong));
+  transition: opacity var(--duration-fast) var(--ease-out-cubic);
+}
+
+.closeButton:hover {
+  opacity: 0.9;
+}

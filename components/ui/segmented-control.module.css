@@ -1,0 +1,87 @@
+/* Segmented Control styles using design system CSS variables */
+
+.container {
+  position: relative;
+  display: flex;
+  background: rgb(var(--fill-weak));
+  border: none;
+  box-shadow: var(--stroke-weak);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.small {
+  height: 32px;
+}
+
+.normal {
+  height: 48px;
+}
+
+.thumb {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  background: rgb(var(--background-base));
+  border-radius: 6px;
+  border: none;
+  box-shadow: var(--stroke-weak), var(--elevation-raised);
+}
+
+.option {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out-cubic);
+}
+
+.option.selected {
+  color: rgb(var(--text-strong));
+}
+
+.option.unselected {
+  color: rgb(var(--text-weak));
+}
+
+.option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.option:not(.disabled):not(.selected):hover {
+  color: rgb(var(--text-strong));
+  box-shadow: var(--fill-hover);
+}
+
+.option:not(.disabled):not(.selected):active {
+  box-shadow: var(--fill-press);
+}
+
+.option:focus-visible {
+  box-shadow: var(--stroke-focus);
+}
+
+.option:not(.disabled):not(.selected):hover:focus-visible {
+  box-shadow: var(--fill-hover-focus);
+}
+
+.option:not(.disabled):not(.selected):active:focus-visible {
+  box-shadow: var(--fill-press-focus);
+}
+
+.optionIcon {
+  width: 16px;
+  height: 16px;
+}

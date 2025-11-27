@@ -1,0 +1,59 @@
+/* Paginated List styles using design system CSS variables */
+
+.container {
+  /* Base container */
+}
+
+.itemsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.paginationContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--stroke-color-weak);
+}
+
+.pageInfo {
+  font-size: 14px;
+  line-height: 20px;
+  color: rgb(var(--text-weak));
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pageNumbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.pageButton {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 12px;
+}
+
+.ellipsis {
+  padding: 0 8px;
+  color: rgb(var(--text-weak));
+}

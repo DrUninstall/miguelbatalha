@@ -1,0 +1,807 @@
+/* Design System  */
+
+:root {
+  /* Base colors - Light mode (Grey scale with brand tint) */
+  --grey-solid-1000: 0 0 0 / 1.00; /* done */
+  --grey-solid-900: 18 19 26 / 1.00; /* done */
+  --grey-solid-850: 29 30 38 / 1.00; /* done */
+  --grey-solid-800: 41 43 51 / 1.00; /* done */
+  --grey-solid-50: 245 246 250 / 1.00; /* done */
+  --grey-solid-0: 255 255 255 / 1.00; /* done */
+
+  /* Grey scale - Dark mode palette (white with opacity) */
+  --grey-dark-1000: 255 255 255 / 1.00; /* done */
+  --grey-dark-700: 255 255 255 / 0.78; /* done */
+  --grey-dark-500: 255 255 255 / 0.60; /* done */
+  --grey-dark-100: 255 255 255 / 0.12; /* done */
+  --grey-dark-50: 255 255 255 / 0.06; /* done */
+  --grey-dark-25: 255 255 255 / 0.03; /* done */
+
+  /* Grey scale */
+  --grey-light-1000: 0 6 38 / 0.90; /* done */
+  --grey-light-700: 0 9 51 / 0.65; /* done */
+  --grey-light-500: 0 13 77 / 0.45; /* done */
+  --grey-light-100: 0 17 102 / 0.10; /* done */
+  --grey-light-50: 0 21 128 / 0.04; /* done */
+  --grey-light-25: 0 21 128 / 0.02; /* done */
+
+  /* Semantic colors - Light mode */
+  --brand-light-1000: 76 100 217 / 1.00;
+  --brand-light-800: 76 100 217 / 0.80;
+  --brand-light-200: 76 100 217 / 0.20;
+  --brand-light-50: 76 100 217 / 0.05;
+  --red-light-1000: 199 58 58 / 1.00; /* done */
+  --red-light-800: 199 58 58 / 0.80; /* done */
+  --red-light-200: 199 58 58 / 0.14; /* done */
+  --red-light-50: 255 74 74 / 0.05; /* done */
+  --purple-light-1000: 126 71 204 / 1.00; /* done */
+  --purple-light-800: 126 71 204 / 0.80; /* done */
+  --purple-light-200: 126 71 204 / 0.2; /* done */
+  --purple-light-50: 126 71 204 / 0.05; /* done */
+  --amber-light-1000: 224 190 112 / 1.00; /* done */
+  --amber-light-800: 224 190 112 / 0.80; /* done */
+  --amber-light-200: 224 190 112 / 0.20; /* done */
+  --amber-light-50: 224 190 112 / 0.08; /* done */
+  --green-light-1000: 6 122 87 / 1.00; /* done */
+  --green-light-800: 6 122 87 / 0.80; /* done */
+  --green-light-200: 6 122 87 / 0.20; /* done */
+  --green-light-50: 10 204 146 / 0.05; /* done */
+  --teal-light-1000: 26 116 168 / 1.00; /* done */
+  --teal-light-800: 26 116 168 / 0.80; /* done */
+  --teal-light-200: 26 116 168 / 0.20; /* done */
+  --teal-light-50: 38 176 255 / 0.05; /* done */
+  --blue-light-1000: 76 100 217 / 1.00; /* done */
+  --blue-light-800: 76 100 217 / 0.80; /* done */
+  --blue-light-200: 76 100 217 / 0.20; /* done */
+  --blue-light-50: 76 117 255 / 0.05; /* done */
+  --yellow-solid-1000: 254 198 46 / 1.00; /* done */
+  --gold-solid-1000: #ff9500; /* done */
+  --bronze-solid-1000: #a2845e; /* done */
+
+  /* Text tokens */
+  --text-strong: var(--grey-light-1000);  /* done */
+  --text-weak: var(--grey-light-700); /* done */
+  --text-brand: var(--brand-light-1000); /* done */
+  --text-disabled: var(--grey-solid-100); /* done */
+  --text-error: var(--red-light-1000); /* done */
+  --text-warning: var(--amber-light-1000); /* done */
+  --text-success: var(--green-light-1000); /* done */
+  --text-information: var(--teal-light-1000); /* done */
+  --text-inverse-strong: var(--grey-dark-1000); /* done */
+  --text-inverse-weak: var(--grey-dark-700); /* done */
+  --text-inverse-disabled: var(--grey-dark-100); /* done */
+
+  /* Stroke color tokens (for partial borders like border-bottom) */
+  --stroke-color-weak: var(--grey-light-500); /* done */;
+  --stroke-color-strong: var(--grey-light-100); /* done */;
+
+  /* Stroke tokens (shadow-based for softer depth - use with box-shadow, not border) */
+  --stroke-weak:
+    0px 0px 0px 1px rgba(0, 17, 102, 0.12),
+    0px 1px 2px -1px rgba(0, 17, 102, 0.06),
+    0px 2px 4px 0px rgba(0, 17, 102, 0.04);
+  --stroke-weak-hover:
+    0px 0px 0px 1px rgba(0, 17, 102, 0.16),
+    0px 1px 2px -1px rgba(0, 17, 102, 0.08),
+    0px 2px 4px 0px rgba(0, 17, 102, 0.06);
+  --stroke-strong:
+    0px 0px 0px 1px rgba(0, 17, 102, 0.20),
+    0px 1px 2px -1px rgba(0, 17, 102, 0.10),
+    0px 2px 4px 0px rgba(0, 17, 102, 0.08);
+  --stroke-selected: 0 0 0 1px rgb(var(--brand-light-1000));
+  --stroke-focus: 0 0 0 2px rgb(var(--brand-light-1000)), 0 0 8px 2px rgb(76 100 217 / 0.40);
+  --stroke-disabled: 0 0 0 1px rgb(var(--grey-solid-100));
+  --stroke-brand-strong: 0 0 0 1px rgb(var(--brand-light-800));
+  --stroke-brand-weak: 0 0 0 1px rgb(var(--brand-light-200));
+  --stroke-error-strong: 0 0 0 1px rgb(var(--red-light-800));
+  --stroke-error-weak: 0 0 0 1px rgb(var(--red-light-200));
+  --stroke-warning-strong: 0 0 0 1px rgb(var(--amber-light-800));
+  --stroke-warning-weak: 0 0 0 1px rgb(var(--amber-light-200));
+  --stroke-success-strong: 0 0 0 1px rgb(var(--green-light-800));
+  --stroke-success-weak: 0 0 0 1px rgb(var(--green-light-200));
+  --stroke-information-strong: 0 0 0 1px rgb(var(--teal-light-800));
+  --stroke-information-weak: 0 0 0 1px rgb(var(--teal-light-200));
+  --stroke-inverse-strong: 0 0 0 1px rgb(var(--grey-dark-500));
+  --stroke-inverse-weak: 0 0 0 1px rgb(var(--grey-dark-100));
+  --stroke-inverse-disabled: 0 0 0 1px rgb(var(--grey-dark-100));
+
+  /* Icon tokens */
+  --icon-neutral: var(--grey-solid-500);
+  --icon-brand: var(--brand-light-800);
+  --icon-disabled: var(--grey-solid-100);
+  --icon-error: var(--red-light-800);
+  --icon-warning: var(--amber-light-800);
+  --icon-success: var(--green-light-800);
+  --icon-information: var(--teal-light-800);
+  --icon-inverse: var(--grey-dark-500);
+  --icon-inverse-strong: var(--grey-dark-1000);
+  --icon-inverse-disabled: var(--grey-dark-100);
+
+  /* Fill tokens */
+  --fill-strong: var(--grey-solid-1000);
+  --fill-weak: var(--grey-solid-50);
+  --fill-weaker: var(--grey-solid-25);
+  --fill-hover: inset 0 0 0 9999px rgb(var(--fill-weak));
+  --fill-press: inset 0 0 0 9999px rgb(var(--grey-solid-100));
+  --fill-hover-focus: var(--stroke-focus), var(--fill-hover);
+  --fill-press-focus: var(--stroke-focus), var(--fill-press);
+  --fill-selected: var(--brand-light-1000);
+  --fill-disabled: var(--grey-solid-100);
+  --fill-overlay: var(--grey-solid-500);
+  --fill-brand-strong: var(--brand-light-1000);
+  --fill-brand-weak: var(--brand-light-50);
+  --fill-error-strong: var(--red-light-1000);
+  --fill-error-weak: var(--red-light-50);
+  --fill-warning-strong: var(--amber-light-1000);
+  --fill-warning-weak: var(--amber-light-50);
+  --fill-success-strong: var(--green-light-1000);
+  --fill-success-weak: var(--green-light-50);
+  --fill-information-strong: var(--teal-light-1000);
+  --fill-information-weak: var(--teal-light-50);
+  --fill-inverse-strong: 24 24 27;
+  --fill-inverse-weak: 245 245 245;
+  --fill-inverse-hover: 245 245 245;
+  --fill-inverse-press: 235 235 235;
+  --fill-inverse-disabled: 235 235 235;
+  --fill-white: var(--grey-solid-0);
+  --fill-yellow: var(--yellow-solid-1000);
+
+  /* Background tokens */
+  --background-base: var(--grey-solid-0); /* done */
+  --background-raised: var(--grey-solid-0); /* done */
+  --background-overlay: var(--grey-solid-0); /* done */
+  --background-sunken: var(--grey-solid-50); /* done */
+  --background-alternate: var(--grey-solid-50); /* done */
+  --background-brand: var(--brand-light-1000); /* done */
+  --background-inverse: var(--grey-solid-900); /* done */
+
+  /* Elevation - Light Mode */
+  --elevation-overlay-light: 0px 8px 8px -4px rgba(0, 0, 0, 0.04), 0px 20px 24px -4px rgba(0, 0, 0, 0.08); /* done */
+  --elevation-raised-light: 0px 2px 4px -2px rgba(0, 0, 0, 0.08), 0px 20px 24px -4px rgba(0, 0, 0, 0.08); /* done */
+
+  /* Active elevation */
+  --elevation-overlay: var(--elevation-overlay-light);
+  --elevation-raised: var(--elevation-raised-light);
+
+  /* Spacing scale (4px increments) */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+  --space-48: 192px;
+  --space-64: 256px;
+
+  /* Grid specifications - Mobile (428px) */
+  --grid-columns-mobile: 4;
+  --grid-gutter-mobile: 16px;
+  --grid-margin-mobile: 32px;
+
+  /* Grid specifications - Tablet (768px) */
+  --grid-columns-tablet: 8;
+  --grid-gutter-tablet: 24px;
+  --grid-margin-tablet: 48px;
+
+  /* Grid specifications - Desktop (1440px) */
+  --grid-columns-desktop: 12;
+  --grid-gutter-desktop: 32px;
+  --grid-margin-desktop: 120px;
+
+  /* Animation durations */
+  --duration-fast: 200ms;
+  --duration-normal: 300ms;
+
+  /* Easing curves - ease-out (Best for elements entering or user interactions) */
+  --ease-out-quad: cubic-bezier(.25, .46, .45, .94);
+  --ease-out-cubic: cubic-bezier(.215, .61, .355, 1);
+  --ease-out-quart: cubic-bezier(.165, .84, .44, 1);
+  --ease-out-quint: cubic-bezier(.23, 1, .32, 1);
+  --ease-out-expo: cubic-bezier(.19, 1, .22, 1);
+  --ease-out-circ: cubic-bezier(.075, .82, .165, 1);
+
+  /* Easing curves - ease-in-out (Perfect for elements moving within screen) */
+  --ease-in-out-quad: cubic-bezier(.455, .03, .515, .955);
+  --ease-in-out-cubic: cubic-bezier(.645, .045, .355, 1);
+  --ease-in-out-quart: cubic-bezier(.77, 0, .175, 1);
+  --ease-in-out-quint: cubic-bezier(.86, 0, .07, 1);
+  --ease-in-out-expo: cubic-bezier(1, 0, 0, 1);
+  --ease-in-out-circ: cubic-bezier(.785, .135, .15, .86);
+
+  /* Easing curves - ease-in (Generally avoided - makes UI feel slow) */
+  --ease-in-quad: cubic-bezier(.55, .085, .68, .53);
+  --ease-in-cubic: cubic-bezier(.550, .055, .675, .19);
+  --ease-in-quart: cubic-bezier(.895, .03, .685, .22);
+  --ease-in-quint: cubic-bezier(.755, .05, .855, .06);
+  --ease-in-expo: cubic-bezier(.95, .05, .795, .035);
+  --ease-in-circ: cubic-bezier(.6, .04, .98, .335);
+
+  /* Predefined animations */
+  --animate-fade-in: fade-in var(--duration-normal) var(--ease-out-cubic); 
+  --animate-slide-up: slide-up var(--duration-normal) var(--ease-out-cubic);
+  --animate-in: fade-in var(--duration-fast) var(--ease-out-quad);
+  --animate-out: fade-out var(--duration-fast) var(--ease-in-quad);
+  --slide-in-from-top: slide-in-from-top var(--duration-normal) var(--ease-out-cubic);
+  --slide-out-to-top: slide-out-to-top var(--duration-normal) var(--ease-in-cubic);
+}
+
+/* Class-based dark mode (overrides system preference when .dark is present) */
+.dark {
+
+  /* Semantic colors - Dark mode */
+  --brand-dark-1000: 163 178 255 / 1.00; /* done */
+  --brand-dark-800: 163 178 255 / .80; /* done */
+  --brand-dark-200: rgba(163 178 255 / .20); /* done */
+  --brand-dark-50: rgba(163 178 255 / .50); /* done */
+  --blue-dark-1000: 163 178 255 / 1.00;  /* done */
+  --blue-dark-800: 163 178 255 / 0.8;  /* done */
+  --blue-dark-200: 163 178 255 / 0.2;  /* done */
+  --blue-dark-50: 163 178 255 / 0.06;  /* done */
+  --amber-dark-1000: rgba(224, 190, 112, 1.0); /* done */
+  --amber-dark-800: rgba(224, 190, 112, .8); /* done */
+  --amber-dark-200: rgba(224, 190, 112, .2); /* done */
+  --amber-dark-50: rgba(224, 190, 112, .05); /* done */
+  --green-dark-1000: rgba(119, 199, 175, 1.0); /* done */
+  --green-dark-800: rgba(119, 199, 175, 0.8); /* done */
+  --green-dark-200: rgba(119, 199, 175, 0.2); /* done */
+  --green-dark-50: 119, 199, 175 / 0.08; /* done */
+  --teal-dark-1000: 126 192 229 / 1.00;  /* done */
+  --teal-dark-800: 126 192 229 / 0.8;  /* done */
+  --teal-dark-200: 126 192 229 / 0.2;  /* done */
+  --teal-dark-50: 126 192 229 / 0.08;  /* done */
+  --purple-dark-1000: rgba(210, 178, 255, 1.0); /* done */
+  --purple-dark-800: rgba(210, 178, 255, .8); /* done */
+  --purple-dark-200: rgba(210, 178, 255, .2); /* done */
+  --purple-dark-50: rgba(210, 178, 255, .05); /* done */
+  --red-dark-1000: rgba(255, 156, 156, 1.0); /* done */
+  --red-dark-800: rgba(255, 156, 156, .8); /* done */
+  --red-dark-200: rgba(255, 156, 156, .2); /* done */
+  --red-dark-50: rgba(255, 156, 156, .05); /* done */
+
+  /* Text tokens */
+  --text-strong: var(--grey-dark-1000); /* done */
+  --text-weak: var(--grey-dark-700); /* done */
+  --text-brand: var(--brand-dark-1000); /* done */
+  --text-disabled: var(--grey-dark-100); /* done */
+  --text-error: var(--red-dark-500); /* done */
+  --text-warning: var(--amber-dark-500); /* done */
+  --text-success: var(--green-dark-500); /* done */
+  --text-information: var(--teal-dark-500); /* done */
+  --text-inverse-strong: var(--grey-light-1000); /* done */
+  --text-inverse-weak: var(--grey-light-700); /* done */
+  --text-inverse-disabled: var(--grey-light-100); /* done */
+
+  /* Stroke color tokens (for partial borders like border-bottom) */
+  --stroke-color-weak: rgb(var(--grey-dark-100));
+  --stroke-color-strong: rgb(var(--grey-dark-200));
+
+  /* Stroke tokens (shadow-based - use with box-shadow, not border) */
+  --stroke-weak:
+    0px 0px 0px 1px rgba(255, 255, 255, 0.12),
+    0px 1px 2px -1px rgba(0, 0, 0, 0.3),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.2);
+  --stroke-weak-hover:
+    0px 0px 0px 1px rgba(255, 255, 255, 0.16),
+    0px 1px 2px -1px rgba(0, 0, 0, 0.35),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.25);
+  --stroke-strong:
+    0px 0px 0px 1px rgba(255, 255, 255, 0.20),
+    0px 1px 2px -1px rgba(0, 0, 0, 0.35),
+    0px 2px 4px 0px rgba(0, 0, 0, 0.25);
+  --stroke-selected: 0 0 0 1px rgb(var(--brand-dark-1000));
+  --stroke-focus: 0 0 0 2px rgb(var(--brand-dark-1000)), 0 0 8px 2px rgb(163 178 255 / 0.40);
+  --stroke-disabled: 0 0 0 1px rgb(var(--grey-dark-100));
+  --stroke-brand-strong: 0 0 0 1px rgb(var(--brand-dark-800));
+  --stroke-brand-weak: 0 0 0 1px rgb(var(--brand-dark-200));
+  --stroke-error-strong: 0 0 0 1px rgb(var(--red-dark-800));
+  --stroke-error-weak: 0 0 0 1px rgb(var(--red-dark-100));
+  --stroke-warning-strong: 0 0 0 1px rgb(var(--amber-dark-800));
+  --stroke-warning-weak: 0 0 0 1px rgb(var(--amber-dark-100));
+  --stroke-success-strong: 0 0 0 1px rgb(var(--green-dark-800));
+  --stroke-success-weak: 0 0 0 1px rgb(var(--green-dark-100));
+  --stroke-information-strong: 0 0 0 1px rgb(var(--teal-dark-800));
+  --stroke-information-weak: 0 0 0 1px rgb(var(--teal-dark-100));
+  --stroke-inverse-strong: 0 0 0 1px rgb(var(--grey-light-500));
+  --stroke-inverse-weak: 0 0 0 1px rgb(var(--grey-light-100));
+  --stroke-inverse-disabled: 0 0 0 1px rgb(var(--grey-light-100));
+
+  /* Icon tokens */
+  --icon-neutral: var(--grey-dark-500); /* done */
+  --icon-brand: var(--brand-dark-800); /* done */
+  --icon-disabled: var(--grey-dark-100); /* done */
+  --icon-error: var(--red-dark-800); /* done */
+  --icon-warning: var(--amber-dark-800); /* done */
+  --icon-success: var(--green-dark-800); /* done */
+  --icon-information: var(--teal-dark-800); /* done */
+  --icon-inverse: var(--grey-light-500); /* done */
+  --icon-inverse-strong: var(--grey-light-1000); /* done */
+  --icon-inverse-disabled: var(--grey-light-100); /* done */
+
+  /* Fill tokens */
+  --fill-strong: var(--grey-dark-1000); /* done */
+  --fill-weak: var(--grey-dark-50); /* done */
+  --fill-weaker: var(--grey-dark-25); /* done */
+  --fill-hover: inset 0 0 0 9999px rgb(var(--grey-dark-50)); /* done */
+  --fill-press: inset 0 0 0 9999px rgb(var(--grey-light-100)); /* done */
+  --fill-hover-focus: var(--stroke-focus), var(--fill-hover); /* done */
+  --fill-press-focus: var(--stroke-focus), var(--fill-press); /* done */
+  --fill-selected: var(--brand-dark-1000); /* done */
+  --fill-disabled: var(--grey-dark-100); /* done */
+  --fill-overlay: var(--grey-light-1000); /* done */
+  --fill-brand-strong: var(--brand-dark-1000); /* done */
+  --fill-brand-weak: var(--brand-dark-50); /* done */
+  --fill-error-strong: var(--red-dark-1000); /* done */
+  --fill-error-weak: var(--red-dark-50); /* done */
+  --fill-warning-strong: var(--amber-dark-1000); /* done */
+  --fill-warning-weak: var(--amber-dark-50); /* done */
+  --fill-success-strong: var(--green-dark-1000);  /* done */
+  --fill-success-weak: var(--green-dark-50);  /* done */
+  --fill-information-strong: var(--teal-dark-1000);   /* done */
+  --fill-information-weak: var(--teal-dark-50); /* done */
+  --fill-inverse-strong: var(--grey-solid-900); /* done */
+  --fill-inverse-weak: var(--grey-light-50); /* done */
+  --fill-inverse-hover: var(--grey-light-50); /* done */
+  --fill-inverse-press: var(--grey-light-100); /* done */
+  --fill-inverse-disabled: var(--grey-light-100); /* done */
+
+
+
+  /* Background tokens */
+  --background-base: var(--grey-solid-900); /* done */
+  --background-raised: var(--grey-solid-850); /* done */
+  --background-overlay: var(--grey-solid-800); /* done */
+  --background-sunken: var(--grey-solid-1000); /* done */
+  --background-brand: var(--brand-dark-1000); /* done */
+  --background-inverse: var(--grey-solid-0); /* done */
+  --background-alternate: var(--grey-solid-850); /* done */
+
+  /* Elevation - Dark Mode */
+  --elevation-overlay-dark: 0px 20px 24px -4px rgba(0, 0, 0, 0.16), 0px 4px 8px -2px rgba(0, 0, 0, 0.08); /* done */
+  --elevation-raised-dark: 0px 8px 8px -4px rgba(0, 0, 0, 0.08), 0px 2px 4px -2px rgba(0, 0, 0, 0.16); /* done */
+
+  /* Active elevation - Dark mode uses elevated surfaces instead of heavy shadows */
+  --elevation-overlay: var(--elevation-overlay-dark); /* done */
+  --elevation-raised: var(--elevation-raised-dark); /* done */
+
+  
+}
+
+/*
+ * ─────────── FILL HOVER/PRESS/FOCUS USAGE ───────────
+ * --fill-hover and --fill-press are inset box-shadows that layer on top of any background.
+ * --stroke-focus is the soft brand glow for focus states.
+ *
+ * Usage:
+ *   .element:hover { box-shadow: var(--fill-hover); }
+ *   .element:active { box-shadow: var(--fill-press); }
+ *   .element:focus-visible { box-shadow: var(--stroke-focus); }
+ *
+ * Combined hover/press with focus (both effects visible simultaneously):
+ *   .element:hover:focus-visible { box-shadow: var(--fill-hover-focus); }
+ *   .element:active:focus-visible { box-shadow: var(--fill-press-focus); }
+ */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-from-top {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-to-top {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+body {
+  background: rgb(var(--background));
+  color: rgb(var(--foreground));
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.animate-in {
+  animation: var(--animate-in);
+}
+
+.animate-out {
+  animation: var(--animate-out);
+}
+
+.slide-in-from-top {
+  animation: var(--slide-in-from-top);
+}
+
+.slide-out-to-top {
+  animation: var(--slide-out-to-top);
+}
+
+/* Accessibility - Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hover transitions - Only on devices with precise pointers */
+@media (hover: hover) and (pointer: fine) {
+  a,
+  button {
+    transition: color 200ms ease, background-color 200ms ease, opacity 200ms ease, border-color 200ms ease;
+  }
+}
+
+/* Elevation utility classes */
+.elevation-overlay {
+  box-shadow: var(--elevation-overlay);
+}
+
+.elevation-raised {
+  box-shadow: var(--elevation-raised);
+}
+
+/* Best Practices from Vercel, Apple, Linear */
+
+/* Focus visible - Modern focus ring with soft glow */
+*:focus-visible {
+  outline: none;
+  box-shadow: var(--stroke-focus);
+}
+
+/* Remove default focus for mouse users but keep for keyboard */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Smooth hover states - Vercel style */
+@media (hover: hover) and (pointer: fine) {
+  .hover-lift {
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--elevation-raised);
+  }
+
+  /* Subtle scale on interactive elements - Apple style */
+  .hover-scale {
+    transition: transform 200ms ease;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  /* Smooth opacity for links - Linear style */
+  a:not(.no-hover):hover {
+    opacity: 0.8;
+  }
+}
+
+/* High contrast borders (inspired by Linear) */
+.border-subtle {
+  border: 1px solid rgb(var(--border));
+}
+
+.border-strong {
+  border: 1px solid rgb(var(--stroke-strong));
+}
+
+/* Glass morphism effect (Apple/macOS style) */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass {
+    background: rgba(24, 24, 27, 0.8);
+  }
+}
+
+/* Text selection (Vercel style) */
+::selection {
+  background-color: rgb(var(--accent));
+  color: rgb(var(--accent-foreground));
+}
+
+::-moz-selection {
+  background-color: rgb(var(--accent));
+  color: rgb(var(--accent-foreground));
+}
+
+/* Scrollbar styling (Apple/macOS inspired) */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--border));
+  border-radius: 6px;
+  border: 3px solid rgb(var(--background));
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--stroke-strong));
+}
+
+/* Dark mode scrollbar */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--stroke-weak));
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--stroke-strong));
+  }
+}
+
+/* Card component base (Linear/Vercel inspired) */
+.card {
+  background: rgb(var(--background-raised));
+  border: 1px solid rgb(var(--border));
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: border-color 200ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card-interactive:hover {
+    border-color: rgb(var(--accent));
+  }
+}
+
+/* Content max-width constraints (Vercel style) */
+.content-wrapper {
+  max-width: 80rem; /* 1280px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.content-narrow {
+  max-width: 42rem; /* 672px - ideal for reading */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Gradient text (Linear style) */
+.gradient-text {
+  background: linear-gradient(135deg, rgb(var(--foreground)) 0%, rgb(var(--muted-foreground)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Button reset (Apple/Vercel style) */
+button {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Link reset but maintain accessibility */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Performance optimization - contain layout shifts */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Skeleton loading (Linear style) */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.skeleton {
+  background: rgb(var(--muted));
+  border-radius: 4px;
+  animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Typography Styles - Mobile */
+.type-display {
+  font-size: 40px;
+  line-height: 48px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.type-h1 {
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 600;
+}
+
+.type-h2 {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+}
+
+.type-h3 {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+}
+
+.type-h4 {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+
+.type-small {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.type-tiny {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+/* Typography Styles - Desktop (768px+) */
+@media (min-width: 768px) {
+  .type-display {
+    font-size: 56px;
+    line-height: 64px;
+  }
+
+  .type-h1 {
+    font-size: 40px;
+    line-height: 48px;
+  }
+
+  .type-h2 {
+    font-size: 32px;
+    line-height: 40px;
+  }
+
+  .type-h3 {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .type-h4 {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .type-small {
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .type-tiny {
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
+/* ─────────── VIEW TRANSITIONS - Theme Switching ─────────── */
+
+/* Disable default view transition animations */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Dark mode (light→dark): new dark theme expands from click point */
+.dark::view-transition-old(root) {
+  z-index: 1;
+}
+
+.dark::view-transition-new(root) {
+  z-index: 999;
+  animation: circle-clip 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Light mode (dark→light): new light theme expands from click point */
+:root:not(.dark)::view-transition-old(root) {
+  z-index: 1;
+}
+
+:root:not(.dark)::view-transition-new(root) {
+  z-index: 999;
+  animation: circle-clip 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes circle-clip {
+  from {
+    clip-path: circle(0 at var(--transition-x) var(--transition-y));
+  }
+  to {
+    clip-path: circle(var(--transition-r) at var(--transition-x) var(--transition-y));
+  }
+}

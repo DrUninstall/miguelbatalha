@@ -1,0 +1,77 @@
+/* List styles using design system CSS variables */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  text-align: center;
+}
+
+.emptyStateText {
+  color: rgb(var(--text-weak));
+}
+
+.loadingState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  color: rgb(var(--text-weak));
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.listContainer {
+  position: relative;
+  overflow-y: auto;
+}
+
+.loaderContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.loaderSpinner {
+  width: 20px;
+  height: 20px;
+  color: rgb(var(--text-weak));
+  animation: spin 1s linear infinite;
+}
+
+/* SimpleList variants */
+.simpleList {
+  /* Base container */
+}
+
+.gapNone {
+  /* No gap */
+}
+
+.gapSmall > * + * {
+  margin-top: 8px;
+}
+
+.gapMedium > * + * {
+  margin-top: 16px;
+}
+
+.gapLarge > * + * {
+  margin-top: 24px;
+}

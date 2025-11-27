@@ -1,0 +1,61 @@
+/* Tab Selector styles using design system CSS variables */
+
+.container {
+  position: relative;
+  display: flex;
+  border-bottom: 1px solid var(--stroke-color-weak);
+}
+
+.tab {
+  position: relative;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out-cubic);
+}
+
+.tab.active {
+  color: rgb(var(--text-strong));
+}
+
+.tab.inactive {
+  color: rgb(var(--text-weak));
+}
+
+.tab.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tab:not(.disabled):not(.active):hover {
+  color: rgb(var(--text-strong));
+  box-shadow: var(--fill-hover);
+}
+
+.tab:not(.disabled):not(.active):active {
+  box-shadow: var(--fill-press);
+}
+
+.tab:focus-visible {
+  box-shadow: var(--stroke-focus);
+}
+
+.tab:not(.disabled):not(.active):hover:focus-visible {
+  box-shadow: var(--fill-hover-focus);
+}
+
+.tab:not(.disabled):not(.active):active:focus-visible {
+  box-shadow: var(--fill-press-focus);
+}
+
+.indicator {
+  position: absolute;
+  bottom: 0;
+  height: 4px;
+  background: rgb(var(--fill-brand-strong));
+}

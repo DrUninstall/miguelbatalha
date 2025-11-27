@@ -1,0 +1,143 @@
+/* Animated Icons styles using design system CSS variables */
+
+.iconWrapper {
+  display: inline-block;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.heart {
+  color: rgb(var(--red-light-800));
+  fill: rgb(var(--red-light-800));
+  display: block;
+}
+
+.dark .heart {
+  color: rgb(var(--red-dark-800));
+  fill: rgb(var(--red-dark-800));
+}
+
+.star {
+  color: rgb(var(--fill-yellow));
+  fill: rgb(var(--fill-yellow));
+  display: block;
+}
+
+.spinner {
+  color: rgb(var(--fill-brand-strong));
+  display: block;
+}
+
+.pulsingDotContainer {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulsingDotOuter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgb(var(--green-light-800));
+  border-radius: 9999px;
+}
+
+.dark .pulsingDotOuter {
+  background: rgb(var(--green-dark-800));
+}
+
+.pulsingDotInner {
+  position: relative;
+  background: rgb(var(--green-light-800));
+  border-radius: 9999px;
+}
+
+.dark .pulsingDotInner {
+  background: rgb(var(--green-dark-800));
+}
+
+/* Icon button base styles */
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 200ms ease;
+}
+
+.iconButton:hover {
+  background: rgb(var(--bg-overlay-hover));
+}
+
+.iconButton:active {
+  background: rgb(var(--bg-overlay-active));
+}
+
+.iconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Icon switch wrapper for consistent sizing */
+.iconSwitchWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+/* Default icon color */
+.defaultIcon {
+  color: rgb(var(--icon-neutral));
+  display: block;
+}
+
+/* Success/check icon color */
+.checkIcon {
+  color: rgb(var(--icon-success));
+  display: block;
+}
+
+/* Liked heart color */
+.likedHeart {
+  color: rgb(var(--icon-error));
+  display: block;
+}
+
+/* Download button with animated arrow */
+.downloadButton {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--stroke-weak), var(--elevation-raised);
+  background: rgb(var(--background-raised));
+  overflow: hidden;
+  border: none;
+  cursor: pointer;
+}
+
+.downloadButton svg {
+  grid-area: 1/1;
+  color: rgb(var(--icon-default));
+  transition: transform 200ms cubic-bezier(0.785, 0.135, 0.15, 0.86);
+}
+
+.downloadButton svg:first-of-type {
+  transform: translateY(-150%);
+}
+
+.downloadButton:hover svg:first-of-type {
+  transform: translateY(0);
+}
+
+.downloadButton:hover svg:last-of-type {
+  transform: translateY(150%);
+}

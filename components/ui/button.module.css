@@ -1,0 +1,261 @@
+/* Button base styles using design system CSS variables */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 150ms ease;
+  cursor: pointer;
+  position: relative;
+  will-change: transform;
+  outline: none;
+}
+
+.button:focus-visible {
+  box-shadow: var(--stroke-focus);
+}
+
+.button:hover:focus-visible {
+  box-shadow: var(--fill-hover-focus);
+}
+
+.button:active:focus-visible {
+  box-shadow: var(--fill-press-focus);
+}
+
+.button:active {
+  transform: scale(0.97);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  background: rgb(var(--fill-disabled));
+}
+
+/* Size variants */
+.small {
+  height: 32px;
+  padding: 0 16px;
+  font-size: 14px;
+  gap: 8px;
+}
+
+.medium {
+  height: 48px;
+  padding: 0 20px;
+  font-size: 16px;
+  gap: 8px;
+}
+
+.large {
+  height: 56px;
+  padding: 0 24px;
+  font-size: 18px;
+  gap: 12px;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* Primary variants */
+.primaryBrand {
+  background: rgb(var(--fill-brand-strong));
+  color: rgb(var(--text-inverse-strong));
+  border: none;
+}
+
+.primaryBrand:hover {
+  box-shadow: var(--fill-hover);
+}
+
+.primaryBrand:active {
+  box-shadow: var(--fill-press);
+}
+
+.primaryNeutral {
+  background: rgb(var(--fill-strong));
+  color: rgb(var(--text-inverse-strong));
+  border: none;
+}
+
+.primaryNeutral:hover {
+  box-shadow: var(--fill-hover);
+}
+
+.primaryNeutral:active {
+  box-shadow: var(--fill-press);
+}
+
+.primaryDestructive {
+  background: rgb(var(--fill-error-strong));
+  color: rgb(var(--text-inverse-strong));
+  border: none;
+}
+
+.primaryDestructive:hover {
+  box-shadow: var(--fill-hover);
+}
+
+.primaryDestructive:active {
+  box-shadow: var(--fill-press);
+}
+
+.primaryInverse {
+  background: rgb(var(--fill-inverse-strong));
+  color: rgb(var(--text-inverse-strong));
+  border: none;
+}
+
+.primaryInverse:hover {
+  box-shadow: var(--fill-hover);
+}
+
+.primaryInverse:active {
+  box-shadow: var(--fill-press);
+}
+
+/* Secondary variants */
+.secondaryBrand {
+  background: rgb(var(--fill-brand-weak));
+  color: rgb(var(--text-brand));
+  border: 1px solid rgb(var(--stroke-brand-weak));
+}
+
+.secondaryBrand:hover {
+  box-shadow: var(--fill-hover);
+}
+
+.secondaryBrand:active {
+  box-shadow: var(--fill-press);
+}
+
+.secondaryNeutral {
+  background: rgb(var(--fill-weak));
+  color: rgb(var(--text-strong));
+  border: none;
+  box-shadow: var(--stroke-weak);
+}
+
+.secondaryNeutral:hover {
+  box-shadow: var(--stroke-weak-hover), var(--fill-hover);
+}
+
+.secondaryNeutral:active {
+  box-shadow: var(--stroke-weak-hover), var(--fill-press);
+}
+
+.secondaryDestructive {
+  background: rgb(var(--fill-error-weak));
+  color: rgb(var(--text-error));
+  border: 1px solid rgb(var(--stroke-error-weak));
+}
+
+.secondaryDestructive:hover {
+  box-shadow: var(--fill-hover);
+}
+
+.secondaryDestructive:active {
+  box-shadow: var(--fill-press);
+}
+
+.secondaryInverse {
+  background: rgb(var(--fill-inverse-weak));
+  color: rgb(var(--text-inverse-strong));
+  border: 1px solid rgb(var(--stroke-inverse-weak));
+}
+
+.secondaryInverse:hover {
+  box-shadow: var(--fill-hover);
+}
+
+.secondaryInverse:active {
+  box-shadow: var(--fill-press);
+}
+
+/* Tertiary variants */
+.tertiaryBrand {
+  background: transparent;
+  color: rgb(var(--text-brand));
+  border: 1px solid transparent;
+}
+
+.tertiaryBrand:hover {
+  box-shadow: var(--fill-hover);
+}
+
+.tertiaryBrand:active {
+  box-shadow: var(--fill-press);
+}
+
+.tertiaryNeutral {
+  background: transparent;
+  color: rgb(var(--text-weak));
+  border: 1px solid transparent;
+}
+
+.tertiaryNeutral:hover {
+  color: rgb(var(--text-strong));
+  box-shadow: var(--fill-hover);
+}
+
+.tertiaryNeutral:active {
+  box-shadow: var(--fill-press);
+}
+
+.tertiaryDestructive {
+  background: transparent;
+  color: rgb(var(--text-error));
+  border: 1px solid transparent;
+}
+
+.tertiaryDestructive:hover {
+  box-shadow: var(--fill-hover);
+}
+
+.tertiaryDestructive:active {
+  box-shadow: var(--fill-press);
+}
+
+.tertiaryInverse {
+  background: transparent;
+  color: rgb(var(--text-inverse-strong));
+  border: 1px solid transparent;
+}
+
+.tertiaryInverse:hover {
+  box-shadow: var(--fill-hover);
+}
+
+.tertiaryInverse:active {
+  box-shadow: var(--fill-press);
+}
+
+/* Icon container */
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.iconSmall {
+  width: 16px;
+  height: 16px;
+}
+
+.iconMedium {
+  width: 20px;
+  height: 20px;
+}
+
+.iconLarge {
+  width: 24px;
+  height: 24px;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+}
