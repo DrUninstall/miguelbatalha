@@ -2,6 +2,7 @@
 
 import { forwardRef } from "react";
 import { motion } from "framer-motion";
+import styles from "./toggle.module.css";
 
 interface ToggleProps {
   checked: boolean;
@@ -24,28 +25,15 @@ export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
     },
     ref
   ) => {
-    const sizeClasses = {
-      small: {
-        track: "w-9 h-5",
-        thumb: "w-4 h-4",
-        translate: "translate-x-4",
-      },
-      medium: {
-        track: "w-11 h-6",
-        thumb: "w-5 h-5",
-        translate: "translate-x-5",
-      },
-    };
-
-    const { track, thumb, translate } = sizeClasses[size];
+    const trackSizeClass = size === "small" ? styles.trackSmall : styles.trackMedium;
+    const thumbSizeClass = size === "small" ? styles.thumbSmall : styles.thumbMedium;
+    const translateX = size === "small" ? 16 : 20;
 
     return (
-      <div className={`flex items-center gap-3 ${className}`}>
+      <div className={`${styles.container} ${className}`}>
         {label && (
           <label
-            className={`text-sm font-medium ${
-              disabled ? "text-muted-foreground" : "text-foreground"
-            }`}
+            className={`${styles.label} ${disabled ? styles.labelDisabled : ""}`}
           >
             {label}
           </label>
@@ -58,28 +46,17 @@ export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
           aria-checked={checked}
           disabled={disabled}
           onClick={() => onChange(!checked)}
-          className={`
-            relative inline-flex items-center rounded-full transition-all
-            ${track}
-            ${
-              checked
-                ? "bg-accent"
-                : "bg-muted border border-border"
-            }
-            ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:opacity-90 active:scale-95"}
-            focus:outline-none focus:ring-2 focus:ring-accent/20 focus:ring-offset-2
-          `}
+          className={`${styles.track} ${trackSizeClass} ${
+            checked ? styles.trackChecked : styles.trackUnchecked
+          }`}
         >
           <motion.span
-            className={`
-              ${thumb}
-              inline-block rounded-full
-              ${checked ? "bg-accent-foreground" : "bg-foreground"}
-              elevation-raised
-            `}
+            className={`${styles.thumb} ${thumbSizeClass} ${
+              checked ? styles.thumbChecked : styles.thumbUnchecked
+            }`}
             initial={false}
             animate={{
-              x: checked ? translate : "0.125rem",
+              x: checked ? translateX : 2,
             }}
             transition={{
               type: "spring",
