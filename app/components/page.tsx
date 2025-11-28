@@ -43,6 +43,10 @@ import {
   AnimatedBorderGradient,
   LayeredGradients,
 } from "@/components/gradient-demos";
+import { MouseFollowPattern } from "@/components/mouse-follow-pattern";
+import { WillChangeDemo } from "@/components/will-change-demo";
+import { CollectionPreview } from "@/components/collection-preview";
+import { MagnifiedDock } from "@/components/magnified-dock";
 import { SignInDialog } from "@/components/sign-in-dialog";
 import { Mail, User, Zap, Code, Palette } from "lucide-react";
 import { useState } from "react";
@@ -101,9 +105,6 @@ function ComponentsPageContent() {
           <div className={styles.navLinks}>
             <Link href="/#work" className={styles.navLink}>
               Work
-            </Link>
-            <Link href="/blog" className={styles.navLink}>
-              Blog
             </Link>
             <Link href="/components" className={styles.navLinkActive}>
               Components
@@ -249,6 +250,15 @@ function ComponentsPageContent() {
             </p>
             <SharedLayoutCard />
           </div>
+
+          {/* Collection Preview */}
+          <div className={styles.sharedLayoutDemo}>
+            <h3 className={styles.subsectionTitle}>Collection Preview</h3>
+            <p className={styles.sectionDescription}>
+              Click to expand from stacked cards to dock view. Hover in expanded state for scale and push effect.
+            </p>
+            <CollectionPreview />
+          </div>
         </section>
 
         {/* Gradients */}
@@ -302,6 +312,38 @@ function ComponentsPageContent() {
             </p>
             <LayeredGradients />
           </div>
+        </section>
+
+        {/* Mouse Follow Pattern */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Mouse Follow Pattern</h2>
+          <p className={styles.sectionDescription}>
+            Interactive grid using useMotionValue, useSpring, and useTransform.
+            Shapes rotate toward cursor with spring physics and spotlight opacity.
+          </p>
+          <div className={styles.patternDemo}>
+            <MouseFollowPattern />
+          </div>
+        </section>
+
+        {/* Magnified Dock */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Magnified Dock</h2>
+          <p className={styles.sectionDescription}>
+            macOS-style dock with magnification. Uses useTransform for distance-based
+            scaling and Infinity as null value to keep transforms clean. Click to bounce.
+          </p>
+          <MagnifiedDock />
+        </section>
+
+        {/* Will-Change Demo */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>will-change Property</h2>
+          <p className={styles.sectionDescription}>
+            Hint to browsers to pre-promote elements to GPU layers before animation starts.
+            Avoids first-frame stutter by preparing compositor resources ahead of time.
+          </p>
+          <WillChangeDemo />
         </section>
 
         {/* Sign-In Dialog */}

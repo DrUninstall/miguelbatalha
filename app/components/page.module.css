@@ -408,3 +408,13 @@
   border-top: none;
 }
 
+/* Pattern demo */
+.patternDemo {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(var(--background-raised));
+  border-radius: 12px;
+  overflow: hidden;
+}
+

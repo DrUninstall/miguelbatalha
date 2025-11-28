@@ -1,0 +1,150 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 280px;
+  padding: 32px;
+}
+
+/* Collapsed State */
+.collapsedWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.stackContainer {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarWrapper {
+  position: relative;
+  z-index: 10;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.stackedImage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -32px;
+  margin-left: -32px;
+}
+
+.collectionInfo {
+  text-align: center;
+}
+
+.collectionName {
+  font-weight: 600;
+  white-space: nowrap;
+  color: rgb(var(--text-strong));
+}
+
+.itemCount {
+  font-size: 14px;
+  color: rgb(var(--text-weak));
+  white-space: nowrap;
+}
+
+/* Expanded State */
+.expandedWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.expandedHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.expandedAvatarWrapper {
+  position: relative;
+}
+
+.expandedAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.expandedInfo {
+  text-align: left;
+}
+
+.expandedContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  will-change: transform;
+  padding: 24px 0;
+}
+
+/* Shared image styles */
+.imageWrapper {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.insetBorder {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+.avatarWrapper .insetBorder,
+.expandedAvatarWrapper .insetBorder {
+  border-radius: 50%;
+}
+
+/* View All button */
+.viewAllButton {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  background: rgb(var(--fill-brand));
+  color: rgb(var(--text-on-brand));
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background var(--duration-fast) var(--ease-out-cubic);
+}
+
+.viewAllButton:hover {
+  background: rgb(var(--fill-brand-hover));
+}
+
+.viewAllButton:active {
+  background: rgb(var(--fill-brand-press));
+}

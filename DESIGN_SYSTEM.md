@@ -68,6 +68,30 @@ Framer Motion defaults:
 transition={{ type: "spring", stiffness: 300, damping: 30 }}
 ```
 
+**Exit animations**: Make exits subtler than enters - less attention needed when leaving. Use smaller values (e.g., `scale: 0.75` vs `0.25` on enter, `y: -8` vs full height).
+
+**will-change**: Hint to browsers to pre-promote elements to GPU layers before animation starts, avoiding first-frame stutter.
+
+```css
+/* Good - specific properties on elements that animate */
+.animated-button {
+  will-change: transform;
+}
+
+/* Also good - multiple properties */
+.complex-animation {
+  will-change: transform, opacity;
+}
+
+/* Bad - too broad or on everything */
+* { will-change: auto; }
+.element { will-change: all; }
+```
+
+Properties that benefit: `transform`, `opacity`, `filter`, `clip-path`, `mask`, `scroll-position`.
+
+Use sparingly - creating layers costs memory. Only apply to elements that actually animate.
+
 ## Icons
 
 Using Lucide React. Standard sizes:

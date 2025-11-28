@@ -89,7 +89,7 @@ export function AnimatedIconSwitch({
         key={iconKey}
         initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-        exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+        exit={{ opacity: 0, scale: 0.75, filter: "blur(4px)" }}
         transition={{
           type: "spring",
           duration: 0.3,
@@ -130,7 +130,7 @@ export function CopyButton({
           key={isCopied ? "check" : "copy"}
           initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+          exit={{ opacity: 0, scale: 0.75, filter: "blur(4px)" }}
           transition={{
             type: "spring",
             duration: 0.3,
@@ -166,7 +166,7 @@ export function PlayPauseButton({
           key={isPlaying ? "pause" : "play"}
           initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+          exit={{ opacity: 0, scale: 0.75, filter: "blur(4px)" }}
           transition={{
             type: "spring",
             duration: 0.3,
@@ -202,7 +202,7 @@ export function MuteButton({
           key={isMuted ? "muted" : "unmuted"}
           initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+          exit={{ opacity: 0, scale: 0.75, filter: "blur(4px)" }}
           transition={{
             type: "spring",
             duration: 0.3,
@@ -238,7 +238,7 @@ export function VisibilityToggle({
           key={isVisible ? "visible" : "hidden"}
           initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+          exit={{ opacity: 0, scale: 0.75, filter: "blur(4px)" }}
           transition={{
             type: "spring",
             duration: 0.3,
@@ -303,7 +303,7 @@ export function SubmitButton({
           key={isSubmitted ? "success" : "send"}
           initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+          exit={{ opacity: 0, scale: 0.75, filter: "blur(4px)" }}
           transition={{
             type: "spring",
             duration: 0.3,
@@ -339,7 +339,7 @@ export function LikeButton({
           key={isLiked ? "liked" : "unliked"}
           initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+          exit={{ opacity: 0, scale: 0.75, filter: "blur(4px)" }}
           transition={{
             type: "spring",
             duration: 0.3,

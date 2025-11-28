@@ -272,7 +272,7 @@
   --text-weak: var(--grey-dark-700); /* done */
   --text-brand: var(--brand-dark-1000); /* done */
   --text-disabled: var(--grey-dark-100); /* done */
-  --text-error: var(--red-dark-500); /* done */
+  --text-error: var(--red-dark-800); /* done */
   --text-warning: var(--amber-dark-500); /* done */
   --text-success: var(--green-dark-500); /* done */
   --text-information: var(--teal-dark-500); /* done */
@@ -281,8 +281,8 @@
   --text-inverse-disabled: var(--grey-light-100); /* done */
 
   /* Stroke color tokens (for partial borders like border-bottom) */
-  --stroke-color-weak: rgb(var(--grey-dark-100));
-  --stroke-color-strong: rgb(var(--grey-dark-200));
+  --stroke-color-weak: var(--grey-dark-100);
+  --stroke-color-strong: var(--grey-dark-200);
 
   /* Stroke tokens (shadow-based - use with box-shadow, not border) */
   --stroke-weak:

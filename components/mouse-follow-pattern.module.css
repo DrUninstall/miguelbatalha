@@ -1,0 +1,22 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  overflow: hidden;
+  padding: 32px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 20px;
+}
+
+.shape {
+  width: 4px;
+  height: 24px;
+  border-radius: 9999px;
+  background: rgb(var(--text-strong));
+  will-change: transform, opacity;
+}
