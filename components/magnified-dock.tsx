@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
+import * as Tooltip from "@radix-ui/react-tooltip";
 import {
   motion,
   useMotionValue,
   useSpring,
   useTransform,
   animate,
-  AnimatePresence,
   MotionValue,
 } from "framer-motion";
 import {
@@ -49,7 +49,6 @@ function DockIcon({
   mouseLeft: MotionValue<number>;
 }) {
   const ref = useRef<HTMLButtonElement>(null);
-  const [showTooltip, setShowTooltip] = useState(false);
 
   // Calculate distance from mouse to icon center
   const distance = useTransform(() => {
@@ -91,40 +90,33 @@ function DockIcon({
   const Icon = app.icon;
 
   return (
-    <div className={styles.iconWrapper}>
-      {/* Tooltip */}
-      <AnimatePresence>
-        {showTooltip && (
-          <motion.div
-            className={styles.tooltip}
-            initial={{ opacity: 0, y: 4, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-          >
-            {app.name}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Icon button */}
-      <motion.button
-        ref={ref}
-        className={styles.appIcon}
-        style={{
-          x: xSpring,
-          scale: scaleSpring,
-          y,
-          backgroundColor: app.color,
-        }}
-        onClick={handleClick}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        aria-label={app.name}
-      >
-        <Icon size={20} color="white" strokeWidth={2} />
-      </motion.button>
-    </div>
+    <Tooltip.Root delayDuration={0}>
+      <Tooltip.Trigger asChild>
+        <motion.button
+          ref={ref}
+          className={styles.appIcon}
+          style={{
+            x: xSpring,
+            scale: scaleSpring,
+            y,
+            backgroundColor: app.color,
+          }}
+          onClick={handleClick}
+          aria-label={app.name}
+        >
+          <Icon size={20} color="white" strokeWidth={2} />
+        </motion.button>
+      </Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content
+          className={styles.tooltip}
+          sideOffset={10}
+        >
+          {app.name}
+          <Tooltip.Arrow className={styles.tooltipArrow} />
+        </Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   );
 }
 
@@ -152,23 +144,25 @@ export function MagnifiedDock() {
   };
 
   return (
-    <div className={styles.container}>
-      <motion.div
-        className={styles.dock}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      >
-        {/* Dynamic background */}
+    <Tooltip.Provider delayDuration={0}>
+      <div className={styles.container}>
         <motion.div
-          className={styles.dockBackground}
-          style={{ left: leftSpring, right: rightSpring }}
-        />
+          className={styles.dock}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
+          {/* Dynamic background */}
+          <motion.div
+            className={styles.dockBackground}
+            style={{ left: leftSpring, right: rightSpring }}
+          />
 
-        {/* App icons */}
-        {APPS.map((app) => (
-          <DockIcon key={app.name} app={app} mouseLeft={mouseLeft} />
-        ))}
-      </motion.div>
-    </div>
+          {/* App icons */}
+          {APPS.map((app) => (
+            <DockIcon key={app.name} app={app} mouseLeft={mouseLeft} />
+          ))}
+        </motion.div>
+      </div>
+    </Tooltip.Provider>
   );
 }

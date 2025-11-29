@@ -114,22 +114,60 @@ function ComponentsPageContent() {
         </div>
       </nav>
 
-      {/* Header */}
-      <section className={styles.header}>
-        <h1 className={styles.title}>
-          Components
-        </h1>
-        <p className={styles.description}>
-          A collection of beautifully designed, reusable UI components built with React, TypeScript, and Framer Motion.
-        </p>
-      </section>
+      {/* Page Layout with ToC */}
+      <div className={styles.pageLayout}>
+        {/* Table of Contents Sidebar */}
+        <aside className={styles.toc}>
+          <nav className={styles.tocNav}>
+            <h3 className={styles.tocTitle}>Contents</h3>
+            <ul className={styles.tocList}>
+              <li><a href="#toast" className={styles.tocLink}>Toast Notifications</a></li>
+              <li><a href="#card-hover" className={styles.tocLink}>Card Hover</a></li>
+              <li><a href="#text-reveal" className={styles.tocLink}>Text Reveal</a></li>
+              <li><a href="#orbit" className={styles.tocLink}>Orbit Animation</a></li>
+              <li><a href="#coin-flip" className={styles.tocLink}>Coin Flip</a></li>
+              <li><a href="#hold-to-delete" className={styles.tocLink}>Hold to Delete</a></li>
+              <li><a href="#shared-layout" className={styles.tocLink}>Shared Layout</a></li>
+              <li><a href="#gradients" className={styles.tocLink}>Gradients</a></li>
+              <li><a href="#mouse-follow" className={styles.tocLink}>Mouse Follow</a></li>
+              <li><a href="#magnified-dock" className={styles.tocLink}>Magnified Dock</a></li>
+              <li><a href="#will-change" className={styles.tocLink}>will-change</a></li>
+              <li><a href="#sign-in-dialog" className={styles.tocLink}>Sign-In Dialog</a></li>
+              <li><a href="#animated-icons" className={styles.tocLink}>Animated Icons</a></li>
+              <li><a href="#interactive-cards" className={styles.tocLink}>Interactive Cards</a></li>
+              <li><a href="#buttons" className={styles.tocLink}>Buttons</a></li>
+              <li><a href="#badges" className={styles.tocLink}>Badges</a></li>
+              <li><a href="#theme-toggle" className={styles.tocLink}>Theme Toggle</a></li>
+              <li><a href="#accordion" className={styles.tocLink}>Accordion</a></li>
+              <li><a href="#segmented-control" className={styles.tocLink}>Segmented Control</a></li>
+              <li><a href="#form-inputs" className={styles.tocLink}>Form Inputs</a></li>
+              <li><a href="#tab-selector" className={styles.tocLink}>Tab Selector</a></li>
+              <li><a href="#stages" className={styles.tocLink}>Progress Stages</a></li>
+              <li><a href="#toggle" className={styles.tocLink}>Toggle Switch</a></li>
+              <li><a href="#paginated-list" className={styles.tocLink}>Paginated List</a></li>
+              <li><a href="#scrollable-list" className={styles.tocLink}>Scrollable List</a></li>
+            </ul>
+          </nav>
+        </aside>
 
-      {/* Components Showcase */}
-      <main className={styles.main}>
-        <div className={styles.sections}>
+        {/* Main Content */}
+        <div className={styles.mainContent}>
+          {/* Header */}
+          <section className={styles.header}>
+            <h1 className={styles.title}>
+              UI Components
+            </h1>
+            <p className={styles.description}>
+              A collection of beautifully designed, reusable UI components built with React, TypeScript, and Framer Motion.
+            </p>
+          </section>
 
-        {/* Toast Notifications */}
-        <section className={styles.section}>
+          {/* Components Showcase */}
+          <main className={styles.main}>
+            <div className={styles.sections}>
+
+            {/* Toast Notifications */}
+            <section id="toast" className={styles.section}>
           <h2 className={styles.sectionTitle}>Toast Notifications</h2>
           <p className={styles.sectionDescription}>
             Elegant toast notifications with smooth animations. Click the buttons below to see them in action.
@@ -162,8 +200,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Card Hover */}
-        <section className={styles.section}>
+            {/* Card Hover */}
+            <section id="card-hover" className={styles.section}>
           <h2 className={styles.sectionTitle}>Card Hover</h2>
           <p className={styles.sectionDescription}>
             Interactive card with hidden description that reveals on hover or focus.
@@ -173,8 +211,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Text Reveal */}
-        <section className={styles.section}>
+            {/* Text Reveal */}
+            <section id="text-reveal" className={styles.section}>
           <h2 className={styles.sectionTitle}>Text Reveal</h2>
           <p className={styles.sectionDescription}>
             Animated text reveal where each letter appears with a staggered delay.
@@ -184,8 +222,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Orbiting Animation */}
-        <section className={styles.section}>
+            {/* Orbiting Animation */}
+            <section id="orbit" className={styles.section}>
           <h2 className={styles.sectionTitle}>Orbiting Animation</h2>
           <p className={styles.sectionDescription}>
             3D orbiting animation using CSS transforms and perspective.
@@ -195,8 +233,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Coin Flip */}
-        <section className={styles.section}>
+            {/* Coin Flip */}
+            <section id="coin-flip" className={styles.section}>
           <h2 className={styles.sectionTitle}>Coin Flip</h2>
           <p className={styles.sectionDescription}>
             3D coin rotation with front, back, and edge using CSS transforms.
@@ -206,8 +244,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Hold to Delete */}
-        <section className={styles.section}>
+            {/* Hold to Delete */}
+            <section id="hold-to-delete" className={styles.section}>
           <h2 className={styles.sectionTitle}>Hold to Delete</h2>
           <p className={styles.sectionDescription}>
             Press and hold the button to reveal the delete confirmation using clip-path animation.
@@ -217,8 +255,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Shared Layout Animations */}
-        <section className={styles.section}>
+            {/* Shared Layout Animations */}
+            <section id="shared-layout" className={styles.section}>
           <h2 className={styles.sectionTitle}>Shared Layout Animations</h2>
           <p className={styles.sectionDescription}>
             Framer Motion&apos;s layoutId enables smooth FLIP animations between different elements.
@@ -261,8 +299,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Gradients */}
-        <section className={styles.section}>
+            {/* Gradients */}
+            <section id="gradients" className={styles.section}>
           <h2 className={styles.sectionTitle}>Gradients</h2>
           <p className={styles.sectionDescription}>
             CSS gradients showcase including gradient types, color space interpolation, animations, and layered effects.
@@ -314,8 +352,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Mouse Follow Pattern */}
-        <section className={styles.section}>
+            {/* Mouse Follow Pattern */}
+            <section id="mouse-follow" className={styles.section}>
           <h2 className={styles.sectionTitle}>Mouse Follow Pattern</h2>
           <p className={styles.sectionDescription}>
             Interactive grid using useMotionValue, useSpring, and useTransform.
@@ -326,8 +364,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Magnified Dock */}
-        <section className={styles.section}>
+            {/* Magnified Dock */}
+            <section id="magnified-dock" className={styles.section}>
           <h2 className={styles.sectionTitle}>Magnified Dock</h2>
           <p className={styles.sectionDescription}>
             macOS-style dock with magnification. Uses useTransform for distance-based
@@ -336,8 +374,8 @@ function ComponentsPageContent() {
           <MagnifiedDock />
         </section>
 
-        {/* Will-Change Demo */}
-        <section className={styles.section}>
+            {/* Will-Change Demo */}
+            <section id="will-change" className={styles.section}>
           <h2 className={styles.sectionTitle}>will-change Property</h2>
           <p className={styles.sectionDescription}>
             Hint to browsers to pre-promote elements to GPU layers before animation starts.
@@ -346,8 +384,8 @@ function ComponentsPageContent() {
           <WillChangeDemo />
         </section>
 
-        {/* Sign-In Dialog */}
-        <section className={styles.section}>
+            {/* Sign-In Dialog */}
+            <section id="sign-in-dialog" className={styles.section}>
           <h2 className={styles.sectionTitle}>Sign-In Dialog</h2>
           <p className={styles.sectionDescription}>
             Animated multi-step dialog with smooth height transitions, morphing tabs, and content switching using AnimatePresence.
@@ -355,8 +393,8 @@ function ComponentsPageContent() {
           <SignInDialog />
         </section>
 
-        {/* Animated Icons */}
-        <section className={styles.section}>
+            {/* Animated Icons */}
+            <section id="animated-icons" className={styles.section}>
           <h2 className={styles.sectionTitle}>Animated Icons</h2>
           <p className={styles.sectionDescription}>
             Interactive icons with delightful micro-animations. Hover or click to see them come to life.
@@ -433,8 +471,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Interactive Cards */}
-        <section className={styles.section}>
+            {/* Interactive Cards */}
+            <section id="interactive-cards" className={styles.section}>
           <h2 className={styles.sectionTitle}>Interactive Cards</h2>
           <div className={styles.showcaseGrid}>
             <div
@@ -460,8 +498,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Buttons */}
-        <section className={styles.section}>
+            {/* Buttons */}
+            <section id="buttons" className={styles.section}>
           <h2 className={styles.sectionTitle}>Buttons</h2>
           <p className={styles.sectionDescription}>
             Comprehensive button system with type (hierarchy), tone (color scheme), and size variations.
@@ -511,8 +549,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Badges */}
-        <section className={styles.section}>
+            {/* Badges */}
+            <section id="badges" className={styles.section}>
           <h2 className={styles.sectionTitle}>Badges</h2>
           <p className={styles.sectionDescription}>
             Status badges for different states and contexts.
@@ -536,8 +574,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Theme Toggle */}
-        <section className={styles.section}>
+            {/* Theme Toggle */}
+            <section id="theme-toggle" className={styles.section}>
           <h2 className={styles.sectionTitle}>Theme Toggle</h2>
           <p className={styles.sectionDescription}>
             Switch between light and dark modes with smooth transitions.
@@ -554,8 +592,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Accordion */}
-        <section className={styles.section}>
+            {/* Accordion */}
+            <section id="accordion" className={styles.section}>
           <h2 className={styles.sectionTitle}>Accordion</h2>
           <Accordion>
             <AccordionItem title="What is your design philosophy?">
@@ -581,8 +619,8 @@ function ComponentsPageContent() {
           </Accordion>
         </section>
 
-        {/* Segmented Control */}
-        <section className={styles.section}>
+            {/* Segmented Control */}
+            <section id="segmented-control" className={styles.section}>
           <h2 className={styles.sectionTitle}>Segmented Control</h2>
           <p className={styles.sectionDescription}>
             Animated segmented control with sliding thumb indicator.
@@ -601,8 +639,8 @@ function ComponentsPageContent() {
           </p>
         </section>
 
-        {/* Input & TextArea */}
-        <section className={styles.section}>
+            {/* Input & TextArea */}
+            <section id="form-inputs" className={styles.section}>
           <h2 className={styles.sectionTitle}>Form Inputs</h2>
           <p className={styles.sectionDescription}>
             Form inputs with icon support, validation states, and consistent styling.
@@ -632,8 +670,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Tab Selector */}
-        <section className={styles.section} style={{ padding: 0, overflow: 'hidden' }}>
+            {/* Tab Selector */}
+            <section id="tab-selector" className={styles.section} style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ padding: '32px 32px 0' }}>
             <h2 className={styles.sectionTitle} style={{ marginBottom: '24px' }}>Tab Selector</h2>
           </div>
@@ -654,8 +692,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Stages */}
-        <section className={styles.section}>
+            {/* Stages */}
+            <section id="stages" className={styles.section}>
           <h2 className={styles.sectionTitle}>Progress Stages</h2>
           <Stages
             stages={stages}
@@ -682,8 +720,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Toggle */}
-        <section className={styles.section}>
+            {/* Toggle */}
+            <section id="toggle" className={styles.section}>
           <h2 className={styles.sectionTitle}>Toggle Switch</h2>
           <p className={styles.sectionDescription}>
             Animated toggle switches with spring physics.
@@ -709,8 +747,8 @@ function ComponentsPageContent() {
           </div>
         </section>
 
-        {/* Paginated List */}
-        <section className={styles.section}>
+            {/* Paginated List */}
+            <section id="paginated-list" className={styles.section}>
           <h2 className={styles.sectionTitle}>Paginated List</h2>
           <p className={styles.sectionDescription}>
             List with pagination controls and page navigation.
@@ -727,8 +765,8 @@ function ComponentsPageContent() {
           />
         </section>
 
-        {/* Scrollable List */}
-        <section className={styles.section}>
+            {/* Scrollable List */}
+            <section id="scrollable-list" className={styles.section}>
           <h2 className={styles.sectionTitle}>Scrollable List</h2>
           <p className={styles.sectionDescription}>
             Virtualized list component with smooth scrolling for large datasets.
@@ -745,8 +783,10 @@ function ComponentsPageContent() {
           />
         </section>
 
+            </div>
+          </main>
         </div>
-      </main>
+      </div>
 
       {/* Footer */}
       <footer className={styles.footer}>

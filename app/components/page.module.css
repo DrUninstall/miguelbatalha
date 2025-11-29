@@ -4,6 +4,72 @@
   min-height: 100vh;
 }
 
+/* ─────────── TABLE OF CONTENTS SIDEBAR ─────────── */
+
+.pageLayout {
+  display: flex;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.toc {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .toc {
+    display: block;
+    position: sticky;
+    top: 100px;
+    width: 200px;
+    flex-shrink: 0;
+    height: fit-content;
+    padding-right: 32px;
+    margin-top: 128px;
+  }
+
+  .tocNav {
+    padding: 16px 0;
+  }
+
+  .tocTitle {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgb(var(--text-weak));
+    margin-bottom: 12px;
+  }
+
+  .tocList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .tocLink {
+    display: block;
+    font-size: 13px;
+    line-height: 20px;
+    color: rgb(var(--text-weak));
+    padding: 4px 0;
+    transition: color var(--duration-fast) var(--ease-out-cubic);
+  }
+
+  .tocLink:hover {
+    color: rgb(var(--text-strong));
+  }
+
+  .mainContent {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 /* Navigation - reusing from other pages */
 .nav {
   position: fixed;
@@ -56,9 +122,16 @@
 
 /* Header */
 .header {
-  max-width: 1024px;
-  margin: 0 auto;
-  padding: 128px 24px 64px;
+  padding: 128px 0 64px;
+}
+
+/* Fallback for non-sidebar layout */
+@media (max-width: 1099px) {
+  .header {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 128px 24px 64px;
+  }
 }
 
 .title {
