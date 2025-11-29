@@ -20,25 +20,29 @@
  */
 
 /* ─────────── @PROPERTY DECLARATIONS ───────────
- * Register CSS properties to prevent inheritance bombs.
- * Animating unregistered global vars forces style recalc on entire tree.
+ * Register CSS properties for type safety and animation.
+ *
+ * Note: View transition properties (--transition-*) MUST inherit
+ * because ::view-transition-* pseudo-elements need to read values
+ * set on <html>. These are set once per click, not animated per-frame,
+ * so they don't cause the "inheritance bomb" performance issue.
  */
 
 @property --transition-x {
   syntax: "<length-percentage>";
-  inherits: false;
+  inherits: true;
   initial-value: 50%;
 }
 
 @property --transition-y {
   syntax: "<length-percentage>";
-  inherits: false;
+  inherits: true;
   initial-value: 50%;
 }
 
 @property --transition-r {
   syntax: "<length>";
-  inherits: false;
+  inherits: true;
   initial-value: 0px;
 }
 
@@ -908,5 +912,75 @@ video {
   }
   to {
     clip-path: circle(var(--transition-r) at var(--transition-x) var(--transition-y));
+  }
+}
+
+/* ─────────── GLOBAL BACKGROUND GRADIENT ───────────
+ *
+ * Fixed-position ambient gradient that appears on all pages.
+ * Key technique: Use vmax units (larger of vw/vh) to ensure the gradient
+ * is always larger than the viewport regardless of aspect ratio.
+ *
+ * Performance: S-Tier animation using transform + filter only.
+ */
+.background-gradient {
+  position: fixed;
+  z-index: -1;
+  top: 0;
+  right: 0;
+  /*
+   * Using vmax ensures coverage on any aspect ratio:
+   * - On wide screens (landscape), vmax = vw
+   * - On tall screens (portrait), vmax = vh
+   * 150vmax guarantees the gradient extends well beyond viewport edges
+   */
+  width: 150vmax;
+  height: 150vmax;
+  /* Offset to position the gradient's center in the upper-right area */
+  transform: translate(10%, -30%);
+  pointer-events: none;
+  opacity: 0.10;
+  background: radial-gradient(
+    circle at 50% 50%,
+    #48dbfb 0%,
+    rgb(var(--fill-brand-strong)) 25%,
+    transparent 60%
+  );
+  animation: gradientFloat 20s ease-in-out infinite;
+  will-change: transform, filter;
+  /* Light mode: full page coverage, no mask */
+}
+
+/* Dark mode: gentle fade after hero section */
+.dark .background-gradient {
+  opacity: 0.10;
+  mask-image: linear-gradient(to bottom, black 0%, black 50vh, transparent 120vh);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 50vh, transparent 120vh);
+}
+
+/* Subtle breathing animation - S-Tier properties only */
+@keyframes gradientFloat {
+  0%, 100% {
+    transform: translate(10%, -30%) scale(1);
+    filter: hue-rotate(0deg);
+  }
+  25% {
+    transform: translate(5%, -25%) scale(1.08);
+    filter: hue-rotate(10deg);
+  }
+  50% {
+    transform: translate(15%, -35%) scale(0.95);
+    filter: hue-rotate(-5deg);
+  }
+  75% {
+    transform: translate(8%, -28%) scale(1.03);
+    filter: hue-rotate(8deg);
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .background-gradient {
+    animation: none;
   }
 }

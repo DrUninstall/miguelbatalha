@@ -174,9 +174,6 @@ export default function Home() {
 
       {/* Hero Section */}
       <div className={styles.heroWrapper}>
-        {/* Animated Gradient Background - Full viewport width */}
-        <div className={styles.heroGradient} aria-hidden="true" />
-
         <section className={styles.hero}>
           <motion.div
           className={styles.heroContent}
