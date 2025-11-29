@@ -270,7 +270,7 @@ export default function Home() {
             <p className={styles.educationDate}>2024 - 2025</p>
           </motion.div>
           <motion.div className={styles.educationCard} variants={itemVariants}>
-            <p className={styles.educationDegree}>Audio Technology</p>
+            <p className={styles.educationDegree}>Audio Science & Technology</p>
             <p className={styles.educationSchool}>Lusófona</p>
             <p className={styles.educationDate}>2014 - 2017</p>
           </motion.div>
