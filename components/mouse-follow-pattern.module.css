@@ -13,6 +13,11 @@
   gap: 20px;
 }
 
+/*
+ * S-Tier animation: transform + opacity are compositor properties.
+ * will-change justified here: many shapes animate continuously on mouse move.
+ * Layer size is small (4x24px each), so GPU memory is acceptable.
+ */
 .shape {
   width: 4px;
   height: 24px;

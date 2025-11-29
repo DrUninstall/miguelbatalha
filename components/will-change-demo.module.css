@@ -1,3 +1,17 @@
+/*
+ * Educational demo: will-change GPU layer promotion
+ *
+ * Both balls animate transform (S-Tier compositor property).
+ * Difference: "With" pre-creates GPU layer, "Without" creates on-demand.
+ *
+ * First-frame stutter happens without will-change because browser must:
+ * 1. Create a new compositor layer
+ * 2. Paint the element to that layer
+ * 3. Then start the animation
+ *
+ * With will-change, layer already exists - animation starts instantly.
+ * Trade-off: Layers cost GPU memory, so use sparingly.
+ */
 .container {
   display: flex;
   flex-direction: column;

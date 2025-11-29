@@ -15,6 +15,11 @@
   transform: translateY(0);
 }
 
+/*
+ * S-Tier animation: Uses transform for slide reveal.
+ * translateY is compositor-only, smooth even under heavy main thread load.
+ * ease-out-expo curve (0.19, 1, 0.22, 1) gives snappy, responsive feel.
+ */
 .cardDescription {
   border-radius: 12px;
   border: 1px solid rgb(var(--background-raised));

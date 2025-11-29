@@ -1,3 +1,8 @@
+/*
+ * S-Tier animation: transform + opacity are compositor properties.
+ * Toast slides in/out using translateY, fades with opacity.
+ * Both run on GPU, unaffected by main thread blocking.
+ */
 .toast {
   position: absolute;
   bottom: 0;

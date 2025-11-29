@@ -1,5 +1,47 @@
 /* Design System  */
 
+/*
+ * ─────────── ANIMATION PERFORMANCE NOTES ───────────
+ *
+ * Tier System (from best to worst):
+ *   S-Tier: transform, opacity, filter, clip-path (compositor thread, GPU accelerated)
+ *   A-Tier: JS animations on S-tier props (main thread but only composites)
+ *   B-Tier: FLIP/layout animations (measure once, then S/A-tier)
+ *   C-Tier: background-color, color, border-radius, CSS variables (triggers paint)
+ *   D-Tier: width, height, margin, padding, flex, grid (triggers layout)
+ *   F-Tier: Read/write thrashing (never do this)
+ *
+ * Key rules:
+ *   - Prefer transform over top/left for movement
+ *   - Keep filter: blur() ≤ 10px (expensive on large layers)
+ *   - Use will-change sparingly (layers cost GPU memory)
+ *   - Avoid animating CSS variables for transform/opacity
+ *   - Use @property with inherits: false for animated CSS vars
+ */
+
+/* ─────────── @PROPERTY DECLARATIONS ───────────
+ * Register CSS properties to prevent inheritance bombs.
+ * Animating unregistered global vars forces style recalc on entire tree.
+ */
+
+@property --transition-x {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 50%;
+}
+
+@property --transition-y {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 50%;
+}
+
+@property --transition-r {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 :root {
   /* Base colors - Light mode (Grey scale with brand tint) */
   --grey-solid-1000: 0 0 0 / 1.00; /* done */
@@ -201,7 +243,10 @@
   --duration-fast: 200ms;
   --duration-normal: 300ms;
 
-  /* Easing curves - ease-out (Best for elements entering or user interactions) */
+  /*
+   * Easing curves - ease-out (Best for elements entering or user interactions)
+   * S-Tier: These don't affect performance tier - only the properties being animated do.
+   */
   --ease-out-quad: cubic-bezier(.25, .46, .45, .94);
   --ease-out-cubic: cubic-bezier(.215, .61, .355, 1);
   --ease-out-quart: cubic-bezier(.165, .84, .44, 1);
@@ -486,7 +531,11 @@ html {
   }
 }
 
-/* Hover transitions - Only on devices with precise pointers */
+/*
+ * Hover transitions - Only on devices with precise pointers
+ * Note: color and background-color are C-Tier (paint), opacity is S-Tier.
+ * For buttons/links this is acceptable - paint area is small.
+ */
 @media (hover: hover) and (pointer: fine) {
   a,
   button {
@@ -551,7 +600,11 @@ html {
   border: 1px solid rgb(var(--stroke-strong));
 }
 
-/* Glass morphism effect (Apple/macOS style) */
+/*
+ * Glass morphism effect (Apple/macOS style)
+ * Note: backdrop-filter is S-Tier (compositor) but blur is expensive.
+ * Keep blur ≤ 10-12px and avoid on large/full-screen elements.
+ */
 .glass {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
@@ -662,12 +715,57 @@ a {
   text-decoration: none;
 }
 
+/* ─────────── PERFORMANCE UTILITIES ─────────── */
+
+/*
+ * Layout containment - isolate layout recalculations
+ * Use on components that change size independently of surroundings.
+ * Prevents D-Tier ripple effects through the DOM.
+ */
+.contain-layout {
+  contain: layout;
+}
+
+.contain-strict {
+  contain: strict; /* layout + paint + size */
+}
+
+.contain-content {
+  contain: content; /* layout + paint (most common) */
+}
+
+/*
+ * GPU layer promotion for animated elements
+ * Only use on elements that will actually animate.
+ * Caution: Each layer costs GPU memory.
+ */
+.will-animate {
+  will-change: transform;
+}
+
+.will-animate-opacity {
+  will-change: opacity;
+}
+
+.will-animate-all {
+  will-change: transform, opacity;
+}
+
+/*
+ * Force GPU layer without will-change (fallback for older browsers)
+ * Creates a compositor layer via 3D transform hack.
+ */
+.gpu-layer {
+  transform: translateZ(0);
+}
+
 /* Performance optimization - contain layout shifts */
 img,
 video {
   max-width: 100%;
   height: auto;
   display: block;
+  /* Prevent layout shift: images with known dimensions should use aspect-ratio */
 }
 
 /* Skeleton loading (Linear style) */
@@ -768,7 +866,14 @@ video {
   }
 }
 
-/* ─────────── VIEW TRANSITIONS - Theme Switching ─────────── */
+/* ─────────── VIEW TRANSITIONS - Theme Switching ───────────
+ *
+ * View Transitions are C-Tier overall due to interruption issues,
+ * but our clip-path animation is S-Tier (compositor).
+ * The crossfade (opacity) is also S-Tier.
+ *
+ * We disable width/height animation (D-Tier) to keep it performant.
+ */
 
 /* Disable default view transition animations */
 ::view-transition-old(root),

@@ -70,7 +70,36 @@ transition={{ type: "spring", stiffness: 300, damping: 30 }}
 
 **Exit animations**: Make exits subtler than enters - less attention needed when leaving. Use smaller values (e.g., `scale: 0.75` vs `0.25` on enter, `y: -8` vs full height).
 
-**will-change**: Hint to browsers to pre-promote elements to GPU layers before animation starts, avoiding first-frame stutter.
+### Performance Tier System
+
+Understanding the browser's render pipeline helps choose the right animation approach:
+
+| Tier | Trigger | Examples | Notes |
+|------|---------|----------|-------|
+| **S-Tier** | Compositor only | `transform`, `opacity`, `filter`, `clip-path` | Hardware accelerated, runs on GPU thread. Smooth even when main thread is blocked. |
+| **A-Tier** | Compositor (main thread driven) | JS animations on compositor props, `IntersectionObserver` triggers | Performant but can be interrupted by heavy main thread work. |
+| **B-Tier** | FLIP technique | Layout animations via Motion's `layout` prop | One upfront measurement, then S/A-tier animation. |
+| **C-Tier** | Paint | `background-color`, `color`, `border-radius`, CSS variables | Redraws layer every frame. Cost scales with layer size. |
+| **D-Tier** | Layout | `width`, `height`, `margin`, `padding`, `flex`, `grid-*` | Recalculates geometry. Ripples through DOM. Avoid animating these. |
+| **F-Tier** | Thrashing | Read/write/read/write cycles | Never do this. Causes massive layout recalculations. |
+
+### Compositor Properties (S-Tier)
+
+These can run entirely on the GPU compositor thread:
+
+```css
+/* Hardware accelerated - prefer these */
+transform: translateX(100px);
+opacity: 0.5;
+filter: blur(4px);  /* But keep blur ≤10px */
+clip-path: inset(0);
+```
+
+Using CSS/WAAPI or Motion's `animate()` with these ensures animations stay smooth even during heavy JS work.
+
+### will-change Best Practices
+
+`will-change` hints to browsers to pre-promote elements to GPU layers:
 
 ```css
 /* Good - specific properties on elements that animate */
@@ -79,7 +108,7 @@ transition={{ type: "spring", stiffness: 300, damping: 30 }}
 }
 
 /* Also good - multiple properties */
-.complex-animation {
+.dialog {
   will-change: transform, opacity;
 }
 
@@ -88,9 +117,91 @@ transition={{ type: "spring", stiffness: 300, damping: 30 }}
 .element { will-change: all; }
 ```
 
-Properties that benefit: `transform`, `opacity`, `filter`, `clip-path`, `mask`, `scroll-position`.
+**Cautions:**
+- Creating layers costs GPU memory
+- Large layers (full-screen, long lists) can crash mobile devices
+- Blur effects make layers even larger - keep `filter: blur()` ≤ 10px
+- Ticker/marquee animations with many cloned elements are dangerous
+- Only apply to elements that actually animate
 
-Use sparingly - creating layers costs memory. Only apply to elements that actually animate.
+### CSS Variable Animation Pitfalls
+
+CSS variables are surprisingly bad for performance:
+
+```css
+/* BAD: Always triggers paint, even with compositor props */
+.box {
+  --progress: 0;
+  opacity: var(--progress);  /* Still paints every frame! */
+}
+```
+
+**The Inheritance Bomb**: Animating a global CSS variable forces style recalculation on the *entire* tree, even elements not using it. This can cost 8ms+ per frame on complex pages.
+
+```css
+/* BAD: Global variable animation */
+html { --progress: 0; }
+
+/* GOOD: Use @property to disable inheritance */
+@property --progress {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+```
+
+**Best practice**: For `transform`/`opacity`, use targeted JS updates instead of CSS variables:
+```js
+element.style.transform = `translateX(${progress * 100}px)`
+```
+
+### Scroll Animations
+
+| Approach | Tier | Notes |
+|----------|------|-------|
+| Scroll Timeline / View Timeline | S-Tier | Hardware accelerated, synced to scroll compositor |
+| Motion's `scroll()` function | S-Tier | Same as above |
+| Reading `scrollTop` in rAF | D-Tier | Main thread, can lag behind actual scroll |
+| `position: sticky/fixed` | S-Tier | Compositor-handled, prefer over transform-based scroll sync |
+
+### IntersectionObserver
+
+Highly performant (A-Tier) for:
+- Triggering animations when elements enter viewport
+- Deactivating off-screen animations to save battery
+
+```tsx
+// Good: Only animate while visible
+inView(element, () => {
+  element.classList.add("animating");
+  return () => element.classList.remove("animating");
+});
+```
+
+### View Transitions
+
+The View Transitions API is C-Tier overall due to:
+- **Interruption issues**: Can't smoothly interrupt mid-transition
+- **width/height animation**: Uses D-Tier layout animation by default
+
+The crossfade itself is S-Tier (opacity animation). For best performance, remove width/height keyframes when sizes match.
+
+### Avoiding Thrashing (F-Tier)
+
+Never interleave DOM reads and writes:
+
+```js
+// BAD: Thrashing
+element.style.width = "100px";     // write
+const w = element.offsetWidth;     // read (forces layout)
+element.style.width = w * 2 + "px"; // write (forces layout again)
+
+// GOOD: Batch reads, then batch writes
+const w = element.offsetWidth;     // read
+element.style.width = w * 2 + "px"; // write
+```
+
+Motion batches all reads/writes automatically via its `frame` API.
 
 ## Icons
 
