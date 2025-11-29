@@ -290,6 +290,13 @@ export default function Home() {
                 LinkedIn
               </Link>
               <Link
+                href="https://github.com/druninstall"
+                target="_blank"
+                className={styles.footerLink}
+              >
+                GitHub
+              </Link>
+              <Link
                 href="mailto:miguelbatalhamusic@gmail.com"
                 className={styles.footerLink}
               >
