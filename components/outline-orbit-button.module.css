@@ -1,0 +1,81 @@
+/* Outline Orbit Button - Animated SVG orbit effect */
+
+.container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.buttonBg {
+  position: absolute;
+  inset: 0;
+  background: rgb(var(--fill-brand-strong));
+  border-radius: 28px;
+  z-index: 0;
+  transition: opacity var(--duration-fast) var(--ease-out-cubic);
+}
+
+.container:hover .buttonBg {
+  opacity: 0.9;
+}
+
+.buttonText {
+  position: relative;
+  z-index: 2;
+  color: rgb(var(--text-inverse-strong));
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* SVG orbit layers - centered and non-interactive */
+.orbitSvg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  will-change: transform;
+  flex-shrink: 0;
+}
+
+/* Brand blue orbit strokes with opacity variants */
+.orbitInner {
+  stroke: rgb(var(--fill-brand-strong));
+  transition: stroke var(--duration-normal) var(--ease-out-cubic);
+}
+
+.orbitMiddle {
+  stroke: rgb(var(--fill-brand-strong) / 0.25);
+  transition: stroke var(--duration-normal) var(--ease-out-cubic);
+}
+
+.orbitOuter {
+  stroke: rgb(var(--fill-brand-strong) / 0.10);
+  transition: stroke var(--duration-normal) var(--ease-out-cubic);
+}
+
+/* Hover states - brighten outer orbits */
+.hovered .orbitMiddle {
+  stroke: rgb(var(--fill-brand-strong) / 0.35);
+}
+
+.hovered .orbitOuter {
+  stroke: rgb(var(--fill-brand-strong) / 0.20);
+}
+
+/* Reduced motion - hide orbit animation */
+@media (prefers-reduced-motion: reduce) {
+  .orbitSvg {
+    display: none;
+  }
+}

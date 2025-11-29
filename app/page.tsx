@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { OutlineOrbitButton } from "@/components/outline-orbit-button";
 import styles from "./page.module.css";
 
 // Animation variants per DESIGN_SYSTEM.md
@@ -188,14 +189,13 @@ export default function Home() {
             I run Product & Strategy at KovaaK Games, guiding roadmap, design, development, budgets, and day-to-day execution. I'm hands-on across UI/UX, design docs, feature specs, prototyping, and technical implementation.
           </motion.p>
           <motion.div className={styles.heroActions} variants={itemVariants}>
-            <Link
+            <OutlineOrbitButton
               href="https://www.linkedin.com/in/miguelbatalha"
               target="_blank"
-              className={styles.primaryButton}
             >
               Connect on LinkedIn
               <ArrowRight size={16} />
-            </Link>
+            </OutlineOrbitButton>
             <Button
               variant="secondary"
               tone="neutral"

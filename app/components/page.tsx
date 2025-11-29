@@ -47,6 +47,7 @@ import { MouseFollowPattern } from "@/components/mouse-follow-pattern";
 import { WillChangeDemo } from "@/components/will-change-demo";
 import { CollectionPreview } from "@/components/collection-preview";
 import { MagnifiedDock } from "@/components/magnified-dock";
+import { OutlineOrbitButton } from "@/components/outline-orbit-button";
 import { SignInDialog } from "@/components/sign-in-dialog";
 import { Mail, User, Zap, Code, Palette } from "lucide-react";
 import { useState } from "react";
@@ -121,6 +122,7 @@ function ComponentsPageContent() {
           <nav className={styles.tocNav}>
             <h3 className={styles.tocTitle}>Contents</h3>
             <ul className={styles.tocList}>
+              <li><a href="#outline-orbit" className={styles.tocLink}>Outline Orbit</a></li>
               <li><a href="#toast" className={styles.tocLink}>Toast Notifications</a></li>
               <li><a href="#card-hover" className={styles.tocLink}>Card Hover</a></li>
               <li><a href="#text-reveal" className={styles.tocLink}>Text Reveal</a></li>
@@ -166,9 +168,20 @@ function ComponentsPageContent() {
           <main className={styles.main}>
             <div className={styles.sections}>
 
+            {/* Outline Orbit Button */}
+            <section id="outline-orbit" className={styles.section}>
+              <h2 className={styles.sectionTitle}>Outline Orbit Button</h2>
+              <p className={styles.sectionDescription}>
+                Button with animated SVG outlines orbiting via strokeDashoffset. Uses a single Framer Motion animate() loop driving multiple layers at different speeds and directions.
+              </p>
+              <div className={styles.orbitDemo}>
+                <OutlineOrbitButton>Hover Me</OutlineOrbitButton>
+              </div>
+            </section>
+
             {/* Toast Notifications */}
             <section id="toast" className={styles.section}>
-          <h2 className={styles.sectionTitle}>Toast Notifications</h2>
+              <h2 className={styles.sectionTitle}>Toast Notifications</h2>
           <p className={styles.sectionDescription}>
             Elegant toast notifications with smooth animations. Click the buttons below to see them in action.
           </p>
