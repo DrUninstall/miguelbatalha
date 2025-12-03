@@ -322,9 +322,9 @@
   --text-brand: var(--brand-dark-1000); /* done */
   --text-disabled: var(--grey-dark-100); /* done */
   --text-error: var(--red-dark-800); /* done */
-  --text-warning: var(--amber-dark-500); /* done */
-  --text-success: var(--green-dark-500); /* done */
-  --text-information: var(--teal-dark-500); /* done */
+  --text-warning: var(--amber-dark-800); /* done */
+  --text-success: var(--green-dark-800); /* done */
+  --text-information: var(--teal-dark-800); /* done */
   --text-inverse-strong: var(--grey-light-1000); /* done */
   --text-inverse-weak: var(--grey-light-700); /* done */
   --text-inverse-disabled: var(--grey-light-100); /* done */
