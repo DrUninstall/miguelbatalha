@@ -82,7 +82,7 @@
   --red-light-50: 255 74 74 / 0.05; /* done */
   --purple-light-1000: 126 71 204 / 1.00; /* done */
   --purple-light-800: 126 71 204 / 0.80; /* done */
-  --purple-light-200: 126 71 204 / 0.2; /* done */
+  --purple-light-200: 126 71 204 / 0.20; /* done */
   --purple-light-50: 126 71 204 / 0.05; /* done */
   --amber-light-1000: 224 190 112 / 1.00; /* done */
   --amber-light-800: 224 190 112 / 0.80; /* done */
@@ -135,7 +135,7 @@
     0px 1px 2px -1px rgba(0, 17, 102, 0.10),
     0px 2px 4px 0px rgba(0, 17, 102, 0.08);
   --stroke-selected: 0 0 0 1px rgb(var(--brand-light-1000));
-  --stroke-focus: 0 0 0 2px rgb(var(--brand-light-1000)), 0 0 8px 2px rgb(76 100 217 / 0.40);
+  --stroke-focus: 0 0 0 2px rgb(var(--brand-light-1000)), 0 0 8px 2px rgba(76, 100, 217, 0.40);
   --stroke-disabled: 0 0 0 1px rgb(var(--grey-solid-100));
   --stroke-brand-strong: 0 0 0 1px rgb(var(--brand-light-800));
   --stroke-brand-weak: 0 0 0 1px rgb(var(--brand-light-200));
@@ -165,8 +165,8 @@
 
   /* Fill tokens */
   --fill-strong: var(--grey-solid-1000);
-  --fill-weak: var(--grey-solid-50);
-  --fill-weaker: var(--grey-solid-25);
+  --fill-weak: var(--grey-light-50);
+  --fill-weaker: var(--grey-light-25);
   --fill-hover: inset 0 0 0 9999px rgb(var(--fill-weak));
   --fill-press: inset 0 0 0 9999px rgb(var(--grey-solid-100));
   --fill-hover-focus: var(--stroke-focus), var(--fill-hover);
@@ -294,33 +294,33 @@
 
   /* Semantic colors - Dark mode */
   --brand-dark-1000: 163 178 255 / 1.00; /* done */
-  --brand-dark-800: 163 178 255 / .80; /* done */
-  --brand-dark-200: rgba(163 178 255 / .20); /* done */
-  --brand-dark-50: rgba(163 178 255 / .50); /* done */
-  --blue-dark-1000: 163 178 255 / 1.00;  /* done */
-  --blue-dark-800: 163 178 255 / 0.8;  /* done */
-  --blue-dark-200: 163 178 255 / 0.2;  /* done */
-  --blue-dark-50: 163 178 255 / 0.06;  /* done */
-  --amber-dark-1000: rgba(224, 190, 112, 1.0); /* done */
-  --amber-dark-800: rgba(224, 190, 112, .8); /* done */
-  --amber-dark-200: rgba(224, 190, 112, .2); /* done */
-  --amber-dark-50: rgba(224, 190, 112, .05); /* done */
-  --green-dark-1000: rgba(119, 199, 175, 1.0); /* done */
-  --green-dark-800: rgba(119, 199, 175, 0.8); /* done */
-  --green-dark-200: rgba(119, 199, 175, 0.2); /* done */
-  --green-dark-50: 119, 199, 175 / 0.08; /* done */
-  --teal-dark-1000: 126 192 229 / 1.00;  /* done */
-  --teal-dark-800: 126 192 229 / 0.8;  /* done */
-  --teal-dark-200: 126 192 229 / 0.2;  /* done */
-  --teal-dark-50: 126 192 229 / 0.08;  /* done */
-  --purple-dark-1000: rgba(210, 178, 255, 1.0); /* done */
-  --purple-dark-800: rgba(210, 178, 255, .8); /* done */
-  --purple-dark-200: rgba(210, 178, 255, .2); /* done */
-  --purple-dark-50: rgba(210, 178, 255, .05); /* done */
-  --red-dark-1000: rgba(255, 156, 156, 1.0); /* done */
-  --red-dark-800: rgba(255, 156, 156, .8); /* done */
-  --red-dark-200: rgba(255, 156, 156, .2); /* done */
-  --red-dark-50: rgba(255, 156, 156, .05); /* done */
+  --brand-dark-800: 163 178 255 / 0.80; /* done */
+  --brand-dark-200: 163 178 255 / 0.20; /* done */
+  --brand-dark-50: 163 178 255 / 0.50; /* done */
+  --blue-dark-1000: 163 178 255 / 1.00; /* done */
+  --blue-dark-800: 163 178 255 / 0.80; /* done */
+  --blue-dark-200: 163 178 255 / 0.20; /* done */
+  --blue-dark-50: 163 178 255 / 0.06; /* done */
+  --amber-dark-1000: 224 190 112 / 1.00; /* done */
+  --amber-dark-800: 224 190 112 / 0.80; /* done */
+  --amber-dark-200: 224 190 112 / 0.20; /* done */
+  --amber-dark-50: 224 190 112 / 0.05; /* done */
+  --green-dark-1000: 119 199 175 / 1.00; /* done */
+  --green-dark-800: 119 199 175 / 0.80; /* done */
+  --green-dark-200: 119 199 175 / 0.20; /* done */
+  --green-dark-50: 119 199 175 / 0.08; /* done */
+  --teal-dark-1000: 126 192 229 / 1.00; /* done */
+  --teal-dark-800: 126 192 229 / 0.80; /* done */
+  --teal-dark-200: 126 192 229 / 0.20; /* done */
+  --teal-dark-50: 126 192 229 / 0.08; /* done */
+  --purple-dark-1000: 210 178 255 / 1.00; /* done */
+  --purple-dark-800: 210 178 255 / 0.80; /* done */
+  --purple-dark-200: 210 178 255 / 0.20; /* done */
+  --purple-dark-50: 210 178 255 / 0.05; /* done */
+  --red-dark-1000: 255 156 156 / 1.00; /* done */
+  --red-dark-800: 255 156 156 / 0.80; /* done */
+  --red-dark-200: 255 156 156 / 0.20; /* done */
+  --red-dark-50: 255 156 156 / 0.05; /* done */
 
   /* Text tokens */
   --text-strong: var(--grey-dark-1000); /* done */
@@ -353,18 +353,18 @@
     0px 1px 2px -1px rgba(0, 0, 0, 0.35),
     0px 2px 4px 0px rgba(0, 0, 0, 0.25);
   --stroke-selected: 0 0 0 1px rgb(var(--brand-dark-1000));
-  --stroke-focus: 0 0 0 2px rgb(var(--brand-dark-1000)), 0 0 8px 2px rgb(163 178 255 / 0.40);
+  --stroke-focus: 0 0 0 2px rgb(var(--brand-dark-1000)), 0 0 8px 2px rgba(163, 178, 255, 0.40);
   --stroke-disabled: 0 0 0 1px rgb(var(--grey-dark-100));
   --stroke-brand-strong: 0 0 0 1px rgb(var(--brand-dark-800));
   --stroke-brand-weak: 0 0 0 1px rgb(var(--brand-dark-200));
   --stroke-error-strong: 0 0 0 1px rgb(var(--red-dark-800));
-  --stroke-error-weak: 0 0 0 1px rgb(var(--red-dark-100));
+  --stroke-error-weak: 0 0 0 1px rgb(var(--red-dark-200));
   --stroke-warning-strong: 0 0 0 1px rgb(var(--amber-dark-800));
-  --stroke-warning-weak: 0 0 0 1px rgb(var(--amber-dark-100));
+  --stroke-warning-weak: 0 0 0 1px rgb(var(--amber-dark-200));
   --stroke-success-strong: 0 0 0 1px rgb(var(--green-dark-800));
-  --stroke-success-weak: 0 0 0 1px rgb(var(--green-dark-100));
+  --stroke-success-weak: 0 0 0 1px rgb(var(--green-dark-200));
   --stroke-information-strong: 0 0 0 1px rgb(var(--teal-dark-800));
-  --stroke-information-weak: 0 0 0 1px rgb(var(--teal-dark-100));
+  --stroke-information-weak: 0 0 0 1px rgb(var(--teal-dark-200));
   --stroke-inverse-strong: 0 0 0 1px rgb(var(--grey-light-500));
   --stroke-inverse-weak: 0 0 0 1px rgb(var(--grey-light-100));
   --stroke-inverse-disabled: 0 0 0 1px rgb(var(--grey-light-100));
@@ -649,24 +649,13 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgb(var(--border));
+  background: rgb(var(--stroke-color-weak));
   border-radius: 6px;
-  border: 3px solid rgb(var(--background));
+  border: 3px solid rgb(var(--background-base));
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--stroke-strong));
-}
-
-/* Dark mode scrollbar */
-@media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar-thumb {
-    background: rgb(var(--stroke-weak));
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgb(var(--stroke-strong));
-  }
+  background: rgb(var(--stroke-color-strong));
 }
 
 /* Card component base (Linear/Vercel inspired) */
