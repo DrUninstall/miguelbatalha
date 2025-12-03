@@ -70,6 +70,79 @@ transition={{ type: "spring", stiffness: 300, damping: 30 }}
 
 **Exit animations**: Make exits subtler than enters - less attention needed when leaving. Use smaller values (e.g., `scale: 0.75` vs `0.25` on enter, `y: -8` vs full height).
 
+### Animation Best Practices
+
+Practical tricks to make animations feel better without magic:
+
+#### 1. Scale Buttons on Press
+Already implemented in `button.module.css`:
+```css
+.button:active { transform: scale(0.97); }
+```
+
+#### 2. Never Animate from scale(0)
+Elements animating from `scale(0)` feel unnatural - they appear from nowhere. Use `scale(0.9)` or higher for a gentler, more physical feel.
+
+```css
+/* Bad - feels jarring */
+@keyframes pop-in {
+  from { transform: scale(0); }
+}
+
+/* Good - natural appearance */
+@keyframes pop-in {
+  from { transform: scale(0.95); opacity: 0; }
+}
+```
+
+#### 3. Skip Tooltip Delays After First
+Once a tooltip is shown, subsequent tooltips should appear instantly. Radix UI supports this via `[data-instant]`:
+
+```css
+.tooltip {
+  transition: transform 125ms ease-out, opacity 125ms ease-out;
+}
+
+/* Skip animation on subsequent tooltips */
+.tooltip[data-instant] {
+  transition-duration: 0ms;
+}
+```
+
+#### 4. Origin-Aware Popovers
+Popovers should scale from their trigger, not center. Use transform-origin:
+
+```css
+/* Radix UI provides this automatically */
+.popover {
+  transform-origin: var(--radix-popover-content-transform-origin);
+}
+
+/* Or set manually based on position */
+.popover[data-side="bottom"] { transform-origin: top center; }
+.popover[data-side="top"] { transform-origin: bottom center; }
+```
+
+#### 5. Keep Animations Fast
+- **UI transitions:** Under 300ms (we use 200ms default)
+- **Spinners:** 0.6-0.8s feels faster than 1s (perceived performance)
+- **Frequent interactions:** Consider removing animation entirely
+
+#### 6. Blur Trick for Crossfades
+When crossfading between states feels jarring, add subtle blur to bridge the gap:
+
+```css
+.button-icon {
+  transition: opacity 200ms ease-out, filter 200ms ease-out;
+}
+
+.button-icon[data-transitioning] {
+  filter: blur(2px);
+}
+```
+
+This masks the moment when two distinct elements overlap, making transitions feel smoother.
+
 ### Performance Tier System
 
 Understanding the browser's render pipeline helps choose the right animation approach:

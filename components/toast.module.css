@@ -98,7 +98,7 @@
 
 .iconLoading {
   color: rgb(var(--text-weak));
-  animation: spin 1s linear infinite;
+  animation: spin 0.7s linear infinite;
 }
 
 @keyframes spin {
