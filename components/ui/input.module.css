@@ -60,7 +60,7 @@
   border: none;
   box-shadow: var(--stroke-weak);
   background: rgb(var(--background-base));
-  transition: all var(--duration-fast) var(--ease-out-cubic);
+  transition: box-shadow var(--duration-fast) var(--ease-out-cubic), background-color var(--duration-fast) var(--ease-out-cubic);
 }
 
 .input::placeholder {
@@ -117,7 +117,7 @@
   background: rgb(var(--background-base));
   resize: vertical;
   max-height: 300px;
-  transition: all var(--duration-fast) var(--ease-out-cubic);
+  transition: box-shadow var(--duration-fast) var(--ease-out-cubic), background-color var(--duration-fast) var(--ease-out-cubic);
 }
 
 .textarea::placeholder {

@@ -74,7 +74,7 @@
   font-size: 14px;
   line-height: 20px;
   font-weight: 500;
-  transition: all var(--duration-fast) var(--ease-out-cubic);
+  transition: background-color var(--duration-fast) var(--ease-out-cubic), color var(--duration-fast) var(--ease-out-cubic), border-color var(--duration-fast) var(--ease-out-cubic);
 }
 
 .indicatorCircle.completed {

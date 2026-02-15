@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { OutlineOrbitButton } from "@/components/outline-orbit-button";
@@ -114,6 +114,10 @@ function TimelineItem({
         className={styles.timelineDot}
         animate={{ scale: isActive ? 1.2 : 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      />
+      <ChevronDown
+        className={`${styles.timelineChevron} ${isActive ? styles.timelineChevronOpen : ""}`}
+        aria-hidden="true"
       />
       <span className={styles.timelineYear}>{item.year}</span>
       <div className={styles.timelineContent}>
@@ -279,7 +283,7 @@ export default function Home() {
         <div className={styles.footerContainer}>
           <div className={styles.footerContent}>
             <p className={styles.footerText}>
-              © 2025 Miguel Batalha. All rights reserved.
+              © 2026 Miguel Batalha. All rights reserved.
             </p>
             <div className={styles.footerLinks}>
               <Link

@@ -43,8 +43,10 @@
   transition: color var(--duration-fast) var(--ease-out-cubic);
 }
 
-.navLink:hover {
-  color: rgb(var(--text-strong));
+@media (hover: hover) and (pointer: fine) {
+  .navLink:hover {
+    color: rgb(var(--text-strong));
+  }
 }
 
 /* Hero Wrapper - Full width for gradient */
@@ -88,10 +90,9 @@
 
 .heroDescription {
   font-size: 20px;
-  line-height: 28px;
+  line-height: 1.625;
   color: rgb(var(--text-weak));
   max-width: 672px;
-  line-height: 1.625;
 }
 
 .heroActions {
@@ -113,8 +114,10 @@
   transition: opacity var(--duration-fast) var(--ease-out-cubic);
 }
 
-.primaryButton:hover {
-  opacity: 0.9;
+@media (hover: hover) and (pointer: fine) {
+  .primaryButton:hover {
+    opacity: 0.9;
+  }
 }
 
 .secondaryButton {
@@ -129,9 +132,11 @@
               box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
-.secondaryButton:hover {
-  background: rgb(var(--fill-weak));
-  box-shadow: var(--stroke-weak-hover);
+@media (hover: hover) and (pointer: fine) {
+  .secondaryButton:hover {
+    background: rgb(var(--fill-weak));
+    box-shadow: var(--stroke-weak-hover);
+  }
 }
 
 .icon {
@@ -147,7 +152,7 @@
 }
 
 .workTitle {
-  font-size: 30px;
+  font-size: 28px;
   line-height: 36px;
   font-weight: 600;
   margin-bottom: 48px;
@@ -184,8 +189,19 @@
   transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
-.timelineItem:hover {
-  box-shadow: var(--fill-hover);
+@media (hover: hover) and (pointer: fine) {
+  .timelineItem:hover {
+    box-shadow: var(--fill-hover);
+  }
+
+  .timelineItem:hover .timelineDot {
+    transform: scale(1.2);
+    box-shadow: var(--stroke-focus);
+  }
+
+  .timelineItem:hover .timelineChevron {
+    color: rgb(var(--text-strong));
+  }
 }
 
 .timelineItem:active {
@@ -209,11 +225,6 @@
   box-shadow: 0 0 0 2px rgb(var(--fill-brand-strong));
   transition: transform var(--duration-fast) var(--ease-out-cubic),
               box-shadow var(--duration-fast) var(--ease-out-cubic);
-}
-
-.timelineItem:hover .timelineDot {
-  transform: scale(1.2);
-  box-shadow: var(--stroke-focus);
 }
 
 /* Timeline Year */
@@ -253,6 +264,23 @@
   font-size: 14px;
   font-weight: 400;
   color: rgb(var(--text-weak));
+}
+
+/* Timeline Chevron - Expand affordance */
+.timelineChevron {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 16px;
+  height: 16px;
+  color: rgb(var(--text-weak));
+  transition: transform var(--duration-fast) var(--ease-out-cubic),
+              color var(--duration-fast) var(--ease-out-cubic);
+}
+
+.timelineChevronOpen {
+  transform: rotate(180deg);
+  color: rgb(var(--text-strong));
 }
 
 /* Timeline Bullets - Click to expand */
@@ -296,8 +324,8 @@
 }
 
 .educationTitle {
-  font-size: 24px;
-  line-height: 32px;
+  font-size: 28px;
+  line-height: 36px;
   font-weight: 600;
   margin-bottom: 24px;
 }
@@ -323,9 +351,11 @@
               transform var(--duration-fast) var(--ease-out-cubic);
 }
 
-.educationCard:hover {
-  box-shadow: var(--stroke-brand-weak), var(--elevation-raised);
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .educationCard:hover {
+    box-shadow: var(--stroke-brand-weak), var(--elevation-raised);
+    transform: translateY(-2px);
+  }
 }
 
 .educationDegree {
@@ -344,7 +374,6 @@
 .educationDate {
   font-size: 12px;
   color: rgb(var(--text-weak));
-  opacity: 0.7;
 }
 
 /* Footer */
@@ -384,6 +413,8 @@
   transition: color var(--duration-fast) var(--ease-out-cubic);
 }
 
-.footerLink:hover {
-  color: rgb(var(--text-strong));
+@media (hover: hover) and (pointer: fine) {
+  .footerLink:hover {
+    color: rgb(var(--text-strong));
+  }
 }

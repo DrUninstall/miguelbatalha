@@ -285,7 +285,7 @@
   box-shadow: var(--stroke-weak);
   border-radius: 12px;
   padding: 24px;
-  transition: all var(--duration-normal) var(--ease-out-cubic);
+  transition: box-shadow var(--duration-normal) var(--ease-out-cubic);
   cursor: pointer;
 }
 

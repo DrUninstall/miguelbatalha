@@ -16,7 +16,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out-cubic);
+  transition: color var(--duration-fast) var(--ease-out-cubic), box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
 .tab.active {

@@ -16,6 +16,13 @@
   transition: background-color var(--duration-fast) var(--ease-out-cubic);
 }
 
+/* Extend tap target to 44px minimum without changing visual size */
+.themeToggle::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+
 .themeToggle:hover {
   box-shadow: var(--stroke-weak-hover), var(--fill-hover);
 }

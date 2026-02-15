@@ -19,7 +19,7 @@
   display: inline-flex;
   align-items: center;
   border-radius: 9999px;
-  transition: all 200ms ease;
+  transition: background-color 200ms ease, border-color 200ms ease, opacity 200ms ease;
   cursor: pointer;
 }
 
