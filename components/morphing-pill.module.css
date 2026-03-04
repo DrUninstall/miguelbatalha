@@ -1,0 +1,138 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+.pillWrapper {
+  display: flex;
+  justify-content: center;
+  min-height: 60px;
+  align-items: center;
+}
+
+.pill {
+  background: rgb(var(--grey-solid-900));
+  min-width: 40px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+:global([data-theme="light"]) .pill {
+  background: rgb(var(--grey-solid-1000));
+}
+
+.pillInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 8px;
+}
+
+.idleDot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgb(var(--grey-solid-800));
+}
+
+:global([data-theme="light"]) .idleDot {
+  background: rgb(var(--grey-solid-850));
+}
+
+.expandedContent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+.contentIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.contentLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(var(--grey-dark-1000));
+}
+
+:global([data-theme="light"]) .contentLabel {
+  color: rgb(255 255 255);
+}
+
+.callActions {
+  display: flex;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.callButton {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.callButton:hover {
+  opacity: 0.85;
+}
+
+.musicBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 20px;
+  margin-left: 8px;
+}
+
+.musicBar {
+  width: 3px;
+  background: rgb(var(--brand-light-1000));
+  border-radius: 2px;
+  min-height: 4px;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.controlButton {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  box-shadow: var(--stroke-weak);
+  background: transparent;
+  color: rgb(var(--text-weak));
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.controlButton:hover {
+  background: rgb(var(--fill-weak));
+  box-shadow: var(--stroke-weak-hover);
+}
+
+.controlButton.active {
+  background: rgb(var(--fill-brand-weak));
+  box-shadow: var(--stroke-brand-weak);
+  color: rgb(var(--text-brand));
+}
