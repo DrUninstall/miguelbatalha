@@ -82,29 +82,28 @@ export default function AnimatedIcons() {
           <div className={styles.iconItem}>
             <PlayPauseButton
               isPlaying={isPlaying}
-              onClick={() => setIsPlaying(!isPlaying)}
+              onToggle={() => setIsPlaying(!isPlaying)}
             />
             <span className={styles.iconLabel}>Play/Pause</span>
           </div>
           <div className={styles.iconItem}>
             <MuteButton
               isMuted={isMuted}
-              onClick={() => setIsMuted(!isMuted)}
+              onToggle={() => setIsMuted(!isMuted)}
             />
             <span className={styles.iconLabel}>Mute</span>
           </div>
           <div className={styles.iconItem}>
             <VisibilityToggle
               isVisible={isVisible}
-              onClick={() => setIsVisible(!isVisible)}
+              onToggle={() => setIsVisible(!isVisible)}
             />
             <span className={styles.iconLabel}>Visibility</span>
           </div>
           <div className={styles.iconItem}>
-            <ExpandChevron
-              isExpanded={isExpanded}
-              onClick={() => setIsExpanded(!isExpanded)}
-            />
+            <button onClick={() => setIsExpanded(!isExpanded)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+              <ExpandChevron isExpanded={isExpanded} />
+            </button>
             <span className={styles.iconLabel}>Expand</span>
           </div>
         </div>
@@ -128,7 +127,7 @@ export default function AnimatedIcons() {
           <div className={styles.iconItem}>
             <SubmitButton
               isSubmitted={isSubmitted}
-              onClick={() => {
+              onSubmit={() => {
                 setIsSubmitted(true);
                 setTimeout(() => setIsSubmitted(false), 2000);
               }}
