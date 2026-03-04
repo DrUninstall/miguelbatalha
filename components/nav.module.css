@@ -1,0 +1,68 @@
+/* Shared navigation styles using design system CSS variables */
+
+.nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 50;
+  border-bottom: 1px solid rgb(var(--stroke-color-weak));
+  background: rgba(var(--background-base), 0.8);
+  backdrop-filter: blur(4px);
+  view-transition-name: nav;
+}
+
+.navContainer {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-weight: 600;
+  color: rgb(var(--text-strong));
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navLink {
+  position: relative;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: rgb(var(--text-weak));
+  transition: color var(--duration-fast) var(--ease-out-cubic);
+  padding-bottom: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .navLink:hover {
+    color: rgb(var(--text-strong));
+  }
+}
+
+.navLinkActive {
+  position: relative;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: rgb(var(--text-strong));
+  padding-bottom: 2px;
+}
+
+.navUnderline {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgb(var(--fill-brand-strong));
+  border-radius: 1px;
+}

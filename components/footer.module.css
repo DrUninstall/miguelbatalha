@@ -1,0 +1,45 @@
+/* Shared footer styles using design system CSS variables */
+
+.footer {
+  border-top: none;
+  box-shadow: 0 -1px 0 0 rgb(var(--stroke-color-weak));
+  margin-top: 96px;
+  view-transition-name: footer;
+}
+
+.footerContainer {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.footerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footerText {
+  font-size: 14px;
+  line-height: 20px;
+  color: rgb(var(--text-weak));
+}
+
+.footerLinks {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.footerLink {
+  font-size: 14px;
+  line-height: 20px;
+  color: rgb(var(--text-weak));
+  transition: color var(--duration-fast) var(--ease-out-cubic);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footerLink:hover {
+    color: rgb(var(--text-strong));
+  }
+}
