@@ -1,0 +1,113 @@
+.carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.viewport {
+  overflow: hidden;
+  padding: 16px 0;
+  cursor: grab;
+}
+
+.viewport:active {
+  cursor: grabbing;
+}
+
+.track {
+  display: flex;
+  gap: 16px;
+}
+
+.card {
+  flex-shrink: 0;
+  width: 280px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgb(var(--background-raised));
+  box-shadow: var(--stroke-weak);
+  cursor: pointer;
+  will-change: transform;
+  user-select: none;
+}
+
+.cardGradient {
+  height: 140px;
+  width: 100%;
+}
+
+.cardContent {
+  padding: 20px;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: rgb(var(--text-strong));
+}
+
+.cardDescription {
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgb(var(--text-weak));
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.navButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  box-shadow: var(--stroke-weak);
+  background: transparent;
+  color: rgb(var(--text-strong));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.navButton:hover:not(:disabled) {
+  background: rgb(var(--fill-weak));
+  box-shadow: var(--stroke-weak-hover);
+}
+
+.navButton:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgb(var(--fill-weak));
+  box-shadow: var(--stroke-weak);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s;
+}
+
+.dot:hover {
+  background: rgb(var(--fill-hover));
+}
+
+.dotActive {
+  background: rgb(var(--fill-brand-strong));
+  box-shadow: none;
+}

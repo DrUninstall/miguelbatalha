@@ -49,6 +49,11 @@ import { CollectionPreview } from "@/components/collection-preview";
 import { MagnifiedDock } from "@/components/magnified-dock";
 import { OutlineOrbitButton } from "@/components/outline-orbit-button";
 import { SignInDialog } from "@/components/sign-in-dialog";
+import { SparklesButton } from "@/components/sparkles-button";
+import { MorphingPill } from "@/components/morphing-pill";
+import { SwipeCarousel } from "@/components/swipe-carousel";
+import { PasswordStrength } from "@/components/password-strength";
+import { Marquee } from "@/components/marquee";
 import { Mail, User, Zap, Code, Palette } from "lucide-react";
 import { useState } from "react";
 import styles from "./page.module.css";
@@ -122,6 +127,11 @@ function ComponentsPageContent() {
           <nav className={styles.tocNav}>
             <h3 className={styles.tocTitle}>Contents</h3>
             <ul className={styles.tocList}>
+              <li><a href="#sparkles-button" className={styles.tocLink}>Sparkles Button</a></li>
+              <li><a href="#morphing-pill" className={styles.tocLink}>Morphing Pill</a></li>
+              <li><a href="#swipe-carousel" className={styles.tocLink}>Swipe Carousel</a></li>
+              <li><a href="#password-strength" className={styles.tocLink}>Password Strength</a></li>
+              <li><a href="#marquee" className={styles.tocLink}>Marquee</a></li>
               <li><a href="#outline-orbit" className={styles.tocLink}>Outline Orbit</a></li>
               <li><a href="#toast" className={styles.tocLink}>Toast Notifications</a></li>
               <li><a href="#card-hover" className={styles.tocLink}>Card Hover</a></li>
@@ -167,6 +177,60 @@ function ComponentsPageContent() {
           {/* Components Showcase */}
           <main className={styles.main}>
             <div className={styles.sections}>
+
+            {/* Sparkles Button */}
+            <section id="sparkles-button" className={styles.section}>
+              <h2 className={styles.sectionTitle}>Sparkles Button</h2>
+              <p className={styles.sectionDescription}>
+                Particle burst on click with trailing sparkles on hover. Each sparkle animates with random position, rotation, and color using Framer Motion&apos;s AnimatePresence.
+              </p>
+              <div className={styles.orbitDemo}>
+                <SparklesButton>Click for Sparkles</SparklesButton>
+              </div>
+            </section>
+
+            {/* Morphing Pill / Dynamic Island */}
+            <section id="morphing-pill" className={styles.section}>
+              <h2 className={styles.sectionTitle}>Morphing Pill</h2>
+              <p className={styles.sectionDescription}>
+                iPhone Dynamic Island-style expanding pill. Uses Framer Motion layout animations to smoothly morph between idle, call, timer, and music states with spring physics.
+              </p>
+              <div className={styles.orbitDemo}>
+                <MorphingPill />
+              </div>
+            </section>
+
+            {/* Swipe Carousel */}
+            <section id="swipe-carousel" className={styles.section}>
+              <h2 className={styles.sectionTitle}>Swipe Carousel</h2>
+              <p className={styles.sectionDescription}>
+                Draggable card carousel with spring physics. Cards scale and fade based on distance from center using useTransform. Supports drag, click, and button navigation.
+              </p>
+              <SwipeCarousel />
+            </section>
+
+            {/* Password Strength */}
+            <section id="password-strength" className={styles.section}>
+              <h2 className={styles.sectionTitle}>Password Strength</h2>
+              <p className={styles.sectionDescription}>
+                Animated strength indicator with real-time rule validation. Strength bar segments fill with color transitions, and checkmarks spring-animate as rules are met.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <PasswordStrength />
+              </div>
+            </section>
+
+            {/* Marquee */}
+            <section id="marquee" className={styles.section}>
+              <h2 className={styles.sectionTitle}>Marquee</h2>
+              <p className={styles.sectionDescription}>
+                Infinite scrolling ticker using CSS keyframe animation with edge fade masks. Pauses on hover. Pure CSS — no JavaScript animation loop needed.
+              </p>
+              <Marquee />
+              <div style={{ marginTop: '16px' }}>
+                <Marquee direction="right" speed={20} />
+              </div>
+            </section>
 
             {/* Outline Orbit Button */}
             <section id="outline-orbit" className={styles.section}>

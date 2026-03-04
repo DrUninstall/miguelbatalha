@@ -1,0 +1,30 @@
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 14px 32px;
+  border-radius: 12px;
+  background: rgb(var(--fill-brand-strong));
+  color: rgb(var(--text-inverse-strong));
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+  will-change: transform, opacity;
+}
