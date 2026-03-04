@@ -82,7 +82,7 @@ export default function AnimatedIcons() {
           <div className={styles.iconItem}>
             <PlayPauseButton
               isPlaying={isPlaying}
-              onClick={() => setIsPlaying(!isPlaying)}
+              onToggle={() => setIsPlaying(!isPlaying)}
             />
             <span className={styles.iconLabel}>Play/Pause</span>
           </div>
