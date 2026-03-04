@@ -54,7 +54,7 @@ export default function AnimatedIcons() {
             <span className={styles.iconLabel}>Star</span>
           </div>
           <div className={styles.iconItem}>
-            <LikeButton isLiked={isLiked} onClick={() => setIsLiked(!isLiked)} />
+            <LikeButton isLiked={isLiked} onToggle={() => setIsLiked(!isLiked)} />
             <span className={styles.iconLabel}>Like</span>
           </div>
           <div className={styles.iconItem}>
