@@ -1,22 +1,8 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { blogPosts } from "./_data/posts";
 import styles from "./page.module.css";
-
-const blogPosts = [
-  {
-    slug: "product-strategy-at-scale",
-    title: "Product Strategy at Scale: Lessons from KovaaK Games",
-    description: "How we built a product roadmap that balances user needs, technical constraints, and business goals.",
-    date: "2025-01-15",
-  },
-  {
-    slug: "ui-ux-principles",
-    title: "UI/UX Principles I Live By",
-    description: "A collection of design principles that guide my approach to product development.",
-    date: "2024-12-20",
-  },
-];
 
 export default function BlogPage() {
   return (
