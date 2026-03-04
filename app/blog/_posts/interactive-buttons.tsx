@@ -10,18 +10,18 @@ export default function InteractiveButtons() {
   return (
     <div className={styles.prose}>
       <p>
-        Buttons are the most clicked element on the web, and almost all of them feel like nothing. A color change on hover. A slight darkening on press. That&apos;s the interaction model we settled on in 2010 and never questioned.
+        Buttons are the most clicked element on the web. Almost all of them feel like nothing — a color change on hover, a slight darkening on press. We settled on that interaction model around 2010 and never questioned it.
       </p>
       <p>
-        But buttons are the primary feedback mechanism between a person and your interface. Every click is a moment of intent — someone decided to do something. The response should match that energy.
+        Every click is a moment of intent. Someone decided to do something. The response should match that.
       </p>
 
       <h2 className={styles.sectionHeading}>Sparkles Button</h2>
       <p>
-        On click, a burst of particles explodes outward from the cursor position. On hover, trailing sparkles follow the mouse across the button surface. Each particle is a small element animated with randomized position, rotation, scale, and color using Framer Motion&apos;s <code>AnimatePresence</code>.
+        Click — particles burst outward from the cursor. Hover — trailing sparkles follow the mouse across the surface. Each particle gets randomized position, rotation, scale, and color via Framer Motion&apos;s <code>AnimatePresence</code>.
       </p>
       <p>
-        The particles use <code>transform</code> and <code>opacity</code> exclusively — no layout properties animate. They&apos;re absolutely positioned relative to the button, so the button itself doesn&apos;t reflow. The burst direction is calculated from the click coordinates, giving each click a unique spray pattern.
+        Only <code>transform</code> and <code>opacity</code> animate — no layout properties. Particles are absolutely positioned, so the button doesn&apos;t reflow. Burst direction comes from click coordinates, making each click feel unique.
       </p>
 
       <div className={styles.demo}>
@@ -33,10 +33,10 @@ export default function InteractiveButtons() {
 
       <h2 className={styles.sectionHeading}>Outline Orbit Button</h2>
       <p>
-        A button where the outline itself is alive. SVG dashes orbit the border continuously — it catches the eye without shouting. The effect uses <code>stroke-dasharray</code> and <code>stroke-dashoffset</code> animation on an SVG <code>rect</code> that matches the button&apos;s dimensions.
+        The outline is alive. SVG dashes orbit the border continuously — catches the eye without shouting. <code>stroke-dasharray</code> and <code>stroke-dashoffset</code> animation on an SVG <code>rect</code> matched to the button dimensions.
       </p>
       <p>
-        I chose SVG over CSS <code>border-image</code> because SVG gives precise control over dash length, gap size, and rotation speed. The orbit speed increases on hover as a subtle acknowledgment of attention.
+        Went with SVG over CSS <code>border-image</code> — precise control over dash length, gap size, rotation speed. Orbit speeds up on hover. Subtle, but you notice it.
       </p>
 
       <div className={styles.demo}>
@@ -48,10 +48,10 @@ export default function InteractiveButtons() {
 
       <h2 className={styles.sectionHeading}>Hold to Delete</h2>
       <p>
-        Destructive actions deserve friction. Instead of a confirmation dialog — which users click through without reading — this button requires you to hold it down. A <code>clip-path</code> wipe fills the button from left to right over 2 seconds. Release early and it resets. The animation is entirely <code>clip-path</code> based — S-Tier compositor performance.
+        Destructive actions deserve friction. Confirmation dialogs don&apos;t work — users click through without reading. This button makes you hold it down. A <code>clip-path</code> wipe fills left to right over 2 seconds. Release early — resets. All <code>clip-path</code>, all compositor.
       </p>
       <p>
-        This pattern works because the cost of the action is proportional to the effort required. A quick tap is cheap — a 2-second hold means you really want this.
+        Cost proportional to effort. Quick tap — cheap. Two-second hold — you really want this.
       </p>
 
       <div className={styles.demo}>
@@ -63,10 +63,10 @@ export default function InteractiveButtons() {
 
       <h2 className={styles.sectionHeading}>Morphing Pill</h2>
       <p>
-        Inspired by Apple&apos;s Dynamic Island — a pill-shaped container that morphs between different states: idle, incoming call, timer, music player. Each state has completely different dimensions and content, but the transition between them is one smooth layout animation.
+        Apple&apos;s Dynamic Island, but in the browser. A pill that morphs between idle, call, timer, and music states — completely different dimensions and content each time, one smooth layout animation connecting them.
       </p>
       <p>
-        The trick is Framer Motion&apos;s <code>layout</code> prop combined with spring physics. The container animates its dimensions while the content cross-fades with <code>AnimatePresence</code>. The spring config is tuned to feel bouncy but controlled — like the pill is made of something physical.
+        Framer Motion&apos;s <code>layout</code> prop plus spring physics. Container animates dimensions, content cross-fades via <code>AnimatePresence</code>. Tuned the spring to feel bouncy but controlled — like the pill has actual mass.
       </p>
 
       <div className={styles.demo}>
@@ -79,7 +79,7 @@ export default function InteractiveButtons() {
       <hr className={styles.separator} />
 
       <p>
-        None of these are standard. That&apos;s intentional. A button library gives you consistency. These give you moments — small opportunities to make someone feel like the interface is paying attention.
+        None of these ship in a component library. That&apos;s the point. Libraries give you consistency — these give you moments. Small opportunities to make someone feel like the interface actually cares that they clicked.
       </p>
     </div>
   );

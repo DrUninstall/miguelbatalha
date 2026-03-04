@@ -12,18 +12,18 @@ export default function LayoutAnimations() {
   return (
     <div className={styles.prose}>
       <p>
-        The hardest animation problem in UI isn&apos;t making things move. It&apos;s making things move <em>between</em> states — two completely different DOM layouts that need to feel like one continuous motion. A tab highlight sliding from one label to another. A card expanding into a full dialog. A grid rearranging its items.
+        The hard part of animation isn&apos;t making things move — it&apos;s making things move <em>between</em> states. Two completely different DOM layouts that need to feel like one continuous motion. Tab highlights. Card-to-dialog expansions. Grid rearrangements.
       </p>
       <p>
-        Framer Motion&apos;s <code>layoutId</code> solves this with FLIP animations — First, Last, Invert, Play. The browser measures where the element is now (First), then where it ends up (Last), calculates the difference (Invert), and animates using only <code>transform</code> (Play). All compositor-friendly. All smooth.
+        Framer Motion&apos;s <code>layoutId</code> handles this with FLIP — First, Last, Invert, Play. Measure where the element is, measure where it ends up, calculate the delta, animate with <code>transform</code>. Compositor-only. Smooth.
       </p>
 
       <h2 className={styles.sectionHeading}>Tab Indicator</h2>
       <p>
-        The simplest case: a highlight that follows the active tab. Without layout animation, you&apos;d calculate widths and offsets manually. With <code>layoutId</code>, you just render the highlight inside whichever tab is active — Framer Motion figures out the transition automatically.
+        Simplest case: a highlight that follows the active tab. Without layout animation, you&apos;d calculate widths and offsets manually. With <code>layoutId</code>, render the highlight inside whichever tab is active — Framer Motion handles the rest.
       </p>
       <p>
-        The spring config matters here. Too stiff and it feels mechanical. Too loose and it overshoots and wobbles. I settled on moderate stiffness with high damping — snappy but no overshoot.
+        Spring config is everything here. Too stiff — mechanical. Too loose — overshoot and wobble. I landed on moderate stiffness with high damping. Snappy, no overshoot.
       </p>
 
       <div className={styles.demo}>
@@ -50,10 +50,10 @@ export default function LayoutAnimations() {
 
       <h2 className={styles.sectionHeading}>Card Expansion</h2>
       <p>
-        This is the one that feels like magic. A card in a grid expands to fill the viewport as a dialog. Structurally, the card and the dialog are completely different components — different sizes, different content, different DOM positions. But because they share a <code>layoutId</code>, Framer Motion morphs one into the other.
+        This one genuinely surprised me. A card in a grid expands to fill the viewport as a dialog. Structurally — different components, different sizes, different content, different DOM positions. But they share a <code>layoutId</code>, so Framer Motion morphs one into the other.
       </p>
       <p>
-        The overlay fades in simultaneously with the card expansion. The content inside cross-fades using <code>AnimatePresence</code>. The whole interaction feels native — like something you&apos;d see in iOS, not a web app.
+        Overlay fades in with the expansion. Content cross-fades via <code>AnimatePresence</code>. Feels native — the kind of transition you expect on iOS, not the web.
       </p>
 
       <div className={styles.demo}>
@@ -78,7 +78,7 @@ export default function LayoutAnimations() {
       <hr className={styles.separator} />
 
       <p>
-        Layout animations are the closest the web gets to native app transitions. The API is deceptively simple — just give two elements the same <code>layoutId</code> — but the results feel like you spent weeks on custom animation code. That&apos;s the whole point of good abstractions.
+        Before <code>layoutId</code>, I was writing manual FLIP code — measuring positions, calculating deltas, managing animation state. It worked, but it was brittle. The API now is almost embarrassingly simple: same <code>layoutId</code> on two elements and you&apos;re done. That&apos;s what a good abstraction looks like — you forget the hard problem ever existed.
       </p>
     </div>
   );
