@@ -1,13 +1,13 @@
 import styles from "./card-hover.module.css";
 
 interface CardHoverProps {
-  title: string;
-  subtitle: string;
+  title?: string;
+  subtitle?: string;
   href?: string;
   children?: React.ReactNode;
 }
 
-export function CardHover({ title, subtitle, href = "#", children }: CardHoverProps) {
+export function CardHover({ title = "Card Title", subtitle = "Card subtitle", href = "#", children }: CardHoverProps) {
   return (
     <a href={href} className={styles.card}>
       {children}
