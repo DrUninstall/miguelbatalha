@@ -112,7 +112,7 @@
   --fill-error-weak: var(--red-light-1000) / 0.05;
   --fill-success-strong: var(--green-light-1000);
   --fill-inverse-strong: 24 24 27;
-  --fill-inverse-weak: 245 245 245;
+  --fill-inverse-weak: var(--grey-solid-800);
   --fill-yellow: var(--yellow-solid-1000);
 
   /* Surfaces */
@@ -189,8 +189,8 @@
   --fill-error-strong: 255 156 156;
   --fill-error-weak: 255 156 156 / 0.05;
   --fill-success-strong: 119 199 175;
-  --fill-inverse-strong: var(--grey-solid-900);
-  --fill-inverse-weak: var(--grey-light-50);
+  --fill-inverse-strong: var(--grey-solid-0);
+  --fill-inverse-weak: var(--grey-solid-50);
 
   --background-base: var(--grey-solid-900);
   --background-raised: var(--grey-solid-850);
