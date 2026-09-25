@@ -56,12 +56,22 @@
 }
 
 .projectName {
-  display: flex;
-  flex-wrap: wrap;
-  column-gap: 8px;
+  display: inline-block;
   margin-bottom: 2px;
+  border-radius: 2px;
   font: var(--type-row);
   color: rgb(var(--text-strong));
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--text-strong) / 0.2);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .projectName:hover {
+    text-decoration-color: rgb(var(--text-strong));
+  }
 }
 
 /* Experience: native <details>, animated where the browser can interpolate to auto. */

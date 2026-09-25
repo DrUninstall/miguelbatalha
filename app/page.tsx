@@ -48,17 +48,21 @@ export default function Home() {
               light: "/work/effort-keeper/reel-light.mp4",
               dark: "/work/effort-keeper/reel-dark.mp4",
             }}
-            label="Effort Keeper: creating a Reading effort, logging 30 minutes, the blob celebrating, the 28-day record filling in, and the day closing."
+            label="Effort Keeper interface reel: one shape morphs through a loader, an effort row, a sheet that completes with confetti, a timer, a toggle, tabs, the Blossom colour picker, a stats grid, a command palette and a toast."
           />
           <figcaption className={styles.projectCaption}>
-            <span className={styles.projectName}>
-              Effort Keeper
-              <span className={list.secondary}>In development</span>
-            </span>
+            <a
+              href="https://effortkeeper.com"
+              target="_blank"
+              rel="noreferrer"
+              className={styles.projectName}
+            >
+              Effort Keeper<span aria-hidden="true"> ↗</span>
+            </a>
             <p>
-              A quota tracker for intentional effort. Log time, see what’s
-              left, and close the day. Each effort has a blob that grows while
-              you keep at it.
+              A quota tracker for intentional effort. The reel is its interface
+              and motion: one shape through the app’s controls, with the app’s
+              own sounds.
             </p>
           </figcaption>
         </figure>
