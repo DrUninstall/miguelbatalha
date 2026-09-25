@@ -1,5 +1,11 @@
 export const experience = [
   {
+    role: "Marketing Consultant",
+    company: "Atelico Studio",
+    years: "2026–Now",
+    highlights: ["Helping with marketing since March 2026"],
+  },
+  {
     role: "Head of Product & Strategy",
     company: "KovaaK Games",
     years: "2024–Now",
@@ -62,5 +68,5 @@ export const education = [
 export const links = [
   { label: "LinkedIn", href: "https://www.linkedin.com/in/miguelbatalha" },
   { label: "GitHub", href: "https://github.com/druninstall" },
-  { label: "Email", href: "mailto:miguelbatalhamusic@gmail.com" },
+  { label: "Email", href: "mailto:miguel@miguelbatalha.com" },
 ];
