@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Offline video tooling, including a generated audio bundle.
+    "tools/**",
   ]),
 ]);
 
