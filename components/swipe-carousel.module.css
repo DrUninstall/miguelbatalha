@@ -36,7 +36,7 @@
   border-radius: 16px;
   overflow: hidden;
   background: rgb(var(--background-raised));
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   user-select: none;
 }
 
@@ -76,7 +76,7 @@
   border-radius: 50%;
   /* Transparent until forced-colors mode, which drops the box-shadow and paints this. */
   border: 1px solid transparent;
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   background: transparent;
   color: rgb(var(--text-strong));
   display: flex;
@@ -92,7 +92,7 @@
 @media (hover: hover) and (pointer: fine) {
   .navButton:hover:not(:disabled) {
     background: rgb(var(--fill-weak));
-    box-shadow: var(--stroke-weak-hover);
+    box-shadow: var(--ring-weak-hover);
   }
 }
 

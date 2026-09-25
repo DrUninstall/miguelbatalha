@@ -1,7 +1,7 @@
 /*
  * A tone supplies the colours; a variant decides which of them paint the
  * background, the text and the hairline. Hairlines (--stroke-*) and the
- * hover/press overlays (--fill-hover/--fill-press) are box-shadow values,
+ * hover/press overlays (--overlay-hover/--overlay-press) are box-shadow values,
  * so a variant's ring is listed first and the overlay second.
  */
 
@@ -34,24 +34,24 @@
   --button-strong: rgb(var(--fill-brand-strong));
   --button-weak: rgb(var(--fill-brand-weak));
   --button-text: rgb(var(--text-brand));
-  --button-hairline: var(--stroke-brand-weak);
-  --button-hairline-hover: var(--stroke-brand-weak);
+  --button-hairline: var(--ring-brand-weak);
+  --button-hairline-hover: var(--ring-brand-weak);
 }
 
 .neutral {
   --button-strong: rgb(var(--fill-strong));
   --button-weak: rgb(var(--fill-weak));
   --button-text: rgb(var(--text-strong));
-  --button-hairline: var(--stroke-weak);
-  --button-hairline-hover: var(--stroke-weak-hover);
+  --button-hairline: var(--ring-weak);
+  --button-hairline-hover: var(--ring-weak-hover);
 }
 
 .destructive {
   --button-strong: rgb(var(--fill-error-strong));
   --button-weak: rgb(var(--fill-error-weak));
   --button-text: rgb(var(--text-error));
-  --button-hairline: var(--stroke-error-weak);
-  --button-hairline-hover: var(--stroke-error-weak);
+  --button-hairline: var(--ring-error-weak);
+  --button-hairline-hover: var(--ring-error-weak);
 }
 
 /* Variants */
@@ -78,7 +78,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .button:hover {
-    box-shadow: var(--button-ring), var(--fill-hover);
+    box-shadow: var(--button-ring), var(--overlay-hover);
   }
 
   .secondary:hover {
@@ -91,7 +91,7 @@
 }
 
 .button:active {
-  box-shadow: var(--button-ring), var(--fill-press);
+  box-shadow: var(--button-ring), var(--overlay-press);
 }
 
 .button:disabled {

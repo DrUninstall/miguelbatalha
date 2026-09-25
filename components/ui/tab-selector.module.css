@@ -39,12 +39,12 @@
 @media (hover: hover) and (pointer: fine) {
   .tab:not(.disabled):not(.active):hover {
     color: rgb(var(--text-strong));
-    box-shadow: var(--fill-hover);
+    box-shadow: var(--overlay-hover);
   }
 }
 
 .tab:not(.disabled):not(.active):active {
-  box-shadow: var(--fill-press);
+  box-shadow: var(--overlay-press);
 }
 
 /* Rendered inside the active tab; sits over the container's hairline. */

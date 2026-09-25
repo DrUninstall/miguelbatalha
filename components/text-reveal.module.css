@@ -67,7 +67,7 @@
   font-weight: 500;
   border-radius: 9999px;
   background: rgb(var(--background-raised));
-  box-shadow: var(--stroke-weak), var(--elevation-raised);
+  box-shadow: var(--ring-weak), var(--elevation-raised);
   color: rgb(var(--text-strong));
   /* Invisible here; forced colours paint it, since they drop the box-shadow ring. */
   border: 1px solid transparent;
@@ -76,7 +76,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .button:hover {
-    box-shadow: var(--stroke-weak-hover), var(--elevation-raised);
+    box-shadow: var(--ring-weak-hover), var(--elevation-raised);
   }
 }
 

@@ -18,10 +18,10 @@ background: rgb(var(--fill-brand-strong) / 0.2);
 | Fills | `--fill-weak`, `--fill-weaker`, `--fill-brand-strong`, `--fill-brand-weak`, `--fill-disabled`, … |
 | Hairlines | `--stroke-color-weak` (a colour, for borders) |
 
-`--stroke-*`, `--fill-hover`, `--fill-press` and `--elevation-*` are complete `box-shadow` values, not colours:
+`--stroke-*`, `--overlay-hover`, `--overlay-press` and `--elevation-*` are complete `box-shadow` values, not colours:
 
 ```css
-.control:hover { box-shadow: var(--stroke-weak-hover), var(--fill-hover); }
+.control:hover { box-shadow: var(--ring-weak-hover), var(--overlay-hover); }
 ```
 
 Never pass a `--stroke-*` token to `rgb()` or use it in `border`: it isn't a colour, and the whole declaration is silently dropped.

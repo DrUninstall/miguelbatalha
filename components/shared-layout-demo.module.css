@@ -15,7 +15,7 @@
   padding: 4px;
   border-radius: 20px;
   background: rgb(var(--fill-weak));
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   /* Fallback for very narrow stages: scroll inside the row, never the page. */
   overflow-x: auto;
   scrollbar-width: none;
@@ -83,7 +83,7 @@
   line-height: 1.5;
   color: rgb(var(--text-weak));
   background: rgb(var(--background-base));
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
 }
 
 @media (max-width: 400px) {
@@ -151,13 +151,13 @@
   border-radius: 8px;
   color: rgb(var(--text-strong));
   background: rgb(var(--fill-weak));
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .shuffleButton:hover {
-    box-shadow: var(--stroke-weak-hover);
+    box-shadow: var(--ring-weak-hover);
   }
 }
 
@@ -195,7 +195,7 @@
   gap: var(--space-1);
   text-align: left;
   background: rgb(var(--background-raised));
-  box-shadow: var(--stroke-weak), var(--elevation-raised);
+  box-shadow: var(--ring-weak), var(--elevation-raised);
   cursor: pointer;
   transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
@@ -206,7 +206,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .card:hover {
-    box-shadow: var(--stroke-weak-hover), var(--elevation-raised);
+    box-shadow: var(--ring-weak-hover), var(--elevation-raised);
   }
 }
 
@@ -251,7 +251,7 @@
   overflow-y: auto;
   padding: 23px;
   background: rgb(var(--background-overlay));
-  box-shadow: var(--stroke-weak), var(--elevation-overlay);
+  box-shadow: var(--ring-weak), var(--elevation-overlay);
 }
 
 /* fit-content: the box hugs the text, like the card's, so the shared layoutId

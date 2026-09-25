@@ -9,7 +9,7 @@
   border: 1px solid transparent;
   border-radius: 9999px;
   background-color: rgb(var(--fill-weak));
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   padding-inline: calc(var(--space-6) - 1px);
   font: inherit;
   font-weight: 500;

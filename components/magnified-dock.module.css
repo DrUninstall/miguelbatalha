@@ -35,7 +35,7 @@
   inset: 0;
   background: rgb(var(--fill-weak));
   border-radius: 16px;
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   z-index: -1;
   transform-origin: center;
 }
@@ -106,7 +106,7 @@
 /* Radix UI Tooltip - rendered via Portal so not affected by transforms */
 .tooltip {
   background: rgb(var(--background-overlay));
-  box-shadow: var(--stroke-weak), var(--elevation-overlay);
+  box-shadow: var(--ring-weak), var(--elevation-overlay);
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 13px;

@@ -34,7 +34,7 @@
   border: 1px solid transparent;
   border-radius: 12px;
   background: rgb(var(--background-raised));
-  box-shadow: var(--stroke-weak), var(--elevation-overlay);
+  box-shadow: var(--ring-weak), var(--elevation-overlay);
   opacity: 1;
   /* Scale from the top edge so each older toast peeks out exactly --y above */
   transform-origin: 50% 0;
@@ -163,12 +163,12 @@
 
 @media (hover: hover) and (pointer: fine) {
   .action:hover {
-    box-shadow: var(--fill-hover);
+    box-shadow: var(--overlay-hover);
   }
 }
 
 .action:active {
-  box-shadow: var(--fill-press);
+  box-shadow: var(--overlay-press);
 }
 
 .dismiss {

@@ -5,7 +5,7 @@
   display: flex;
   max-width: 100%;
   background: rgb(var(--fill-weak));
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   /* Invisible normally; forced-colors mode drops the hairline shadow and paints
      this. Padding is 3px so the options still sit 4px from the outer edge. */
   border: 1px solid transparent;
@@ -46,7 +46,7 @@
   position: absolute;
   inset: 0;
   background: rgb(var(--background-base));
-  box-shadow: var(--stroke-weak), var(--elevation-raised);
+  box-shadow: var(--ring-weak), var(--elevation-raised);
 }
 
 /* Label sits above the thumb. */
@@ -74,12 +74,12 @@
 @media (hover: hover) and (pointer: fine) {
   .option:not(.disabled):not(.selected):hover {
     color: rgb(var(--text-strong));
-    box-shadow: var(--fill-hover);
+    box-shadow: var(--overlay-hover);
   }
 }
 
 .option:not(.disabled):not(.selected):active {
-  box-shadow: var(--fill-press);
+  box-shadow: var(--overlay-press);
 }
 
 .optionIcon {

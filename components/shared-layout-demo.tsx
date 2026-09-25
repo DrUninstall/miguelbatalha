@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
-  type CSSProperties,
   type KeyboardEvent,
   type ReactNode,
 } from "react";
@@ -98,7 +97,7 @@ export function SharedLayoutTabs() {
         role="tablist"
         aria-label="Teams"
         className={styles.tabList}
-        style={{ "--tab-color-timing": tabColorTiming } as CSSProperties}
+        style={{ "--tab-color-timing": tabColorTiming }}
         data-instant={viaKeyboard || undefined}
         onKeyDown={onKeyDown}
         onPointerDown={() => setViaKeyboard(false)}

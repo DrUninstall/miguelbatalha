@@ -42,7 +42,7 @@
   color: rgb(var(--text-strong));
   border: 1px solid transparent;
   border-radius: 8px;
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   background: rgb(var(--background-base));
   transition:
     box-shadow var(--duration-fast) var(--ease-out-cubic),
@@ -56,7 +56,7 @@
 @media (hover: hover) and (pointer: fine) {
   .input:hover:not(:disabled) {
     background: rgb(var(--fill-weaker));
-    box-shadow: var(--stroke-weak-hover);
+    box-shadow: var(--ring-weak-hover);
   }
 }
 
@@ -68,7 +68,7 @@
 
 /* Doubled so the red ring also wins over the hover hairline. */
 .input.invalid.invalid {
-  box-shadow: var(--stroke-error-strong);
+  box-shadow: var(--ring-error-strong);
 }
 
 /* The red ring is a shadow and disappears here; a heavier edge stands in. */

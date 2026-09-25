@@ -91,7 +91,7 @@
   border: 1px solid transparent;
   border-radius: 50%;
   background: rgb(var(--fill-weak));
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   color: rgb(var(--icon-neutral));
   cursor: pointer;
 }

@@ -50,7 +50,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   background: rgb(var(--background-overlay));
-  box-shadow: var(--stroke-weak), var(--elevation-overlay);
+  box-shadow: var(--ring-weak), var(--elevation-overlay);
   border-radius: 16px;
 }
 
@@ -163,7 +163,7 @@
   position: absolute;
   inset: 0;
   background: rgb(var(--background-raised));
-  box-shadow: var(--stroke-weak), var(--elevation-raised);
+  box-shadow: var(--ring-weak), var(--elevation-raised);
   border-radius: 8px;
   z-index: 0;
 }
@@ -197,14 +197,14 @@
   gap: var(--space-3);
   padding: var(--space-4);
   background: rgb(var(--background-raised));
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   border-radius: 12px;
   transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .optionButton:hover {
-    box-shadow: var(--stroke-weak-hover);
+    box-shadow: var(--ring-weak-hover);
   }
 }
 
@@ -259,13 +259,13 @@
   color: rgb(var(--text-strong));
   background: rgb(var(--background-base));
   border: none;
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   border-radius: 10px;
   transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
 .inputInvalid {
-  box-shadow: var(--stroke-error-strong);
+  box-shadow: var(--ring-error-strong);
 }
 
 .fieldError {
@@ -430,14 +430,14 @@
   gap: var(--space-2);
   padding: var(--space-4);
   background: rgb(var(--background-raised));
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   border-radius: 12px;
   transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .walletButton:hover {
-    box-shadow: var(--stroke-weak-hover);
+    box-shadow: var(--ring-weak-hover);
   }
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import styles from "./gradient-demos.module.css";
 
 // ─────────── Pointer surface ───────────
@@ -270,7 +270,7 @@ export function GradientColorSpaces() {
   return (
     <div
       className={styles.colorSpaceContainer}
-      style={{ "--from": pair.from, "--to": pair.to } as CSSProperties}
+      style={{ "--from": pair.from, "--to": pair.to }}
     >
       <div className={styles.segmented} role="group" aria-label="Gradient endpoints">
         {COLOR_PAIRS.map((p) => (

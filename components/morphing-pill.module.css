@@ -158,7 +158,7 @@
   border-radius: 8px;
   /* Transparent until forced-colors mode, which drops the box-shadow and paints this. */
   border: 1px solid transparent;
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
   background: transparent;
   color: rgb(var(--text-weak));
   font-size: 13px;
@@ -173,13 +173,13 @@
 @media (hover: hover) and (pointer: fine) {
   .controlButton:hover {
     background: rgb(var(--fill-weak));
-    box-shadow: var(--stroke-weak-hover);
+    box-shadow: var(--ring-weak-hover);
   }
 }
 
 .controlButton.active {
   background: rgb(var(--fill-brand-weak));
-  box-shadow: var(--stroke-brand-weak);
+  box-shadow: var(--ring-brand-weak);
   color: rgb(var(--text-brand));
 }
 

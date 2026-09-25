@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { motion, AnimatePresence, useReducedMotion, type Transition } from "framer-motion";
 import { Phone, PhoneOff, Timer, Music } from "lucide-react";
@@ -55,7 +55,7 @@ function MusicBars() {
                 "--peak": bar.peak,
                 animationDuration: `${bar.duration}s`,
                 animationDelay: `${i * 0.1}s`,
-              } as CSSProperties
+              }
             }
           />
         )

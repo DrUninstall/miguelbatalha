@@ -92,12 +92,12 @@
 
 @media (hover: hover) and (pointer: fine) {
   .iconButton:hover {
-    box-shadow: var(--fill-hover);
+    box-shadow: var(--overlay-hover);
   }
 }
 
 .iconButton:active {
-  box-shadow: var(--fill-press);
+  box-shadow: var(--overlay-press);
 }
 
 .iconButton[aria-disabled="true"] {
@@ -138,7 +138,7 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  box-shadow: var(--stroke-weak), var(--elevation-raised);
+  box-shadow: var(--ring-weak), var(--elevation-raised);
   background: rgb(var(--background-raised));
   /* Invisible normally; the button's edge in forced colors. */
   border: 1px solid transparent;

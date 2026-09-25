@@ -311,7 +311,7 @@ function Toast({
         {
           "--y": `${layout.y}px`,
           "--scale": layout.scale,
-        } as React.CSSProperties
+        }
       }
       data-front={layout.index === 0}
       data-hidden={layout.hidden}

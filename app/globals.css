@@ -78,33 +78,33 @@
   --stroke-color-weak: var(--grey-light-100);
 
   /* Strokes (use as box-shadow) */
-  --stroke-weak:
+  --ring-weak:
     0 0 0 1px rgb(0 17 102 / 0.12),
     0 1px 2px -1px rgb(0 17 102 / 0.06),
     0 2px 4px 0 rgb(0 17 102 / 0.04);
-  --stroke-weak-hover:
+  --ring-weak-hover:
     0 0 0 1px rgb(0 17 102 / 0.16),
     0 1px 2px -1px rgb(0 17 102 / 0.08),
     0 2px 4px 0 rgb(0 17 102 / 0.06);
-  --stroke-strong:
+  --ring-strong:
     0 0 0 1px rgb(0 17 102 / 0.2),
     0 1px 2px -1px rgb(0 17 102 / 0.1),
     0 2px 4px 0 rgb(0 17 102 / 0.08);
-  --stroke-focus: 0 0 0 2px rgb(var(--brand-light-1000)), 0 0 8px 2px rgb(var(--brand-light-1000) / 0.4);
-  --stroke-brand-strong: 0 0 0 1px rgb(var(--brand-light-1000) / 0.8);
-  --stroke-brand-weak: 0 0 0 1px rgb(var(--brand-light-1000) / 0.2);
-  --stroke-error-strong: 0 0 0 1px rgb(var(--red-light-1000) / 0.8);
-  --stroke-error-weak: 0 0 0 1px rgb(var(--red-light-1000) / 0.14);
-  --stroke-inverse-weak: 0 0 0 1px rgb(var(--grey-dark-100));
+  --ring-focus: 0 0 0 2px rgb(var(--brand-light-1000)), 0 0 8px 2px rgb(var(--brand-light-1000) / 0.4);
+  --ring-brand-strong: 0 0 0 1px rgb(var(--brand-light-1000) / 0.8);
+  --ring-brand-weak: 0 0 0 1px rgb(var(--brand-light-1000) / 0.2);
+  --ring-error-strong: 0 0 0 1px rgb(var(--red-light-1000) / 0.8);
+  --ring-error-weak: 0 0 0 1px rgb(var(--red-light-1000) / 0.14);
+  --ring-inverse-weak: 0 0 0 1px rgb(var(--grey-dark-100));
 
   /* Fills */
   --fill-strong: var(--grey-solid-1000);
   --fill-weak: var(--grey-light-50);
   --fill-weaker: var(--grey-light-25);
-  --fill-hover: inset 0 0 0 9999px rgb(var(--fill-weak));
-  --fill-press: inset 0 0 0 9999px rgb(var(--grey-light-100));
-  --fill-hover-focus: var(--stroke-focus), var(--fill-hover);
-  --fill-press-focus: var(--stroke-focus), var(--fill-press);
+  --overlay-hover: inset 0 0 0 9999px rgb(var(--fill-weak));
+  --overlay-press: inset 0 0 0 9999px rgb(var(--grey-light-100));
+  --overlay-hover-focus: var(--ring-focus), var(--overlay-hover);
+  --overlay-press-focus: var(--ring-focus), var(--overlay-press);
   --fill-disabled: var(--grey-light-100);
   --fill-brand-strong: var(--brand-light-1000);
   --fill-brand-weak: var(--brand-light-1000) / 0.06;
@@ -173,30 +173,30 @@
 
   --stroke-color-weak: var(--grey-dark-100);
 
-  --stroke-weak:
+  --ring-weak:
     0 0 0 1px rgb(255 255 255 / 0.12),
     0 1px 2px -1px rgb(0 0 0 / 0.3),
     0 2px 4px 0 rgb(0 0 0 / 0.2);
-  --stroke-weak-hover:
+  --ring-weak-hover:
     0 0 0 1px rgb(255 255 255 / 0.16),
     0 1px 2px -1px rgb(0 0 0 / 0.35),
     0 2px 4px 0 rgb(0 0 0 / 0.25);
-  --stroke-strong:
+  --ring-strong:
     0 0 0 1px rgb(255 255 255 / 0.2),
     0 1px 2px -1px rgb(0 0 0 / 0.35),
     0 2px 4px 0 rgb(0 0 0 / 0.25);
-  --stroke-focus: 0 0 0 2px rgb(var(--brand-dark-1000)), 0 0 8px 2px rgb(var(--brand-dark-1000) / 0.4);
-  --stroke-brand-strong: 0 0 0 1px rgb(var(--brand-dark-1000) / 0.8);
-  --stroke-brand-weak: 0 0 0 1px rgb(var(--brand-dark-1000) / 0.2);
-  --stroke-error-strong: 0 0 0 1px rgb(var(--red-dark-800));
-  --stroke-error-weak: 0 0 0 1px rgb(255 156 156 / 0.2);
-  --stroke-inverse-weak: 0 0 0 1px rgb(var(--grey-light-100));
+  --ring-focus: 0 0 0 2px rgb(var(--brand-dark-1000)), 0 0 8px 2px rgb(var(--brand-dark-1000) / 0.4);
+  --ring-brand-strong: 0 0 0 1px rgb(var(--brand-dark-1000) / 0.8);
+  --ring-brand-weak: 0 0 0 1px rgb(var(--brand-dark-1000) / 0.2);
+  --ring-error-strong: 0 0 0 1px rgb(var(--red-dark-800));
+  --ring-error-weak: 0 0 0 1px rgb(255 156 156 / 0.2);
+  --ring-inverse-weak: 0 0 0 1px rgb(var(--grey-light-100));
 
   --fill-strong: var(--grey-dark-1000);
   --fill-weak: var(--grey-dark-50);
   --fill-weaker: var(--grey-dark-25);
-  --fill-hover: inset 0 0 0 9999px rgb(var(--grey-dark-50));
-  --fill-press: inset 0 0 0 9999px rgb(var(--grey-dark-100));
+  --overlay-hover: inset 0 0 0 9999px rgb(var(--grey-dark-50));
+  --overlay-press: inset 0 0 0 9999px rgb(var(--grey-dark-100));
   --fill-disabled: var(--grey-dark-100);
   --fill-brand-strong: var(--brand-dark-1000);
   --fill-brand-weak: var(--brand-dark-1000) / 0.1;

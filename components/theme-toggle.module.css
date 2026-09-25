@@ -116,7 +116,7 @@
   border: 1px solid transparent;
   border-radius: 8px;
   background: rgb(var(--fill-weak));
-  box-shadow: var(--stroke-weak);
+  box-shadow: var(--ring-weak);
 }
 
 .option {
@@ -159,7 +159,7 @@
   width: calc((100% - 22px) / 3);
   border-radius: 6px;
   background: rgb(var(--background-base));
-  box-shadow: var(--stroke-weak), var(--elevation-raised);
+  box-shadow: var(--ring-weak), var(--elevation-raised);
   pointer-events: none;
 }
 
