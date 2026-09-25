@@ -80,6 +80,9 @@
   padding: 40px var(--gutter);
   background: rgb(var(--background-raised));
   box-shadow: var(--stroke-weak);
+  /* Invisible normally; forced-colors mode removes the shadow and paints this. */
+  outline: 1px solid transparent;
+  outline-offset: -1px;
   overflow-x: clip;
 }
 
@@ -98,6 +101,7 @@
   place-items: center;
   width: 32px;
   height: 32px;
+  border: 1px solid transparent;
   border-radius: 8px;
   color: rgb(var(--text-weak));
   background: rgb(var(--background-base));
@@ -174,9 +178,10 @@
   margin: 0;
   padding: 14px 16px;
   overflow-x: auto;
+  /* A real border (not an inset shadow) so the block keeps its edge in forced colors. */
+  border: 1px solid rgb(var(--stroke-color-weak));
   border-radius: 8px;
   background: rgb(var(--fill-weak));
-  box-shadow: inset 0 0 0 1px rgb(var(--stroke-color-weak));
   font: var(--type-code);
   color: rgb(var(--text-strong));
   tab-size: 2;

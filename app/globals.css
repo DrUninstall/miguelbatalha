@@ -288,9 +288,11 @@ svg {
   background: rgb(var(--fill-brand-strong) / 0.2);
 }
 
-/* An outline, not a box-shadow, so components that set their own shadows can't erase it. */
+/* An outline, not a box-shadow: component shadows can't erase it, and forced-colors
+   mode repaints it instead of removing it. Neutral, so it never reads as a selected
+   or brand-coloured state next to brand-filled controls. */
 :focus-visible {
-  outline: 2px solid rgb(var(--fill-brand-strong));
+  outline: 2px solid rgb(var(--text-strong));
   outline-offset: 2px;
 }
 
