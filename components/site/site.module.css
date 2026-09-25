@@ -14,7 +14,7 @@
 }
 
 .name {
-  font-size: 15px;
+  font: var(--type-row);
   font-weight: 500;
   letter-spacing: -0.01em;
   color: rgb(var(--text-strong));
@@ -30,12 +30,12 @@
 }
 
 .navLink {
-  font-size: 14px;
+  font: var(--type-small);
   color: rgb(var(--text-weak));
   transition: color 150ms ease;
 }
 
-.navLink[aria-current="page"] {
+.navLink[aria-current] {
   color: rgb(var(--text-strong));
 }
 
@@ -52,7 +52,7 @@
 
 .footer {
   padding-block: 48px;
-  font-size: 13px;
+  font: var(--type-caption);
   color: rgb(var(--text-weak));
 }
 

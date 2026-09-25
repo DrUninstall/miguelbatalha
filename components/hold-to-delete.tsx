@@ -11,7 +11,7 @@ const CONFIRMED_MS = 1500;
 type HoldState = "idle" | "holding" | "done";
 
 const LABELS = {
-  idle: "Hold to Delete",
+  idle: "Hold to delete",
   holding: "Keep holding…",
   done: "Deleted",
 } as const;

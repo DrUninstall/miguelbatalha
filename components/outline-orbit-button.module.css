@@ -22,8 +22,10 @@
   transition: opacity var(--duration-fast) var(--ease-out-cubic);
 }
 
-.container:hover .buttonBg {
-  opacity: 0.9;
+@media (hover: hover) and (pointer: fine) {
+  .container:hover .buttonBg {
+    opacity: 0.9;
+  }
 }
 
 .buttonText {
@@ -73,4 +75,40 @@
   stroke: rgb(var(--fill-brand-strong) / 0.20);
 }
 
-/* Reduced motion: the JS loop never starts, so the orbits render as static dashed rings. */
+/* The orbit loop. The rect path runs clockwise on screen, so a falling
+   stroke-dashoffset moves the dashes clockwise. strokeDasharray is "4 4" (an
+   8px period), so moving the dashes 64px (8 periods) lands exactly where it
+   started and the loop is seamless. One pass takes 3s, linear; hover/focus speeds it up from JS by
+   changing each animation's playbackRate, not this duration. */
+@keyframes orbitClockwise {
+  to {
+    stroke-dashoffset: -64;
+  }
+}
+
+@keyframes orbitCounterClockwise {
+  to {
+    stroke-dashoffset: 64;
+  }
+}
+
+.orbit {
+  stroke-dashoffset: 0;
+  animation: orbitClockwise 3s linear infinite;
+}
+
+.orbitMiddle {
+  animation-name: orbitCounterClockwise;
+}
+
+/* Off-screen: stop repainting dashes nobody can see */
+.offScreen .orbit {
+  animation-play-state: paused;
+}
+
+/* Reduced motion: no loop, the orbits render as static dashed rings. */
+@media (prefers-reduced-motion: reduce) {
+  .orbit {
+    animation: none;
+  }
+}

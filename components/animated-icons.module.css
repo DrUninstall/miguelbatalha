@@ -28,17 +28,44 @@
   display: block;
 }
 
+/* Indeterminate spinner: one turn per second, linear, forever. CSS keyframes
+   so the demo's Pause toggle (animation-play-state) and reduced motion stop it. */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
 .pulsingDotContainer {
   position: relative;
   display: inline-block;
 }
 
-/* inset: 0 (not translate) so framer's inline transform: scale() can't displace it */
+/* A ring grows out of the dot and fades: scale 1 → 2.5, opacity 0.6 → 0,
+   1.6s ease-out, restarting forever. Positioned with inset: 0 so the scale
+   grows from the dot's centre. */
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
 .pulsingDotOuter {
   position: absolute;
   inset: 0;
   background: rgb(var(--icon-success));
   border-radius: 9999px;
+  opacity: 0;
+  animation: pulse 1.6s ease-out infinite;
 }
 
 .pulsingDotInner {
@@ -185,6 +212,15 @@
   stroke-dashoffset: 0;
   opacity: 1;
   transition: stroke-dashoffset 300ms var(--ease-out-cubic);
+}
+
+/* Reduced motion: the spinner and pulse aren't rendered as moving elements
+   (see the components); this is a belt-and-braces stop for the CSS loops. */
+@media (prefers-reduced-motion: reduce) {
+  .spin,
+  .pulsingDotOuter {
+    animation: none;
+  }
 }
 
 .srOnly {

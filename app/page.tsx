@@ -89,7 +89,7 @@ export default function Home() {
           {blogPosts.slice(0, 4).map((post) => (
             <li key={post.slug}>
               <Link
-                href={`/blog/${post.slug}`}
+                href={`/blog/${post.slug}/`}
                 className={`${list.row} ${list.interactive}`}
               >
                 <span className={list.primary}>{post.title}</span>
@@ -100,7 +100,7 @@ export default function Home() {
             </li>
           ))}
         </ul>
-        <Link href="/blog" className={list.more}>
+        <Link href="/blog/" className={list.more}>
           All writing <span aria-hidden="true">→</span>
         </Link>
       </section>

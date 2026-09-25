@@ -8,7 +8,8 @@ import styles from "./page.module.css";
 
 export const metadata: Metadata = {
   title: "Writing",
-  description: "Notes on interface design, motion, and building products.",
+  description: "Notes on interface design, motion, and the details that make interfaces hold up.",
+  alternates: { canonical: "/blog/" },
 };
 
 export default function BlogPage() {
@@ -16,16 +17,16 @@ export default function BlogPage() {
     <main className={site.page}>
       <h1 className={styles.title}>Writing</h1>
       <p className={styles.lede}>
-        Notes on interface design, motion, and building products. Most posts
-        include the live components they describe.
+        Notes on interface design and motion. Every post includes the live
+        components it describes.
       </p>
 
       <ul className={`${list.list} ${styles.posts}`}>
         {blogPosts.map((post) => (
           <li key={post.slug}>
             <Link
-              href={`/blog/${post.slug}`}
-              className={`${list.row} ${list.interactive}`}
+              href={`/blog/${post.slug}/`}
+              className={`${list.row} ${list.interactive} ${styles.postRow}`}
             >
               <span className={styles.entry}>
                 <span className={styles.entryTitle}>{post.title}</span>

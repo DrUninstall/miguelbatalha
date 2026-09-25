@@ -162,7 +162,7 @@
 }
 
 .midpointLabel {
-  font-size: 11px;
+  font-size: 12px;
   color: rgb(var(--text-weak));
   font-variant-numeric: tabular-nums;
 }

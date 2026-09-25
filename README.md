@@ -26,7 +26,7 @@ components/
   *.tsx               the demo components posts embed
 ```
 
-To add a post: write `app/blog/_posts/<slug>.tsx` using plain elements plus `Demo` and `Code` from `app/blog/_components/demo.tsx`, add an entry to `posts.ts`, and register it in `app/blog/[slug]/page.tsx`. Every claim a post makes about a demo should match the component's code.
+To add a post: write `app/blog/_posts/<slug>.tsx` using plain elements plus `Demo` and `Code` from `app/blog/_components/demo.tsx`, add an entry to `posts.ts`, and create `app/blog/<slug>/page.tsx` rendering it inside `PostPage` (one route per post, so each page ships only its own demos). Demos that loop on their own take `<Demo loop>`, which adds a pause toggle. Every claim a post makes about a demo should match the component's code.
 
 The blog publishes an RSS feed at `/blog/rss.xml`.
 

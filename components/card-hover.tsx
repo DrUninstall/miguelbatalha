@@ -104,7 +104,7 @@ export function CardHover({ title, subtitle, children }: CardHoverProps) {
         {title}
       </span>
       <div ref={overlayRef} className={styles.overlay}>
-        <h3 className={styles.cardTitle}>{title}</h3>
+        <p className={styles.cardTitle}>{title}</p>
         <p className={styles.cardSubtitle}>{subtitle}</p>
       </div>
     </div>

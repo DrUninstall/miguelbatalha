@@ -33,6 +33,7 @@
   transform: scale(0.94);
 }
 
+/* Both icons are stacked in the same spot; the theme class picks one. */
 .iconWrapper {
   position: absolute;
   inset: 0;
@@ -46,10 +47,66 @@
   height: 16px;
 }
 
-/* Expanded theme toggle */
+/* Resting states (no motion): sun in light, moon in dark. */
+.moon,
+:global(.dark) .sun {
+  opacity: 0;
+  transform: scale(0.25);
+  filter: blur(4px);
+}
+
+:global(.dark) .moon {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* The swap: the incoming icon grows from 25% and sharpens while the outgoing
+   one shrinks to 25% and blurs out, both 200ms ease-out. Keyframes (not
+   transitions) because next-themes suppresses transitions while it switches
+   the class; each keyframe only defines `from` and ends on the resting state
+   above. Only enabled after a toggle (data-theme-switched), so the page
+   doesn't animate the icon on load. */
+@keyframes iconIn {
+  from {
+    opacity: 0;
+    transform: scale(0.25);
+    filter: blur(4px);
+  }
+}
+
+@keyframes iconOut {
+  from {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+:global(html[data-theme-switched]:not(.dark)) .sun,
+:global(html[data-theme-switched].dark) .moon {
+  animation: iconIn var(--duration-fast) var(--ease-out-cubic);
+}
+
+:global(html[data-theme-switched].dark) .sun,
+:global(html[data-theme-switched]:not(.dark)) .moon {
+  animation: iconOut var(--duration-fast) var(--ease-out-cubic);
+}
+
+/* Placeholder until the theme is known, so the header doesn't shift */
+.skeleton {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+}
+
+/* ---------- Expanded theme toggle ---------- */
+
+/* Two equal columns so one highlight can slide between them with a transform */
 .expandedToggle {
   position: relative;
-  display: flex;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
   padding: 4px;
   background: rgb(var(--fill-weak));
@@ -60,9 +117,9 @@
 
 .toggleButton {
   position: relative;
-  isolation: isolate;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 6px 12px;
   border-radius: 6px;
@@ -71,63 +128,67 @@
   background: transparent;
   border: none;
   cursor: pointer;
+  color: rgb(var(--text-weak));
   transition: color var(--duration-fast) var(--ease-out-cubic);
 }
 
-.toggleButton.active {
+/* Active option: light unless <html> has .dark */
+.optionLight,
+:global(.dark) .optionDark {
   color: rgb(var(--text-strong));
 }
 
-.toggleButton.inactive {
+:global(.dark) .optionLight {
   color: rgb(var(--text-weak));
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .toggleButton.inactive:hover {
+  button.toggleButton:hover {
     color: rgb(var(--text-strong));
   }
 }
 
 .toggleIcon {
-  position: relative;
   width: 14px;
   height: 14px;
+  flex-shrink: 0;
 }
 
-.toggleLabel {
-  position: relative;
-}
-
-/* Rendered inside the active button; framer's layoutId moves it between
-   buttons with transforms (border-radius is set inline so it's scale-corrected) */
+/* One highlight for the whole control: column width is (100% - 2*4px padding
+   - 8px gap) / 2, and moving one column over is its own width + the gap. */
 .highlight {
   position: absolute;
-  inset: 0;
-  z-index: -1;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 8px);
+  border-radius: 6px;
   background: rgb(var(--background-base));
   box-shadow: var(--stroke-weak), var(--elevation-raised);
+  pointer-events: none;
 }
 
-/* Placeholder until the theme is known, so the header doesn't shift */
-.skeleton {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
+:global(.dark) .highlight {
+  transform: translateX(calc(100% + 8px));
 }
 
-.skeletonExpanded {
-  display: flex;
-  gap: 8px;
-  padding: 4px;
-  background: rgb(var(--fill-weak));
-  border-radius: 8px;
-  border: none;
-  box-shadow: var(--stroke-weak);
+/* Slide, 300ms ease-out; keyframes for the same reason as the icon swap. */
+@keyframes highlightToLight {
+  from {
+    transform: translateX(calc(100% + 8px));
+  }
 }
 
-.skeletonButton {
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
+@keyframes highlightToDark {
+  from {
+    transform: none;
+  }
+}
+
+:global(html[data-theme-switched]:not(.dark)) .highlight {
+  animation: highlightToLight var(--duration-normal) var(--ease-out-cubic);
+}
+
+:global(html[data-theme-switched].dark) .highlight {
+  animation: highlightToDark var(--duration-normal) var(--ease-out-cubic);
 }

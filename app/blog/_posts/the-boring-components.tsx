@@ -1,188 +1,19 @@
-"use client";
-
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Toggle } from "@/components/ui/toggle";
-import { SegmentedControl } from "@/components/ui/segmented-control";
-import { TabSelector } from "@/components/ui/tab-selector";
-import { Stages } from "@/components/ui/stages";
-import { Toaster, useToast } from "@/components/toast";
+import { Toaster } from "@/components/toast";
 import { ThemeToggleExpanded } from "@/components/theme-toggle";
-import {
-  AnimatedHeart,
-  AnimatedStar,
-  AnimatedSpinner,
-  PulsingDot,
-  LikeButton,
-  PlayPauseButton,
-  MuteButton,
-  VisibilityToggle,
-  ExpandButton,
-  CopyButton,
-  SubmitButton,
-  DownloadButton,
-} from "@/components/animated-icons";
 import { Code, Demo } from "../_components/demo";
 import ui from "../_components/post.module.css";
-
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function FieldDemo() {
-  const [email, setEmail] = useState("");
-  const [touched, setTouched] = useState(false);
-  const error =
-    touched && email !== "" && !EMAIL.test(email)
-      ? "Enter an email address like name@example.com."
-      : undefined;
-  return (
-    <div className={ui.stack}>
-      <Input
-        label="Work email"
-        type="email"
-        autoComplete="email"
-        placeholder="name@example.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        onBlur={() => setTouched(true)}
-        error={error}
-      />
-    </div>
-  );
-}
-
-function SelectionDemo() {
-  const [view, setView] = useState("grid");
-  const [tab, setTab] = useState("overview");
-  const [notify, setNotify] = useState(true);
-  return (
-    <div className={`${ui.stack} ${ui.stackCentered}`}>
-      <SegmentedControl
-        aria-label="View"
-        options={[
-          { value: "grid", label: "Grid" },
-          { value: "list", label: "List" },
-          { value: "board", label: "Board" },
-        ]}
-        value={view}
-        onChange={setView}
-      />
-      <TabSelector
-        aria-label="Project sections"
-        tabs={[
-          { id: "overview", label: "Overview" },
-          { id: "analytics", label: "Analytics" },
-          { id: "settings", label: "Settings" },
-        ]}
-        activeTab={tab}
-        onTabChange={setTab}
-      />
-      <Toggle label="Email notifications" checked={notify} onChange={setNotify} />
-    </div>
-  );
-}
-
-const STEPS = [
-  { id: "account", label: "Account" },
-  { id: "profile", label: "Profile" },
-  { id: "preferences", label: "Preferences" },
-  { id: "done", label: "Done" },
-];
-
-function StagesDemo() {
-  const [step, setStep] = useState(0);
-  return (
-    <div className={ui.stack}>
-      <Stages
-        aria-label="Sign-up progress"
-        stages={STEPS}
-        currentStage={step}
-        onBack={() => setStep((s) => Math.max(0, s - 1))}
-      />
-      <div className={ui.row}>
-        <Button
-          variant="secondary"
-          size="small"
-          onClick={() => setStep((s) => Math.max(0, s - 1))}
-          disabled={step === 0}
-        >
-          Back
-        </Button>
-        <Button
-          variant="primary"
-          tone="brand"
-          size="small"
-          onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}
-          disabled={step === STEPS.length - 1}
-        >
-          Next
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function ToastDemo() {
-  const toast = useToast();
-  return (
-    <div className={ui.row}>
-      <Button size="small" onClick={() => toast.success("Changes saved")}>
-        Success
-      </Button>
-      <Button size="small" onClick={() => toast.error("Couldn’t reach the server. Try again.")}>
-        Error
-      </Button>
-      <Button
-        size="small"
-        onClick={() =>
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
-            loading: "Uploading…",
-            success: "Upload complete",
-            error: "Upload failed",
-          })
-        }
-      >
-        Loading → success
-      </Button>
-    </div>
-  );
-}
-
-function IconsDemo() {
-  const [liked, setLiked] = useState(false);
-  const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const items: [string, React.ReactNode][] = [
-    ["Heart", <AnimatedHeart key="heart" />],
-    ["Star", <AnimatedStar key="star" />],
-    ["Like", <LikeButton key="like" isLiked={liked} onToggle={() => setLiked(!liked)} />],
-    ["Play", <PlayPauseButton key="play" isPlaying={playing} onToggle={() => setPlaying(!playing)} />],
-    ["Mute", <MuteButton key="mute" isMuted={muted} onToggle={() => setMuted(!muted)} />],
-    ["Show", <VisibilityToggle key="show" isVisible={visible} onToggle={() => setVisible(!visible)} />],
-    ["Expand", <ExpandButton key="expand" isExpanded={expanded} onToggle={() => setExpanded(!expanded)} />],
-    ["Copy", <CopyButton key="copy" />],
-    ["Send", <SubmitButton key="send" />],
-    ["Download", <DownloadButton key="download" />],
-    ["Loading", <AnimatedSpinner key="spinner" />],
-    ["Online", <PulsingDot key="dot" />],
-  ];
-  return (
-    <div className={ui.iconGrid}>
-      {items.map(([label, node]) => (
-        <div key={label} className={ui.iconItem}>
-          {node}
-          <span aria-hidden="true">{label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
+import {
+  FieldDemo,
+  SelectionDemo,
+  StagesDemo,
+  ToastDemo,
+  IconsDemo,
+} from "./the-boring-components.demos";
 
 export default function TheBoringComponents() {
   return (
-    <Toaster>
+    <>
       <p>
         A good animation plays once per visit. A button gets pressed every
         time anyone does anything. Buttons, fields, switches, tabs, toasts:
@@ -272,8 +103,11 @@ border: 1px solid rgb(var(--stroke-brand-weak));
         <FieldDemo />
       </Demo>
       <p>
-        Two smaller rules. The error only appears after you leave the field,
-        not on every keystroke while you’re still typing. And on touch
+        Two smaller rules. Nothing is flagged until you leave the field with
+        a bad value. After that, the message updates as you type, so it
+        disappears the moment the address is fixed. My first version got this
+        backwards: leaving the field once, even with a valid address, turned
+        on checking for every keystroke. And on touch
         screens, fields use at least 16px text: below that, iOS zooms the
         whole page when you tap into one.
       </p>
@@ -361,21 +195,24 @@ border: 1px solid rgb(var(--stroke-brand-weak));
       <h2>Icons that answer back</h2>
       <p>
         Twelve small icons. I’ll be straight about these: six of them (like,
-        play, mute, show, copy, send) share one animation, a quick crossfade
-        where the new icon scales up from 25% as the old one blurs out. That’s
-        fine. They’re doing the same job, swapping one state for another, and
-        one consistent motion is better than six clever ones.
+        play, mute, show password, copy, send) share one animation, a quick
+        crossfade where the new icon scales up from 25% as the old one blurs
+        out. That’s fine. They’re doing the same job, swapping one state for
+        another, and one consistent motion is better than six clever ones.
+        Copy and Send add behaviour on top of that swap: Copy actually writes
+        to your clipboard and says “Copied” to screen readers, and Send shows
+        a loading state before its check.
       </p>
       <p>
-        The others have something specific to say. The heart pops with a
+        The other six have something specific to say. The heart pops with a
         bouncy spring when you fill it and doesn’t bounce when you unfill it.
         The star turns 72° as it fills, which a five-pointed star can do
-        without looking any different at the end. The download arrow drops
-        into a tray and a check draws in. Copy actually writes to your
-        clipboard and says “Copied” to screen readers, and Send shows a
-        loading state before its check.
+        without looking any different at the end. The chevron turns to show
+        whether the details are open. The download arrow drops into a tray and
+        a check draws in. And two aren’t buttons at all: a spinner and an
+        “online” dot, which are status indicators with their own names.
       </p>
-      <Demo caption="All of them are real buttons with names; toggles report their state.">
+      <Demo loop caption="Ten buttons and two status indicators. Each caption is the control’s accessible name; toggles report their state.">
         <IconsDemo />
       </Demo>
       <p>
@@ -393,6 +230,7 @@ border: 1px solid rgb(var(--stroke-brand-weak));
         only a keyboard, with a screen reader on, at phone width and in dark
         mode. The boring components are where that habit catches the most.
       </p>
-    </Toaster>
+      <Toaster />
+    </>
   );
 }

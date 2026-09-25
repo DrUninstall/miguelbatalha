@@ -4,14 +4,31 @@
   align-items: center;
   justify-content: center;
   min-height: 320px;
+  padding: 32px;
   overflow: hidden;
   /* Horizontal finger drags drive the demo; vertical swipes still scroll the page
      (the browser then fires pointercancel and the grid returns to rest). */
   touch-action: pan-y;
 }
 
+/*
+ * The column count is decided here, not in JS: auto-fill fits as many 4px
+ * columns (20px apart) as the width allows, between 6 (min-width) and 20
+ * (max-width), and centres them. 120 shapes are always rendered; the fixed
+ * height shows exactly six rows and clip-path hides the rest. The clip is
+ * widened sideways so the outer columns' pills can still rotate past the edge.
+ */
 .grid {
   display: grid;
+  width: 100%;
+  min-width: 124px; /* 6 columns: 6 * 4px + 5 * 20px */
+  max-width: 460px; /* 20 columns: 20 * 4px + 19 * 20px */
+  height: 244px; /* 6 rows: 6 * 24px + 5 * 20px */
+  grid-template-columns: repeat(auto-fill, 4px);
+  grid-auto-rows: 24px;
+  gap: 20px;
+  justify-content: center;
+  clip-path: inset(0 -12px);
 }
 
 .shape {

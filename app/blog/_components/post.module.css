@@ -3,8 +3,7 @@
 .prose > p,
 .prose > ul,
 .prose > ol {
-  font-size: 16px;
-  line-height: 28px;
+  font: var(--type-body);
   color: rgb(var(--text-weak));
 }
 
@@ -14,9 +13,7 @@
 
 .prose > h2 {
   margin-top: 56px;
-  font-size: 20px;
-  line-height: 28px;
-  font-weight: 600;
+  font: var(--type-heading);
   letter-spacing: -0.01em;
   color: rgb(var(--text-strong));
 }
@@ -59,7 +56,7 @@
 }
 
 .prose > :is(p, ul, ol, h2) code {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.875em;
   padding: 1px 5px;
   border-radius: 4px;
@@ -75,6 +72,7 @@
 }
 
 .stage {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,11 +83,53 @@
   overflow-x: clip;
 }
 
+/* Pause toggle for demos that loop on their own. Its stage gets extra room
+   at the top so the toggle never sits on the demo. */
+.stage:has(> .pause) {
+  padding-top: 56px;
+}
+
+/* Pause toggle for demos that loop on their own. */
+.pause {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: rgb(var(--text-weak));
+  background: rgb(var(--background-base));
+  box-shadow: var(--stroke-weak);
+  transition:
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.pause svg {
+  width: 14px;
+  height: 14px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pause:hover {
+    color: rgb(var(--text-strong));
+    box-shadow: var(--stroke-weak-hover);
+  }
+}
+
+/* Nothing loops under reduced motion, so there is nothing to pause. */
+@media (prefers-reduced-motion: reduce) {
+  .pause {
+    display: none;
+  }
+}
+
 .caption {
   margin-top: 10px;
   padding-inline: var(--gutter);
-  font-size: 13px;
-  line-height: 20px;
+  font: var(--type-caption);
   color: rgb(var(--text-weak));
 }
 
@@ -126,8 +166,7 @@
 
 .codeLabel {
   margin-bottom: 6px;
-  font-size: 12px;
-  line-height: 16px;
+  font: var(--type-label);
   color: rgb(var(--text-weak));
 }
 
@@ -138,11 +177,14 @@
   border-radius: 8px;
   background: rgb(var(--fill-weak));
   box-shadow: inset 0 0 0 1px rgb(var(--stroke-color-weak));
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 13px;
-  line-height: 21px;
+  font: var(--type-code);
   color: rgb(var(--text-strong));
   tab-size: 2;
+}
+
+/* The UA stylesheet sets \`code { font-family: monospace }\`; inherit the block's face. */
+.code pre code {
+  font: inherit;
 }
 
 /* Layout helpers for arranging several controls inside one demo. */
@@ -178,11 +220,11 @@
 .iconItem {
   display: grid;
   grid-template-rows: 40px auto;
+  align-content: start;
   justify-items: center;
   align-items: center;
   gap: 4px;
-  font-size: 12px;
-  line-height: 16px;
+  font: var(--type-label);
   color: rgb(var(--text-weak));
   text-align: center;
 }

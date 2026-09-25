@@ -1,17 +1,29 @@
-/* Full width of the stage: the dock scales itself from this measurement, so it
-   must not shrink to fit the dock (that would feed back into a smaller dock). */
+/* Full width of the stage, and the size container the dock measures itself
+   against. It must not shrink to fit the dock (inline-size containment makes
+   sure its width never depends on the dock inside it). */
 .container {
+  container-type: inline-size;
   display: flex;
   justify-content: center;
   width: 100%;
   padding: 64px 0 48px;
 }
 
+/*
+ * The full dock needs 500px: 8 icons x 40 + 7 gaps x 12 + 2 x 8 padding, plus
+ * 2 x 40 for the end icons' outward nudge. Below that, every size shrinks by
+ * the same factor, 100cqi / 500px, written per size (CSS can't yet divide a
+ * length by a length to get a unitless scale in every browser):
+ *   40px -> 40 / 500 = 8% of the container, 12px -> 2.4%, 8px -> 1.6%.
+ */
 .dock {
+  --icon-size: min(40px, 8cqi);
+  --icon-gap: min(12px, 2.4cqi);
+  --dock-pad: min(8px, 1.6cqi);
   display: flex;
   align-items: end;
-  gap: var(--icon-gap, 12px);
-  padding: var(--dock-pad, 8px) var(--dock-pad, 8px) calc(var(--dock-pad, 8px) * 1.5);
+  gap: var(--icon-gap);
+  padding: var(--dock-pad) var(--dock-pad) calc(var(--dock-pad) * 1.5);
   position: relative;
   isolation: isolate; /* keep the z-index: -1 background inside the dock */
   /* Horizontal finger drags magnify; vertical swipes still scroll the page. */
@@ -30,9 +42,9 @@
 
 .appIcon {
   flex-shrink: 0;
-  width: var(--icon-size, 40px);
-  height: var(--icon-size, 40px);
-  border-radius: calc(var(--icon-size, 40px) * 0.25);
+  width: var(--icon-size);
+  height: var(--icon-size);
+  border-radius: calc(var(--icon-size) * 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -41,6 +53,12 @@
   border: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: box-shadow 0.2s ease;
+}
+
+/* The glyph is half the icon (20px at full size). */
+.appIcon svg {
+  width: 50%;
+  height: 50%;
 }
 
 .appIcon:hover {

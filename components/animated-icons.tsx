@@ -126,13 +126,11 @@ export function AnimatedSpinner({ size = 24 }: { size?: number }) {
         // Static partial ring: same shape, no motion
         <Loader2 size={size} className={styles.spinner} aria-hidden="true" />
       ) : (
-        <motion.span
-          className={styles.iconSwitchWrapper}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        >
+        // CSS @keyframes (1s linear, infinite) so a paused demo or an
+        // off-screen page stops it without any JS
+        <span className={`${styles.iconSwitchWrapper} ${styles.spin}`}>
           <Loader2 size={size} className={styles.spinner} aria-hidden="true" />
-        </motion.span>
+        </span>
       )}
       <span className={styles.srOnly}>Loading</span>
     </span>
@@ -156,12 +154,8 @@ export function PulsingDot({
     >
       {!reduceMotion && (
         // A ring that grows out of the dot and fades, restarting every 1.6s
-        <motion.span
-          className={styles.pulsingDotOuter}
-          initial={{ scale: 1, opacity: 0.6 }}
-          animate={{ scale: 2.5, opacity: 0 }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
-        />
+        // (CSS @keyframes: scale 1 → 2.5, opacity 0.6 → 0, ease-out)
+        <span className={styles.pulsingDotOuter} />
       )}
       <span className={styles.pulsingDotInner} />
     </span>
@@ -215,17 +209,20 @@ export function LikeButton({
   size = 20,
   isLiked,
   onToggle,
+  label = "Like",
 }: {
   size?: number;
   isLiked: boolean;
   onToggle: () => void;
+  /** Accessible name; keep it equal to any visible caption */
+  label?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onToggle}
       className={styles.iconButton}
-      aria-label="Like"
+      aria-label={label}
       aria-pressed={isLiked}
     >
       <AnimatedIconSwitch iconKey={isLiked ? "liked" : "unliked"}>
@@ -244,17 +241,20 @@ export function PlayPauseButton({
   size = 20,
   isPlaying,
   onToggle,
+  label = "Play",
 }: {
   size?: number;
   isPlaying: boolean;
   onToggle: () => void;
+  /** Accessible name; keep it equal to any visible caption */
+  label?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onToggle}
       className={styles.iconButton}
-      aria-label="Play"
+      aria-label={label}
       aria-pressed={isPlaying}
     >
       <AnimatedIconSwitch iconKey={isPlaying ? "pause" : "play"}>
@@ -272,17 +272,20 @@ export function MuteButton({
   size = 20,
   isMuted,
   onToggle,
+  label = "Mute",
 }: {
   size?: number;
   isMuted: boolean;
   onToggle: () => void;
+  /** Accessible name; keep it equal to any visible caption */
+  label?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onToggle}
       className={styles.iconButton}
-      aria-label="Mute"
+      aria-label={label}
       aria-pressed={isMuted}
     >
       <AnimatedIconSwitch iconKey={isMuted ? "muted" : "unmuted"}>
@@ -300,17 +303,20 @@ export function VisibilityToggle({
   size = 20,
   isVisible,
   onToggle,
+  label = "Show password",
 }: {
   size?: number;
   isVisible: boolean;
   onToggle: () => void;
+  /** Accessible name; keep it equal to any visible caption */
+  label?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onToggle}
       className={styles.iconButton}
-      aria-label="Show password"
+      aria-label={label}
       aria-pressed={isVisible}
     >
       <AnimatedIconSwitch iconKey={isVisible ? "visible" : "hidden"}>
@@ -380,11 +386,14 @@ export function CopyButton({
   size = 20,
   text = "Copied from the animated icons demo",
   onCopy,
+  label = "Copy",
 }: {
   size?: number;
   /** What gets written to the clipboard */
   text?: string;
   onCopy?: () => void;
+  /** Accessible name; keep it equal to any visible caption */
+  label?: string;
 }) {
   const [isCopied, setIsCopied] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -415,7 +424,7 @@ export function CopyButton({
         type="button"
         onClick={handleCopy}
         className={styles.iconButton}
-        aria-label="Copy to clipboard"
+        aria-label={label}
       >
         <AnimatedIconSwitch iconKey={isCopied ? "check" : "copy"}>
           {isCopied ? (
@@ -441,12 +450,15 @@ export function SubmitButton({
   size = 20,
   onSubmit,
   disabled = false,
+  label = "Send",
 }: {
   size?: number;
   onSubmit?: () => void;
   disabled?: boolean;
   /** @deprecated Ignored: the button now runs its own loading/success sequence. */
   isSubmitted?: boolean;
+  /** Accessible name; keep it equal to any visible caption */
+  label?: string;
 }) {
   const [phase, setPhase] = useState<"idle" | "loading" | "success">("idle");
   const reduceMotion = useReducedMotion();
@@ -469,20 +481,16 @@ export function SubmitButton({
         type="button"
         onClick={handleClick}
         className={`${styles.iconButton} ${disabled ? styles.disabled : ""}`}
-        aria-label="Send"
+        aria-label={label}
         aria-disabled={busy || disabled}
       >
         <AnimatedIconSwitch iconKey={phase}>
           {phase === "success" ? (
             <CheckCircle size={size} className={styles.checkIcon} aria-hidden="true" />
           ) : phase === "loading" ? (
-            <motion.span
-              className={styles.iconSwitchWrapper}
-              animate={reduceMotion ? undefined : { rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            >
+            <span className={`${styles.iconSwitchWrapper} ${reduceMotion ? "" : styles.spin}`}>
               <Loader2 size={size} className={styles.defaultIcon} aria-hidden="true" />
-            </motion.span>
+            </span>
           ) : (
             <Send size={size} className={styles.defaultIcon} aria-hidden="true" />
           )}
@@ -501,7 +509,14 @@ const DOWNLOAD_DONE_MS = 2000;
 // Arrow drops into the tray (clipped at the tray floor), a check draws in,
 // then after 2s the arrow slides back in from the top. CSS transitions driven
 // by data-state; no framer-motion.
-export function DownloadButton({ onDownload }: { onDownload?: () => void } = {}) {
+export function DownloadButton({
+  onDownload,
+  label = "Download",
+}: {
+  onDownload?: () => void;
+  /** Accessible name; keep it equal to any visible caption */
+  label?: string;
+} = {}) {
   const [state, setState] = useState<"idle" | "dropping" | "done">("idle");
   const timer = useTimeout();
 
@@ -519,7 +534,7 @@ export function DownloadButton({ onDownload }: { onDownload?: () => void } = {})
     <>
       <button
         type="button"
-        aria-label="Download"
+        aria-label={label}
         aria-disabled={state !== "idle"}
         className={styles.downloadButton}
         data-state={state}

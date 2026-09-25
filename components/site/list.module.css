@@ -1,9 +1,8 @@
 /* Shared row list used on the home and writing pages. */
 
 .heading {
-  font-size: 13px;
+  font: var(--type-caption);
   font-weight: 500;
-  line-height: 20px;
   color: rgb(var(--text-weak));
   margin-bottom: 12px;
 }
@@ -22,8 +21,7 @@
   gap: 16px;
   padding: 8px 10px;
   border-radius: 8px;
-  font-size: 15px;
-  line-height: 24px;
+  font: var(--type-row);
 }
 
 .interactive {
@@ -54,7 +52,7 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-  font-size: 14px;
+  font: var(--type-small);
   color: rgb(var(--text-weak));
   font-variant-numeric: tabular-nums;
 }
@@ -62,8 +60,7 @@
 .more {
   display: inline-block;
   margin-top: 8px;
-  font-size: 14px;
-  line-height: 20px;
+  font: var(--type-small);
   border-radius: 4px;
   color: rgb(var(--text-weak));
   transition: color 150ms ease;

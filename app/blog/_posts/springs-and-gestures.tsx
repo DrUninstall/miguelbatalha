@@ -42,24 +42,29 @@ export default function SpringsAndGestures() {
 
       <h2>A carousel that keeps your fling</h2>
       <p>
-        Drag the track and let go. It commits to the next card if you dragged
-        more than 50px or released faster than 500px/s; otherwise it springs
-        back. Either way, the release velocity goes into the spring:
+        Drag the track and let go. If you released faster than 500px/s, the
+        direction of that flick decides where it goes, even if your finger
+        first travelled the other way. Otherwise it commits when you dragged
+        more than 50px, and springs back when you didn’t. Either way, the
+        release velocity goes into the spring:
       </p>
       <Code label="swipe-carousel.tsx">{`
-// ζ = 22 / (2 · √300) ≈ 0.64
-const SPRING = { type: "spring", stiffness: 300, damping: 22, mass: 1 };
+// ζ = 22 / (2 · √300) ≈ 0.64: a thrown card overshoots a little
+const RELEASE_SPRING = { type: "spring", stiffness: 300, damping: 22, mass: 1 };
+// ζ = 40 / (2 · √400) = 1: buttons, dots and arrow keys don't
+const SNAP_SPRING = { type: "spring", stiffness: 400, damping: 40, mass: 1 };
 
-// on release, and on every button or arrow-key move (velocity 0)
-animate(x, target, { ...SPRING, velocity });
+animate(x, target, release ? { ...RELEASE_SPRING, velocity } : SNAP_SPRING);
 `}</Code>
       <p>
-        From rest, this spring overshoots by about 7.6% of the distance,
-        roughly 22px on a full card step. A hard fling arrives with more
-        energy and swings further. That small overshoot is what makes it read
-        as something you threw rather than something that moved on its own. I
+        From rest, the release spring overshoots by about 7.6% of the
+        distance, roughly 22px on a full card step, and a hard fling swings
+        further. That overshoot is what makes it read as something you threw.
+        The first version used the same spring for the Next button too, so
+        the card wobbled even though nothing had been thrown. Now buttons,
+        dots and arrow keys get a critically damped spring and just arrive. I
         also turned off Framer’s built-in drag momentum, so it doesn’t compete
-        with this spring.
+        with either.
       </p>
       <Demo caption="Drag or swipe the cards. Prev/Next, the dots and the arrow keys work too.">
         <SwipeCarousel />
@@ -70,17 +75,18 @@ animate(x, target, { ...SPRING, velocity });
         animated separately, so they can never get out of sync with your
         finger. For keyboard and screen reader users it’s a labelled
         carousel: arrows move between cards and a live region announces
-        “Card 2 of 5”.
+        “Card 2 of 6”. The cards are this blog’s own posts.
       </p>
 
       <h2>A meter that reacts</h2>
       <p>
         The strength bar is one element scaled horizontally to the share of
-        rules met (0, 0.25, 0.5, 0.75, 1) with a spring at ζ ≈ 0.63. Each time
-        you satisfy a new rule, it jumps forward a little too far and settles.
-        Break a rule and it pulls back the same way. It’s a small thing, but
-        it makes the meter feel like it’s reacting to your typing rather than
-        being recalculated.
+        rules met (0, 0.25, 0.5, 0.75, 1) with a critically damped spring
+        (ζ = 1). It moves quickly and stops exactly on the value. I first gave
+        it some bounce, so it jumped a little past each step. It felt lively,
+        but a meter that briefly shows more strength than you have is
+        reporting something false, and it broke the rule I set out at the end
+        of this post.
       </p>
       <p>
         Each rule’s check mark pops in with a much bouncier spring, ζ ≈ 0.34,

@@ -21,7 +21,9 @@ interface TabSelectorProps {
   className?: string;
 }
 
-const INDICATOR_SPRING = { type: "spring", stiffness: 400, damping: 30 } as const;
+// stiffness 400, damping 40 → damping ratio 40 / (2·√400) = 1: critically
+// damped, so the underline lands on the tab without overshooting it.
+const INDICATOR_SPRING = { type: "spring", stiffness: 400, damping: 40 } as const;
 // Keyboard moves are frequent and already give focus feedback, so they snap.
 const INSTANT = { duration: 0 } as const;
 

@@ -1,22 +1,10 @@
-"use client";
-
-import { useState } from "react";
 import { MouseFollowPattern } from "@/components/mouse-follow-pattern";
 import { MagnifiedDock } from "@/components/magnified-dock";
 import { CardHover } from "@/components/card-hover";
 import { Marquee } from "@/components/marquee";
 import { SparklesButton } from "@/components/sparkles-button";
-import { OutlineOrbitButton } from "@/components/outline-orbit-button";
+import { OrbitButtonDemo } from "./designing-for-the-pointer.demos";
 import { Code, Demo } from "../_components/demo";
-
-function OrbitButtonDemo() {
-  const [clicks, setClicks] = useState(0);
-  return (
-    <OutlineOrbitButton onClick={() => setClicks((n) => n + 1)}>
-      {clicks === 0 ? "Hover or focus me" : `Clicked ${clicks}×`}
-    </OutlineOrbitButton>
-  );
-}
 
 export default function DesigningForThePointer() {
   return (
@@ -103,9 +91,13 @@ const scale = 1 + 1.25 * bell(distance, 110);
       <p>
         Two things that aren’t in most dock tutorials. Tabbing to an icon moves
         the magnification there, as if the pointer were over it, so the effect
-        isn’t mouse-only. And on a narrow screen, the whole dock scales down
-        from its measured width, so eight icons fit on a phone instead of
-        running off the side.
+        isn’t mouse-only. And on a narrow screen, the whole dock scales down so
+        eight icons fit on a phone. That sizing lives in CSS, not JavaScript:
+        the dock is a size container and each icon is{" "}
+        <code>min(40px, 8cqi)</code>. My first version measured the width in
+        JavaScript, which meant the server rendered a full-size dock and it
+        visibly shrank a moment later. The grid above works the same way now,
+        with <code>repeat(auto-fill, 4px)</code> deciding how many columns fit.
       </p>
 
       <h2>A card that knows where you came from</h2>
@@ -133,7 +125,10 @@ function nearestEdge(rect: DOMRect, clientX: number, clientY: number) {
         old side.
       </p>
       <Demo caption="Enter from different sides with a mouse. On touch, tap to toggle; with a keyboard, focus the card.">
-        <CardHover title="Q3 Launch" subtitle="Roadmap, budget and the three bets we’re making this quarter." />
+        <CardHover
+          title="CSS Gradients, Revisited"
+          subtitle="Colour-space interpolation, animated borders with @property, and layered backgrounds."
+        />
       </Demo>
       <p>
         Without a pointer, there’s no edge to come from, so touch and
@@ -177,17 +172,25 @@ function nearestEdge(rect: DOMRect, clientX: number, clientY: number) {
         <SparklesButton>Sparkle</SparklesButton>
       </Demo>
       <p>
-        The orbit button has three dashed outlines moving around it. On hover
-        or keyboard focus, they speed up to 2.5×. The loop isn’t restarted at
-        a new speed; its playback rate is eased up and down, so the dashes
-        accelerate from where they are instead of jumping.
+        The orbit button has three dashed outlines moving around it: plain CSS
+        keyframes on <code>stroke-dashoffset</code>, 3 seconds a lap. On hover
+        or keyboard focus they speed up to 2.5×. The animations aren’t
+        restarted at a new speed. Their playback rate is eased over 600ms, and
+        changing <code>playbackRate</code> keeps each animation’s current
+        position, so the dashes accelerate from where they are:
       </p>
       <Code label="outline-orbit-button.tsx">{`
-// the loop keeps running; only its rate changes
-speed.on("change", (v) => { controls.speed = v; });
-animate(speed, isActive ? 2.5 : 1, { duration: 0.6 });
+const rings = el.getAnimations({ subtree: true });
+// every frame for 600ms, easing from the current rate toward the target
+for (const ring of rings) ring.playbackRate = rate;
 `}</Code>
-      <Demo caption="Hover or focus it to speed the orbit up. With reduced motion on, the rings stay still.">
+      <p>
+        The first version ran the loop in JavaScript, which meant it redrew
+        every frame forever, even scrolled out of view, and nothing but the
+        OS setting could stop it. As CSS it pauses off-screen, and like every
+        looping demo on this site, it has a pause button.
+      </p>
+      <Demo loop caption="Hover or focus it to speed the orbit up. With reduced motion on, the rings stay still.">
         <OrbitButtonDemo />
       </Demo>
 

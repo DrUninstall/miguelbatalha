@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Phone, PhoneOff, Timer, Music } from "lucide-react";
 import styles from "./morphing-pill.module.css";
@@ -21,7 +21,7 @@ const pillContent: Record<
 > = {
   call: { icon: <Phone size={16} />, label: "John Appleseed", color: "rgb(var(--green-dark-800))" },
   timer: { icon: <Timer size={16} />, label: "0:42", color: "rgb(var(--amber-light-1000))" },
-  music: { icon: <Music size={16} />, label: "Now Playing", color: "rgb(var(--brand-dark-1000))" },
+  music: { icon: <Music size={16} />, label: "Now playing", color: "rgb(var(--brand-dark-1000))" },
 };
 
 /**
@@ -30,14 +30,17 @@ const pillContent: Record<
  */
 const LAYOUT_SPRING = { type: "spring" as const, stiffness: 500, damping: 35, mass: 1 };
 
-/** Equaliser bars: deterministic peaks (scaleY) and loop durations per bar. */
+/**
+ * Equaliser bars: deterministic peaks (scaleY), loop durations and delays per
+ * bar. The loop is a CSS @keyframes animation (see .musicBarAnimated), so the
+ * blog's Pause toggle and reduced-motion rule can stop it.
+ */
 const BARS = [
   { peak: 1, duration: 0.6, rest: 0.5 },
   { peak: 0.7, duration: 0.75, rest: 0.9 },
   { peak: 0.9, duration: 0.55, rest: 0.65 },
   { peak: 0.6, duration: 0.7, rest: 0.8 },
 ];
-const BAR_MIN = 0.2;
 
 function MusicBars() {
   const reduceMotion = useReducedMotion();
@@ -48,17 +51,16 @@ function MusicBars() {
           // Static, varied heights: still reads as an equaliser.
           <div key={i} className={styles.musicBar} style={{ transform: `scaleY(${bar.rest})` }} />
         ) : (
-          <motion.div
+          <div
             key={i}
-            className={styles.musicBar}
-            initial={{ scaleY: BAR_MIN }}
-            animate={{ scaleY: [BAR_MIN, bar.peak, BAR_MIN] }}
-            transition={{
-              duration: bar.duration,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.1,
-            }}
+            className={`${styles.musicBar} ${styles.musicBarAnimated}`}
+            style={
+              {
+                "--peak": bar.peak,
+                animationDuration: `${bar.duration}s`,
+                animationDelay: `${i * 0.1}s`,
+              } as CSSProperties
+            }
           />
         )
       )}
@@ -69,6 +71,14 @@ function MusicBars() {
 export function MorphingPill() {
   const [state, setState] = useState<PillState>("idle");
   const reduceMotion = useReducedMotion();
+  const idleButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Accept/Decline end the call, which unmounts the button that had focus.
+  // Hand focus to the "Idle" control, which now reflects the pill's state.
+  const endCall = () => {
+    setState("idle");
+    idleButtonRef.current?.focus();
+  };
 
   return (
     <div className={styles.container}>
@@ -109,7 +119,7 @@ export function MorphingPill() {
                         <button
                           type="button"
                           className={`${styles.callButton} ${styles.accept}`}
-                          onClick={() => setState("idle")}
+                          onClick={endCall}
                           aria-label="Accept call"
                         >
                           <Phone size={14} />
@@ -117,7 +127,7 @@ export function MorphingPill() {
                         <button
                           type="button"
                           className={`${styles.callButton} ${styles.decline}`}
-                          onClick={() => setState("idle")}
+                          onClick={endCall}
                           aria-label="Decline call"
                         >
                           <PhoneOff size={14} />
@@ -138,6 +148,7 @@ export function MorphingPill() {
         {states.map((s) => (
           <button
             key={s.id}
+            ref={s.id === "idle" ? idleButtonRef : undefined}
             type="button"
             className={`${styles.controlButton} ${state === s.id ? styles.active : ""}`}
             onClick={() => setState(s.id)}

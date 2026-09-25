@@ -71,17 +71,24 @@
   transition: none;
 }
 
-/* Reduced motion: no wipe. The overlay switches straight to full while held
-   (and the label reads "Keep holding…"); the JS timer still needs 1500ms. */
+/* Reduced motion: no press scale, and letting go snaps back instantly, but the
+   wipe stays. It is a progress indicator that grows in place rather than
+   something travelling across the screen, and without it a hold has no visible
+   progress. The global reduced-motion rule collapses every transition-duration
+   with !important, so this one has to be !important too (and it wins on
+   specificity). The label also reads "Keep holding…" while held. */
 @media (prefers-reduced-motion: reduce) {
   .button,
-  .overlay,
-  .button[data-state="holding"] .overlay {
+  .overlay {
     transition: none;
   }
 
   .button[data-state="holding"] {
     transform: none;
+  }
+
+  .button[data-state="holding"] .overlay {
+    transition: clip-path 1500ms linear !important;
   }
 }
 

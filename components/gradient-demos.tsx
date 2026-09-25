@@ -288,7 +288,7 @@ export function LayeredGradients() {
           style={mesh.style}
           {...mesh.handlers}
         />
-        <span className={styles.layeredLabel}>Mesh Gradient</span>
+        <span className={styles.layeredLabel}>Mesh gradient</span>
         <span className={styles.layeredDescription}>
           Six radial gradients over a dark linear base
         </span>
@@ -299,7 +299,7 @@ export function LayeredGradients() {
           style={striped.style}
           {...striped.handlers}
         />
-        <span className={styles.layeredLabel}>Striped Overlay</span>
+        <span className={styles.layeredLabel}>Striped overlay</span>
         <span className={styles.layeredDescription}>
           Repeating gradient over a linear one
         </span>
@@ -310,7 +310,7 @@ export function LayeredGradients() {
           style={noise.style}
           {...noise.handlers}
         />
-        <span className={styles.layeredLabel}>Noise Texture</span>
+        <span className={styles.layeredLabel}>Noise texture</span>
         <span className={styles.layeredDescription}>
           SVG turbulence blended over a gradient
         </span>
@@ -321,7 +321,7 @@ export function LayeredGradients() {
             <span className={styles.glassText}>Frosted glass</span>
           </div>
         </div>
-        <span className={styles.layeredLabel}>Glass Effect</span>
+        <span className={styles.layeredLabel}>Glass effect</span>
         <span className={styles.layeredDescription}>
           Backdrop blur over layered shapes
         </span>

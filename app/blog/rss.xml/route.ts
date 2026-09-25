@@ -12,8 +12,8 @@ export function GET() {
     .map(
       (post) => `    <item>
       <title>${escape(post.title)}</title>
-      <link>${origin}/blog/${post.slug}</link>
-      <guid>${origin}/blog/${post.slug}</guid>
+      <link>${origin}/blog/${post.slug}/</link>
+      <guid>${origin}/blog/${post.slug}/</guid>
       <pubDate>${new Date(post.date).toUTCString()}</pubDate>
       <description>${escape(post.description)}</description>
     </item>`
@@ -24,8 +24,8 @@ export function GET() {
 <rss version="2.0">
   <channel>
     <title>Miguel Batalha — Writing</title>
-    <link>${origin}/blog</link>
-    <description>Notes on interface design, motion, and building products.</description>
+    <link>${origin}/blog/</link>
+    <description>Notes on interface design, motion, and the details that make interfaces hold up.</description>
 ${items}
   </channel>
 </rss>

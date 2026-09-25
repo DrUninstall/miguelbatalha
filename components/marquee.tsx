@@ -21,8 +21,8 @@ const defaultItems = [
   "Node.js",
   "CSS",
   "Unreal Engine",
-  "Product Strategy",
-  "UI/UX Design",
+  "Product strategy",
+  "UI/UX design",
 ];
 
 export function Marquee({

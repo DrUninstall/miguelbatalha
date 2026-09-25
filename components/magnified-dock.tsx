@@ -24,8 +24,10 @@ import {
 } from "lucide-react";
 import styles from "./magnified-dock.module.css";
 
-// Base geometry at full size (px). Everything is multiplied by `unit`,
-// which shrinks below 1 when the stage is too narrow for the full dock.
+// Base geometry at full size (px). The rendered sizes come from CSS
+// (min(40px, 8cqi) etc., see the .dock rule), so the first paint is already
+// right at every width. The magnification maths multiplies these by `unit`,
+// which JS reads back from the rendered icon width.
 const ICON = 40;
 const GAP = 12;
 const PAD = 8; // dock padding-left/right
@@ -44,10 +46,6 @@ const APPS: { name: string; icon: LucideIcon; color: string }[] = [
   { name: "Music", icon: Music, color: "#FF2D55" },
   { name: "Settings", icon: Settings, color: "#8E8E93" },
 ];
-
-// Full width the dock needs at unit = 1: the icons, their gaps, padding,
-// plus room for the outermost icons to be nudged outward on both sides.
-const FULL_WIDTH = APPS.length * ICON + (APPS.length - 1) * GAP + 2 * PAD + 2 * NUDGE;
 
 // Raised-cosine (Hann) bell: 1 at d = 0, falls smoothly to 0 at |d| = radius,
 // with zero slope at both ends so there is no visible "edge" to the effect.
@@ -125,7 +123,8 @@ function DockIcon({
           onFocus={handleFocus}
           aria-label={app.name}
         >
-          <Icon size={Math.round(20 * unit)} color="white" strokeWidth={2} aria-hidden />
+          {/* Sized to half the icon in CSS, so it scales with the dock. */}
+          <Icon color="white" strokeWidth={2} aria-hidden />
         </motion.button>
       </Tooltip.Trigger>
       <Tooltip.Portal>
@@ -144,11 +143,16 @@ export function MagnifiedDock() {
   const [unit, setUnit] = useState(1);
   const pointerX = useMotionValue(NaN); // pointer x relative to the dock, NaN = idle
 
+  // CSS owns the size; the maths needs the same scale, so read it back from
+  // the first icon's computed width (unaffected by its magnifying transform).
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const observer = new ResizeObserver(([entry]) => {
-      setUnit(Math.min(1, entry.contentRect.width / FULL_WIDTH));
+    const observer = new ResizeObserver(() => {
+      const icon = el.querySelector("button");
+      if (!icon) return;
+      const width = parseFloat(getComputedStyle(icon).width);
+      if (width > 0) setUnit(width / ICON);
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -210,13 +214,6 @@ export function MagnifiedDock() {
       <div ref={containerRef} className={styles.container}>
         <div
           className={styles.dock}
-          style={
-            {
-              "--icon-size": `${ICON * unit}px`,
-              "--icon-gap": `${GAP * unit}px`,
-              "--dock-pad": `${PAD * unit}px`,
-            } as React.CSSProperties
-          }
           onPointerDown={setFromPointer}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}

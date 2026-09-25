@@ -1,14 +1,11 @@
 .title {
-  font-size: 22px;
-  line-height: 30px;
-  font-weight: 500;
+  font: var(--type-title);
   letter-spacing: -0.015em;
 }
 
 .lede {
   margin-top: 12px;
-  font-size: 16px;
-  line-height: 26px;
+  font: var(--type-body);
   color: rgb(var(--text-weak));
 }
 
@@ -31,7 +28,16 @@
 }
 
 .entryDescription {
-  font-size: 14px;
-  line-height: 22px;
+  font: var(--type-small);
   color: rgb(var(--text-weak));
+}
+
+/* On phones the date moves above the entry so titles and descriptions get the
+   full column instead of wrapping beside it. */
+@media (max-width: 559px) {
+  .postRow {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 2px;
+  }
 }

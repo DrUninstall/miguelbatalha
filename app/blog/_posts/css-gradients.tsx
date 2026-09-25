@@ -122,7 +122,7 @@ background: linear-gradient(to right in oklch, blue, yellow);
         matches the first and the loop never jumps. Earlier versions ran back
         and forth, which always looks like it’s breathing rather than flowing.
       </p>
-      <Demo caption="12 seconds per loop. With reduced motion on, it shows one still frame.">
+      <Demo loop caption="12 seconds per loop. With reduced motion on, it shows one still frame.">
         <AnimatedGradient />
       </Demo>
       <p>
@@ -158,7 +158,7 @@ background: linear-gradient(to right in oklch, blue, yellow);
         since mid-2024. Without it, the angle can’t interpolate, and the border
         jumps instead of turning.
       </p>
-      <Demo caption="A registered --angle turns once every 4 seconds.">
+      <Demo loop caption="The border is 2px of the wrapper’s background showing around the card.">
         <AnimatedBorderGradient />
       </Demo>
       <p>

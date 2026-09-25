@@ -46,6 +46,14 @@ const WALLET_DELAY_MS = 1500;
 const FOCUSABLE =
   'button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
 
+/** Method tab panes: fade + 8px slide, 0.15s each way; none for keyboard switches. */
+const tabPaneVariants = {
+  enter: { opacity: 0, y: 8 },
+  center: { opacity: 1, y: 0 },
+  exit: (skip: boolean) =>
+    skip ? { opacity: 0, transition: instant } : { opacity: 0, y: -8 },
+};
+
 const tabs: { id: TabType; label: string }[] = [
   { id: "email", label: "Email" },
   { id: "phone", label: "Phone" },
@@ -53,6 +61,17 @@ const tabs: { id: TabType; label: string }[] = [
 ];
 
 const subscribeNoop = () => () => {};
+
+/**
+ * Child of AnimatePresence: tells its render function whether it is animating
+ * out, so the closing overlay and panel stop taking clicks and focus at once
+ * instead of blocking the page until their exit animation finishes.
+ */
+function ExitGuard({ children }: { children: (exiting: boolean) => ReactNode }) {
+  return children(!useIsPresent());
+}
+
+const exitingStyle = { pointerEvents: "none" } as const;
 
 /** Makes a step that is animating out non-interactive (and skipped by Tab). */
 function PresenceGuard({ children }: { children: ReactNode }) {
@@ -77,7 +96,12 @@ function BackButton({ onBack }: { onBack: () => void }) {
 
 interface DefaultStateProps {
   activeTab: TabType;
-  onTabChange: (tab: TabType) => void;
+  /** `viaKeyboard` is true for arrow/Home/End, which switch instantly. */
+  onTabChange: (tab: TabType, viaKeyboard: boolean) => void;
+  /** Pointer press on the tabs: later tab changes animate again. */
+  onTabPointerDown: () => void;
+  /** Last tab change came from the keyboard: skip the crossfade. */
+  instantTabs: boolean;
   email: string;
   onEmailChange: (v: string) => void;
   phone: string;
@@ -89,6 +113,8 @@ interface DefaultStateProps {
 function DefaultState({
   activeTab,
   onTabChange,
+  onTabPointerDown,
+  instantTabs,
   email,
   onEmailChange,
   phone,
@@ -110,7 +136,7 @@ function DefaultState({
     else if (e.key === "End") next = tabs.length - 1;
     else return;
     e.preventDefault();
-    onTabChange(tabs[next].id);
+    onTabChange(tabs[next].id, true);
     document.getElementById(tabId(tabs[next].id))?.focus();
   };
 
@@ -127,6 +153,7 @@ function DefaultState({
         role="tablist"
         aria-label="Sign-in method"
         onKeyDown={handleTabKeyDown}
+        onPointerDown={onTabPointerDown}
       >
         {tabs.map((tab) => {
           const selected = activeTab === tab.id;
@@ -140,13 +167,13 @@ function DefaultState({
               aria-controls={panelId}
               tabIndex={selected ? 0 : -1}
               className={`${styles.tab} ${selected ? styles.tabActive : ""}`}
-              onClick={() => onTabChange(tab.id)}
+              onClick={() => onTabChange(tab.id, false)}
             >
               {selected && (
                 <motion.span
                   className={styles.tabIndicator}
                   layoutId={`${id}-tab-indicator`}
-                  transition={heightTransition}
+                  transition={instantTabs ? instant : heightTransition}
                 />
               )}
               <span className={styles.tabLabel}>{tab.label}</span>
@@ -162,12 +189,16 @@ function DefaultState({
         aria-labelledby={tabId(activeTab)}
         tabIndex={activeTab === "passkey" ? 0 : undefined}
       >
-        <AnimatePresence mode="wait" initial={false}>
+        {/* `custom` reaches the exiting pane too, whose own props are from the
+            previous render, so a keyboard switch also skips the fade-out. */}
+        <AnimatePresence mode="wait" initial={false} custom={instantTabs}>
           <motion.div
             key={activeTab}
-            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
+            custom={instantTabs}
+            variants={tabPaneVariants}
+            initial={reduceMotion || instantTabs ? false : "enter"}
+            animate="center"
+            exit={reduceMotion ? undefined : "exit"}
             transition={{ duration: 0.15 }}
           >
             {activeTab === "email" && (
@@ -215,7 +246,7 @@ function DefaultState({
       </div>
 
       <button type="submit" className={styles.submitButton}>
-        {activeTab === "passkey" ? "Authenticate with Passkey" : "Continue"}
+        {activeTab === "passkey" ? "Authenticate with passkey" : "Continue"}
       </button>
 
       {/* Divider */}
@@ -231,7 +262,7 @@ function DefaultState({
           <Wallet size={20} />
         </div>
         <div className={styles.optionContent}>
-          <div className={styles.optionTitle}>Connect Wallet</div>
+          <div className={styles.optionTitle}>Connect wallet</div>
           <div className={styles.optionDescription}>MetaMask, WalletConnect & more</div>
         </div>
       </button>
@@ -338,7 +369,6 @@ function PendingState({
   onBack: () => void;
   onDone: () => void;
 }) {
-  const reduceMotion = useReducedMotion();
   const done = useEffectEvent(onDone);
 
   // Simulate the platform prompt resolving after a short delay.
@@ -352,15 +382,9 @@ function PendingState({
       <BackButton onBack={onBack} />
       <div className={styles.passkeyContainer}>
         <div className={styles.passkeyWrapper}>
-          <motion.div
-            className={styles.passkeySpinner}
-            animate={reduceMotion ? { rotate: 0 } : { rotate: 360 }}
-            transition={
-              reduceMotion
-                ? instant
-                : { duration: 1.25, repeat: Infinity, ease: "linear", repeatType: "loop" }
-            }
-          />
+          {/* CSS keyframes (1.25s linear, infinite), so the blog's Pause toggle
+              and the reduced-motion rule both stop it. */}
+          <div className={styles.passkeySpinner} />
           <div className={styles.passkeyInner}>
             <div className={styles.passkeyIconWrapper}>
               <div className={styles.passkeyIconInner}>{icon}</div>
@@ -391,9 +415,10 @@ function SuccessState({
       <div className={styles.successIcon}>
         <Check size={28} />
       </div>
-      <h3 className={styles.stepTitle} role="status">
+      {/* A live region, not a heading: announced when the step appears. */}
+      <p className={styles.stepTitle} role="status">
         You&apos;re signed in
-      </h3>
+      </p>
       <p className={`${styles.bodyText} ${styles.stepDescription}`}>
         Signed in with {method}.
       </p>
@@ -421,6 +446,10 @@ export function SignInDialog() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [method, setMethod] = useState("email");
+  // Set when the method tab was changed with arrow/Home/End: the tab pane,
+  // indicator and dialog height then switch instantly. Cleared by a pointer
+  // press on the tabs and by any step change.
+  const [instantTabs, setInstantTabs] = useState(false);
   const [ref, bounds] = useMeasure<HTMLDivElement>();
   const reduceMotion = useReducedMotion();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -444,6 +473,7 @@ export function SignInDialog() {
       const timer = setTimeout(() => {
         setStep("default");
         setActiveTab("email");
+        setInstantTabs(false);
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -507,21 +537,26 @@ export function SignInDialog() {
     }
   };
 
+  const goToStep = (next: DialogStep) => {
+    setInstantTabs(false);
+    setStep(next);
+  };
+
   const handleContinue = () => {
     if (activeTab === "passkey") {
       setMethod("a passkey");
-      setStep("passkey");
+      goToStep("passkey");
     } else if (activeTab === "email") {
       setMethod(email || "email");
-      setStep("email");
+      goToStep("email");
     } else {
       setMethod(phone || "phone");
-      setStep("phone");
+      goToStep("phone");
     }
   };
 
-  const handleBack = () => setStep("default");
-  const handleSuccess = () => setStep("success");
+  const handleBack = () => goToStep("default");
+  const handleSuccess = () => goToStep("success");
 
   const renderState = () => {
     switch (step) {
@@ -529,13 +564,18 @@ export function SignInDialog() {
         return (
           <DefaultState
             activeTab={activeTab}
-            onTabChange={setActiveTab}
+            onTabChange={(tab, viaKeyboard) => {
+              setInstantTabs(viaKeyboard);
+              setActiveTab(tab);
+            }}
+            onTabPointerDown={() => setInstantTabs(false)}
+            instantTabs={instantTabs}
             email={email}
             onEmailChange={setEmail}
             phone={phone}
             onPhoneChange={setPhone}
             onContinue={handleContinue}
-            onConnectWallet={() => setStep("connect-wallet")}
+            onConnectWallet={() => goToStep("connect-wallet")}
           />
         );
       case "connect-wallet":
@@ -544,7 +584,7 @@ export function SignInDialog() {
             onBack={handleBack}
             onSelect={(name) => {
               setMethod(name);
-              setStep("wallet-pending");
+              goToStep("wallet-pending");
             }}
           />
         );
@@ -554,7 +594,7 @@ export function SignInDialog() {
             icon={<Wallet size={32} />}
             message={`Confirm in ${method}…`}
             delay={WALLET_DELAY_MS}
-            onBack={() => setStep("connect-wallet")}
+            onBack={() => goToStep("connect-wallet")}
             onDone={handleSuccess}
           />
         );
@@ -594,78 +634,86 @@ export function SignInDialog() {
   const dialog = (
     <AnimatePresence>
       {isOpen && (
-        <>
-          <motion.div
-            key="overlay"
-            className={styles.overlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={reduceMotion ? instant : { duration: 0.2 }}
-            onClick={close}
-          />
-          {/* Full-viewport grid layer does the centring; the panel only animates scale/y/opacity. */}
-          <div key="layer" className={styles.dialogLayer}>
-            <motion.div
-              ref={dialogRef}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby={titleId}
-              className={styles.dialogPanel}
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={reduceMotion ? instant : panelTransition}
-              onKeyDown={handleDialogKeyDown}
-            >
+        <ExitGuard key="dialog">
+          {(exiting) => (
+            <>
               <motion.div
-                className={styles.heightClip}
-                initial={false}
-                animate={{ height: bounds.height || "auto" }}
-                transition={reduceMotion ? instant : heightTransition}
-              >
-                <div ref={ref} className={styles.dialogContent}>
-                  {/* Header */}
-                  <div className={styles.dialogHeader}>
-                    <h2 id={titleId} className={styles.dialogTitle}>
-                      Sign In
-                    </h2>
-                    <button
-                      type="button"
-                      className={styles.closeButton}
-                      onClick={close}
-                      aria-label="Close"
-                    >
-                      <X size={20} />
-                    </button>
-                  </div>
+                key="overlay"
+                className={styles.overlay}
+                inert={exiting}
+                style={exiting ? exitingStyle : undefined}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={reduceMotion ? instant : { duration: 0.2 }}
+                onClick={close}
+              />
+              {/* Full-viewport grid layer does the centring; the panel only animates scale/y/opacity. */}
+              <div key="layer" className={styles.dialogLayer} inert={exiting}>
+                <motion.div
+                  ref={dialogRef}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby={titleId}
+                  className={styles.dialogPanel}
+                  // The panel sets pointer-events: auto in CSS; drop it while exiting.
+                  style={exiting ? exitingStyle : undefined}
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                  transition={reduceMotion ? instant : panelTransition}
+                  onKeyDown={handleDialogKeyDown}
+                >
+                  <motion.div
+                    className={styles.heightClip}
+                    initial={false}
+                    animate={{ height: bounds.height || "auto" }}
+                    transition={reduceMotion || instantTabs ? instant : heightTransition}
+                  >
+                    <div ref={ref} className={styles.dialogContent}>
+                      {/* Header */}
+                      <div className={styles.dialogHeader}>
+                        <h2 id={titleId} className={styles.dialogTitle}>
+                          Sign in
+                        </h2>
+                        <button
+                          type="button"
+                          className={styles.closeButton}
+                          onClick={close}
+                          aria-label="Close"
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
 
-                  {/* Content */}
-                  <AnimatePresence mode="popLayout" initial={false}>
-                    <motion.div
-                      key={step}
-                      data-step={step}
-                      initial={
-                        reduceMotion
-                          ? false
-                          : { opacity: 0, scale: 0.95, filter: "blur(4px)" }
-                      }
-                      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                      exit={
-                        reduceMotion
-                          ? undefined
-                          : { opacity: 0, scale: 0.95, filter: "blur(4px)" }
-                      }
-                      transition={contentTransition}
-                    >
-                      <PresenceGuard>{renderState()}</PresenceGuard>
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-        </>
+                      {/* Content */}
+                      <AnimatePresence mode="popLayout" initial={false}>
+                        <motion.div
+                          key={step}
+                          data-step={step}
+                          initial={
+                            reduceMotion
+                              ? false
+                              : { opacity: 0, scale: 0.95, filter: "blur(4px)" }
+                          }
+                          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                          exit={
+                            reduceMotion
+                              ? undefined
+                              : { opacity: 0, scale: 0.95, filter: "blur(4px)" }
+                          }
+                          transition={contentTransition}
+                        >
+                          <PresenceGuard>{renderState()}</PresenceGuard>
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              </div>
+            </>
+          )}
+        </ExitGuard>
       )}
     </AnimatePresence>
   );
@@ -679,7 +727,7 @@ export function SignInDialog() {
         onClick={() => setIsOpen(true)}
         aria-haspopup="dialog"
       >
-        Sign In
+        Sign in
       </button>
 
       {canPortal && createPortal(dialog, document.body)}

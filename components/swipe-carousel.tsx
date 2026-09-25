@@ -12,6 +12,7 @@ import {
 } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMeasure } from "@/lib/use-measure";
+import { blogPosts } from "@/app/blog/_data/posts";
 import styles from "./swipe-carousel.module.css";
 
 interface CarouselCard {
@@ -20,35 +21,25 @@ interface CarouselCard {
   gradient: string;
 }
 
-const defaultCards: CarouselCard[] = [
-  {
-    title: "Product Strategy",
-    description: "Building roadmaps that balance user needs and business goals",
-    gradient: "linear-gradient(135deg, rgb(76, 100, 217), rgb(126, 71, 204))",
-  },
-  {
-    title: "UI Engineering",
-    description: "Crafting performant interfaces with modern web technologies",
-    gradient: "linear-gradient(135deg, rgb(126, 71, 204), rgb(199, 58, 58))",
-  },
-  {
-    title: "Design Systems",
-    description: "Creating scalable, consistent component libraries",
-    gradient: "linear-gradient(135deg, rgb(6, 122, 87), rgb(26, 116, 168))",
-  },
-  {
-    title: "Motion Design",
-    description: "Animations that feel physical and purposeful",
-    gradient: "linear-gradient(135deg, rgb(224, 190, 112), rgb(199, 58, 58))",
-  },
-  {
-    title: "Game Design",
-    description: "Gameplay systems and competitive esports integration",
-    gradient: "linear-gradient(135deg, rgb(26, 116, 168), rgb(76, 100, 217))",
-  },
+const gradients = [
+  "linear-gradient(135deg, rgb(76, 100, 217), rgb(126, 71, 204))",
+  "linear-gradient(135deg, rgb(126, 71, 204), rgb(199, 58, 58))",
+  "linear-gradient(135deg, rgb(6, 122, 87), rgb(26, 116, 168))",
+  "linear-gradient(135deg, rgb(224, 190, 112), rgb(199, 58, 58))",
+  "linear-gradient(135deg, rgb(26, 116, 168), rgb(76, 100, 217))",
+  "linear-gradient(135deg, rgb(199, 58, 58), rgb(224, 190, 112))",
 ];
 
+// The site's own posts: one card per article.
+const defaultCards: CarouselCard[] = blogPosts.map((post, i) => ({
+  title: post.title,
+  description: post.description,
+  gradient: gradients[i % gradients.length],
+}));
+
+/** Must match the CSS: cards are min(280px, 85% of the viewport), 16px apart. */
 const MAX_CARD_WIDTH = 280;
+const CARD_WIDTH_RATIO = 0.85;
 const CARD_GAP = 16;
 /** A swipe commits if it travelled this far (px)… */
 const DISTANCE_THRESHOLD = 50;
@@ -56,11 +47,19 @@ const DISTANCE_THRESHOLD = 50;
 const VELOCITY_THRESHOLD = 500;
 
 /**
- * stiffness 300, damping 22, mass 1 → damping ratio 22 / (2·√300) ≈ 0.64.
- * Underdamped: from rest it overshoots the target by ~7.6% of the distance
- * before settling. A fling adds its release velocity on top.
+ * Drag release: stiffness 300, damping 22, mass 1 → damping ratio
+ * 22 / (2·√300) ≈ 0.64. Underdamped, and it starts with the finger's release
+ * velocity, so a hard fling carries through and overshoots a little before
+ * settling. Only used when there is a throw to carry.
  */
-const SPRING = { type: "spring" as const, stiffness: 300, damping: 22, mass: 1 };
+const RELEASE_SPRING = { type: "spring" as const, stiffness: 300, damping: 22, mass: 1 };
+
+/**
+ * Buttons, dots and arrow keys: stiffness 400, damping 40, mass 1 → damping
+ * ratio 40 / (2·√400) = 1. Nothing was thrown, so the track arrives without
+ * overshooting.
+ */
+const SNAP_SPRING = { type: "spring" as const, stiffness: 400, damping: 40, mass: 1 };
 
 function Card({
   card,
@@ -88,11 +87,12 @@ function Card({
       aria-roledescription="slide"
       aria-label={`${index + 1} of ${total}`}
       className={styles.card}
-      style={{ width, scale, opacity }}
+      // Width comes from CSS (see .card); only the transforms are driven here.
+      style={{ scale, opacity }}
     >
       <div className={styles.cardGradient} style={{ background: card.gradient }} />
       <div className={styles.cardContent}>
-        <h3 className={styles.cardTitle}>{card.title}</h3>
+        <p className={styles.cardTitle}>{card.title}</p>
         <p className={styles.cardDescription}>{card.description}</p>
       </div>
     </motion.div>
@@ -109,13 +109,14 @@ export function SwipeCarousel({
   const reduceMotion = useReducedMotion();
   const [viewportRef, { width: viewportWidth }] = useMeasure<HTMLDivElement>();
 
-  // Cards are at most 280px, and at most 85% of the viewport so the next card peeks in.
+  // CSS sizes and centres the cards (so the server-rendered HTML is already in
+  // its final layout); JS repeats the same formula only for the drag maths.
+  // Before the first measurement this falls back to the desktop width, which
+  // only matters for the scale/opacity of off-screen cards.
   const cardWidth = viewportWidth
-    ? Math.min(MAX_CARD_WIDTH, Math.round(viewportWidth * 0.85))
+    ? Math.min(MAX_CARD_WIDTH, viewportWidth * CARD_WIDTH_RATIO)
     : MAX_CARD_WIDTH;
   const step = cardWidth + CARD_GAP;
-  // Centre the active card in the viewport.
-  const inset = viewportWidth ? Math.max(0, (viewportWidth - cardWidth) / 2) : 0;
 
   // Keep the track aligned if the container is resized.
   useEffect(() => {
@@ -125,7 +126,11 @@ export function SwipeCarousel({
   const canGoLeft = activeIndex > 0;
   const canGoRight = activeIndex < cards.length - 1;
 
-  const goTo = (index: number, velocity = 0) => {
+  /**
+   * Moves to a card. `release` is the drag's release velocity (px/s) when the
+   * move ends a drag; without it (buttons, dots, keys) the snap spring is used.
+   */
+  const goTo = (index: number, release?: number) => {
     const clamped = Math.max(0, Math.min(index, cards.length - 1));
     setActiveIndex(clamped);
     const target = -clamped * step;
@@ -134,9 +139,15 @@ export function SwipeCarousel({
       x.set(target);
       return;
     }
-    // Hand the gesture's release velocity to the spring, so a hard fling
-    // arrives with more energy (and overshoots further) than a gentle drag.
-    animate(x, target, { ...SPRING, velocity });
+    animate(
+      x,
+      target,
+      release === undefined
+        ? SNAP_SPRING
+        : // Hand the release velocity to the spring, so a hard fling arrives
+          // with more energy (and overshoots further) than a gentle drag.
+          { ...RELEASE_SPRING, velocity: release }
+    );
   };
 
   const handleDragEnd = (
@@ -146,15 +157,13 @@ export function SwipeCarousel({
     const offset = info.offset.x;
     const velocity = info.velocity.x;
 
-    if (Math.abs(offset) > DISTANCE_THRESHOLD || Math.abs(velocity) > VELOCITY_THRESHOLD) {
-      if (offset > 0 || velocity > VELOCITY_THRESHOLD) {
-        goTo(activeIndex - 1, velocity);
-      } else {
-        goTo(activeIndex + 1, velocity);
-      }
-    } else {
-      goTo(activeIndex, velocity);
-    }
+    // A fast flick decides by its direction, even if the finger had first
+    // dragged the other way; otherwise the distance travelled decides.
+    let direction = 0;
+    if (Math.abs(velocity) > VELOCITY_THRESHOLD) direction = velocity < 0 ? 1 : -1;
+    else if (Math.abs(offset) > DISTANCE_THRESHOLD) direction = offset < 0 ? 1 : -1;
+
+    goTo(activeIndex + direction, velocity);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -172,7 +181,7 @@ export function SwipeCarousel({
       className={styles.carousel}
       role="region"
       aria-roledescription="carousel"
-      aria-label="Focus areas"
+      aria-label="Blog posts"
       onKeyDown={handleKeyDown}
     >
       <div
@@ -184,7 +193,7 @@ export function SwipeCarousel({
       >
         <motion.div
           className={styles.track}
-          style={{ x, paddingInline: inset }}
+          style={{ x }}
           drag="x"
           dragConstraints={{ left: -(cards.length - 1) * step, right: 0 }}
           dragElastic={0.1}

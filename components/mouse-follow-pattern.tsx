@@ -13,12 +13,10 @@ import styles from "./mouse-follow-pattern.module.css";
 type Point = { x: number; y: number };
 
 const SPRING_CONFIG = { stiffness: 300, damping: 30 };
-const MAX_COLS = 20;
-const MIN_COLS = 6;
-const ROWS = 6;
-const SHAPE_WIDTH = 4; // px, keep in sync with .shape
-const GAP = 20; // px, keep in sync with .grid
-const PADDING = 32; // px, keep in sync with .container
+// Enough shapes for the widest grid (20 columns x 6 rows). CSS decides how many
+// columns fit (auto-fill) and clips everything below the sixth row, so the
+// server HTML is already the right grid at every width; JS never counts columns.
+const MAX_SHAPES = 20 * 6;
 const SPOTLIGHT_RADIUS = 150; // px - opacity falls off to rest over this distance
 const ROTATION_RADIUS = 100; // px - shapes further away than this return to rest
 const REST_ANGLE = 90; // deg - a vertical 4x24 pill rotated 90deg lies horizontal
@@ -61,7 +59,8 @@ function Shape({
   const springRotation = useSpring(rotation, SPRING_CONFIG);
   const springOpacity = useSpring(opacity, SPRING_CONFIG);
 
-  // Re-measure whenever the parent reports a layout change (mount, resize, column change).
+  // Re-measure whenever the parent reports a layout change (mount, resize, and
+  // with it any change in how many columns CSS fits).
   // offsetLeft/Top ignore transforms, so the shape's own rotation never skews the cache.
   useLayoutEffect(() => {
     const el = shapeRef.current;
@@ -112,16 +111,13 @@ export function MouseFollowPattern() {
   const containerRef = useRef<HTMLDivElement>(null);
   const pointer = useMotionValue<Point | null>(null);
   const reduceMotion = useReducedMotion() ?? false;
-  const [cols, setCols] = useState(MAX_COLS);
   const [layoutVersion, setLayoutVersion] = useState(0);
 
+  // Layout is pure CSS; this only tells the shapes to re-read their positions.
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const observer = new ResizeObserver(([entry]) => {
-      const available = entry.contentRect.width;
-      const fit = Math.floor((available + GAP) / (SHAPE_WIDTH + GAP));
-      setCols(Math.max(MIN_COLS, Math.min(MAX_COLS, fit)));
+    const observer = new ResizeObserver(() => {
       setLayoutVersion((v) => v + 1);
     });
     observer.observe(el);
@@ -157,18 +153,14 @@ export function MouseFollowPattern() {
     <div
       ref={containerRef}
       className={styles.container}
-      style={{ padding: PADDING }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerEnd}
       onPointerCancel={reset}
       onPointerLeave={reset}
     >
-      <div
-        className={styles.grid}
-        style={{ gridTemplateColumns: `repeat(${cols}, ${SHAPE_WIDTH}px)`, gap: GAP }}
-      >
-        {Array.from({ length: cols * ROWS }, (_, i) => (
+      <div className={styles.grid}>
+        {Array.from({ length: MAX_SHAPES }, (_, i) => (
           <Shape
             key={i}
             pointer={pointer}

@@ -364,6 +364,13 @@
     rgb(var(--fill-brand-strong)) 25%,
     transparent 35%
   );
+  animation: spin 1.25s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .passkeyInner {

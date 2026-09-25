@@ -6,7 +6,11 @@
   min-width: 0;
 }
 
+/* The viewport is a size container, so the card width and the centring inset
+   are pure CSS: the server-rendered HTML is already laid out correctly and
+   nothing shifts at hydration. JS mirrors --card-width for the drag maths. */
 .viewport {
+  container-type: inline-size;
   overflow: hidden;
   padding: 16px 0;
   cursor: grab;
@@ -19,13 +23,16 @@
 }
 
 .track {
+  --card-width: min(280px, 85cqi);
   display: flex;
   gap: 16px;
+  /* Centres the first (active) card; the track's x transform moves the rest. */
+  padding-inline: calc((100cqi - var(--card-width)) / 2);
 }
 
 .card {
   flex-shrink: 0;
-  width: 280px;
+  width: var(--card-width);
   border-radius: 16px;
   overflow: hidden;
   background: rgb(var(--background-raised));
@@ -108,29 +115,27 @@
   padding: 0;
 }
 
+/* Inactive dots use the neutral icon colour (at least 3:1 against the page in
+   both themes, WCAG 1.4.11); the active dot is brand. */
 .dot::before {
   content: "";
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgb(var(--fill-weak));
-  box-shadow: var(--stroke-weak);
+  background: rgb(var(--icon-neutral));
   transition:
     background-color 0.2s,
-    box-shadow 0.2s;
+    transform 0.2s;
 }
 
-.dot:hover::before {
-  box-shadow: var(--stroke-weak-hover);
+@media (hover: hover) {
+  .dot:not(.dotActive):hover::before {
+    transform: scale(1.25);
+  }
 }
 
 .dotActive::before {
   background: rgb(var(--fill-brand-strong));
-  box-shadow: none;
-}
-
-.dotActive:hover::before {
-  box-shadow: none;
 }
 
 .srOnly {

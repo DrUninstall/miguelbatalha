@@ -34,7 +34,7 @@
   --grey-solid-0: 255 255 255;
 
   --grey-dark-1000: 255 255 255;
-  --grey-dark-700: 255 255 255 / 0.72;
+  --grey-dark-700: 255 255 255 / 0.8;
   --grey-dark-500: 255 255 255 / 0.5;
   --grey-dark-100: 255 255 255 / 0.12;
   --grey-dark-50: 255 255 255 / 0.06;
@@ -137,9 +137,23 @@
   --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
 
-  /* Layout */
-  --measure: 640px;
+  /* Layout. 540px keeps body text near 70 characters a line. */
+  --measure: 540px;
   --gutter: 24px;
+
+  /* Type roles: each size has exactly one line height.
+     Use as \`font: var(--type-body)\`, then adjust weight if needed. */
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --type-display: 600 30px/38px var(--font-sans); /* post title */
+  --type-title: 500 22px/30px var(--font-sans); /* page title */
+  --type-heading: 600 20px/28px var(--font-sans); /* section heading in a post */
+  --type-body: 400 16px/28px var(--font-sans); /* reading text */
+  --type-row: 400 15px/24px var(--font-sans); /* list rows, links, site name */
+  --type-small: 400 14px/22px var(--font-sans); /* metadata, descriptions, nav */
+  --type-caption: 400 13px/20px var(--font-sans); /* captions, list headings, footer */
+  --type-label: 400 12px/16px var(--font-sans); /* code labels */
+  --type-code: 400 13px/21px var(--font-mono); /* code blocks */
 }
 
 .dark {
@@ -219,7 +233,7 @@ body {
   flex-direction: column;
   background: rgb(var(--background-base));
   color: rgb(var(--text-strong));
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -278,6 +292,13 @@ svg {
 :focus-visible {
   outline: 2px solid rgb(var(--fill-brand-strong));
   outline-offset: 2px;
+}
+
+/* A paused blog demo (see app/blog/_components/demo.tsx) freezes its CSS loops. */
+[data-paused="true"] *,
+[data-paused="true"] *::before,
+[data-paused="true"] *::after {
+  animation-play-state: paused !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

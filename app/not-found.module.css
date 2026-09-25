@@ -1,0 +1,25 @@
+.title {
+  font: var(--type-title);
+  letter-spacing: -0.015em;
+}
+
+.lede {
+  margin-top: 12px;
+  font: var(--type-body);
+  color: rgb(var(--text-weak));
+}
+
+.links {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  font: var(--type-row);
+}
+
+.links a {
+  border-radius: 2px;
+  color: rgb(var(--text-strong));
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--text-strong) / 0.2);
+  text-underline-offset: 4px;
+}

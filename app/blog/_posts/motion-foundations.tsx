@@ -108,7 +108,7 @@ export default function MotionFoundations() {
         browser sorts them by depth. The moon passes in front of the planet and
         disappears behind it with no z-index juggling.
       </p>
-      <Demo caption="One element, one 6-second linear loop. With reduced motion on, it holds a still pose.">
+      <Demo loop caption="One element, one 6-second linear loop. With reduced motion on, it holds a still pose.">
         <OrbitAnimation />
       </Demo>
       <p>
@@ -171,8 +171,12 @@ const startHold = () => {
       <p>
         That split pays off with reduced motion. The site collapses transition
         durations, so if the animation were the source of truth, the hold would
-        finish instantly. Instead the timer still takes 1.5 seconds, and the
-        label switches to “Keep holding…” while the fill stays put.
+        finish instantly. Instead the timer still takes 1.5 seconds, the label
+        switches to “Keep holding…”, and the wipe keeps running at the same
+        linear speed. It’s a progress bar moving inside a button, not
+        something travelling across the screen, and without it you’d have no
+        idea how much longer to hold. My first version turned it off and
+        filled the button instantly, which removed exactly that information.
       </p>
       <Demo caption="Press and hold with a mouse, finger, Space or Enter. Letting go early cancels.">
         <HoldToDelete />

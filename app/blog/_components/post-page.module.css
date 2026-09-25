@@ -1,0 +1,84 @@
+/* Article header. The body is styled by ../_components/post.module.css. */
+
+.postHeader {
+  margin-bottom: 40px;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 24px;
+  font: var(--type-small);
+  border-radius: 4px;
+  color: rgb(var(--text-weak));
+  transition: color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .backLink:hover {
+    color: rgb(var(--text-strong));
+  }
+}
+
+.postTitle {
+  font: var(--type-display);
+  letter-spacing: -0.02em;
+}
+
+.postDate {
+  display: block;
+  margin-top: 8px;
+  font: var(--type-small);
+  color: rgb(var(--text-weak));
+}
+
+/* After the article: where to go next. */
+.more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin-top: 64px;
+  padding-top: 24px;
+  border-top: 1px solid rgb(var(--stroke-color-weak));
+}
+
+.next {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  border-radius: 4px;
+}
+
+.nextLabel {
+  font: var(--type-caption);
+  color: rgb(var(--text-weak));
+}
+
+.nextTitle {
+  font: var(--type-row);
+  font-weight: 500;
+  color: rgb(var(--text-strong));
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--text-strong) / 0.2);
+  text-underline-offset: 4px;
+  transition: text-decoration-color 150ms ease;
+}
+
+.all {
+  font: var(--type-small);
+  color: rgb(var(--text-weak));
+  border-radius: 4px;
+  transition: color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .next:hover .nextTitle {
+    text-decoration-color: rgb(var(--text-strong));
+  }
+
+  .all:hover {
+    color: rgb(var(--text-strong));
+  }
+}

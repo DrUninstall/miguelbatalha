@@ -7,10 +7,10 @@ const origin = "https://miguelbatalha.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
-    { url: origin },
-    { url: `${origin}/blog` },
+    { url: `${origin}/` },
+    { url: `${origin}/blog/` },
     ...blogPosts.map((post) => ({
-      url: `${origin}/blog/${post.slug}`,
+      url: `${origin}/blog/${post.slug}/`,
       lastModified: post.date,
     })),
   ];

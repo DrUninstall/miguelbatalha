@@ -25,11 +25,11 @@ const levels = [
 ];
 
 /**
- * stiffness 400, damping 25, mass 1 → damping ratio 25 / (2·√400) = 0.625.
- * Slightly underdamped: the fill overshoots its new width by ~8% of the change
- * and settles back.
+ * stiffness 400, damping 40, mass 1 → damping ratio 40 / (2·√400) = 1.
+ * Critically damped: the meter indicates a value, so it arrives as fast as it
+ * can without overshooting it. Settles in ~0.3s.
  */
-const METER_SPRING = { type: "spring" as const, stiffness: 400, damping: 25, mass: 1 };
+const METER_SPRING = { type: "spring" as const, stiffness: 400, damping: 40, mass: 1 };
 
 /** Check icon pop: damping ratio 15 / (2·√500) ≈ 0.34, a quick bouncy settle. */
 const POP_SPRING = { type: "spring" as const, stiffness: 500, damping: 15, mass: 1 };

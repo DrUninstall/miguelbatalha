@@ -32,17 +32,32 @@ One global rule draws focus as a 2px brand `outline` with a 2px offset. It's an 
 
 ## Layout
 
-One reading column: `--measure` (640px) plus `--gutter` (24px) either side. Post demos break out wider on larger screens.
+One reading column: `--measure` (540px) plus `--gutter` (24px) either side. Post demos break out wider on larger screens.
 
 ## Type
 
-Geist Sans and Geist Mono. Body 15–16px; headings are set by weight and a small size step rather than scale. Dates and year ranges use `tabular-nums`.
+Geist Sans and Geist Mono, used through role tokens. Each size has exactly one line height; apply a role with `font: var(--type-body)` and adjust only the weight.
+
+| Token | Size / line height | Use |
+| --- | --- | --- |
+| `--type-display` | 30 / 38, 600 | Post title |
+| `--type-title` | 22 / 30, 500 | Page title |
+| `--type-heading` | 20 / 28, 600 | Section heading in a post |
+| `--type-body` | 16 / 28 | Reading text |
+| `--type-row` | 15 / 24 | List rows, links, site name |
+| `--type-small` | 14 / 22 | Metadata, descriptions, nav |
+| `--type-caption` | 13 / 20 | Captions, list headings, footer |
+| `--type-label` | 12 / 16 | Code labels |
+| `--type-code` | 13 / 21, mono | Code blocks |
+
+The reading column is `--measure` (540px), about 70 characters a line. Dates and year ranges use `tabular-nums`.
 
 ## Motion
 
 - Hover colour changes: 150ms `ease`.
 - State changes: 200–300ms `--ease-out-cubic`.
 - Nothing animates on scroll or page load. Motion answers to input.
+- Anything that loops on its own has a pause control (`<Demo loop>` in posts).
 - Keyboard-driven changes (arrow keys in tabs and segmented controls) snap instead of animating.
 - Infinite loops and JS-driven animations check `useReducedMotion()`; `MotionConfig` only stops transform and layout animations.
 - `prefers-reduced-motion` collapses CSS durations globally, and `MotionConfig reducedMotion="user"` does the same for Framer Motion.
