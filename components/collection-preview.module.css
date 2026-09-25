@@ -188,3 +188,12 @@
 .collapseButton:active {
   background: rgb(var(--fill-brand-strong) / 0.8);
 }
+
+/* The gradients are the content, and forced colours would erase them. */
+@media (forced-colors: active) {
+  .image,
+  .avatar,
+  .expandedAvatar {
+    forced-color-adjust: none;
+  }
+}

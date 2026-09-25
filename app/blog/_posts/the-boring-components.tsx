@@ -40,9 +40,9 @@ export default function TheBoringComponents() {
       </ul>
       <p>
         Nine variant and tone pairs in three sizes is what the system allows,
-        not what anything needs. Three variants plus a destructive tone cover everything on this
-        site. There was a fourth tone, inverse, that nothing used, so I
-        deleted it, along with an icon prop, a full-width option and an{" "}
+        not what anything needs. Three variants plus a destructive tone cover
+        everything on this site. There was a fourth tone, inverse, that
+        nothing used, so I deleted it, along with an icon prop, a full-width option and an{" "}
         <code>htmlType</code> prop that stood in for the native{" "}
         <code>type</code>. The button now takes <code>type</code> like any
         button and defaults it to <code>{`"button"`}</code>, because the HTML
@@ -123,10 +123,10 @@ border: 1px solid rgb(var(--stroke-brand-weak));
         the people who need it most. The same went for every hairline on this
         site, since they were all shadows: in forced colours the buttons were
         bare text, the field had no box and the switch disappeared. Each of
-        those controls now also has a transparent 1px border (with a pixel
-        less padding, so nothing changes size), which stays invisible until
-        that mode paints it. Selected states use system colours, which forced
-        colours leave alone:
+        those controls now also has a transparent 1px border, sized so
+        nothing moves, which stays invisible until that mode paints it.
+        Selected states use system colours, which forced colours leave
+        alone:
       </p>
       <Code label="toggle.module.css">{`
 @media (forced-colors: active) {

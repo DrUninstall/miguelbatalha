@@ -40,7 +40,7 @@ export default function DesigningForThePointer() {
         here at all? <code>event.pointerType</code> describes the pointer behind
         this particular event, which is the right question for behaviour. A
         touchscreen laptop has a trackpad and a finger, and it’ll send you
-        both, sometimes a second apart.
+        both.
       </p>
 
       <h2>A field that follows you</h2>
@@ -151,10 +151,10 @@ const scale = 1 + 1.25 * bell(distance, 110);
       </p>
       <p>
         My first version picked the edge nearest to where the pointer entered.
-        That works until you flick in near a corner. The browser only tells you
-        where the pointer is once it has already moved, and a fast pointer
-        coming in through the top, close to the corner, can land nearer the
-        right edge than the top. Direction of travel is the better signal.{" "}
+        That works until you flick in near a corner. The browser reports the
+        pointer about once a frame, so a fast one is already well inside the
+        card by the first event, and one coming in through the top, close to
+        the corner, can land nearer the right edge than the top. Direction of travel is the better signal.{" "}
         <code>pointerenter</code> doesn’t carry any (in Chrome, its{" "}
         <code>movementX</code> and <code>movementY</code> are 0), but the{" "}
         <code>pointermove</code> the browser sends straight after it does. Step
@@ -265,7 +265,9 @@ edgeAlong(rect, e.clientX, e.clientY, -e.movementX, -e.movementY);
         are and stop where they are:
       </p>
       <Code label="outline-orbit-button.tsx">{`
-const rings = el.getAnimations({ subtree: true });
+const rings = Array.from(el.querySelectorAll("rect"), (rect) => rect.getAnimations())
+  .flat()
+  .filter((a) => a instanceof CSSAnimation);
 for (const ring of rings) ring.play();
 // then every frame for 600ms, easing from the current rate toward 1:
 for (const ring of rings) ring.playbackRate = rate;

@@ -300,3 +300,11 @@
     opacity: 0.9;
   }
 }
+
+/* The circles are the demo; their colour carries no meaning beyond telling them
+   apart, so keep it rather than letting forced colours erase them. */
+@media (forced-colors: active) {
+  .swapCircle {
+    forced-color-adjust: none;
+  }
+}

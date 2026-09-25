@@ -116,7 +116,12 @@
 }
 
 @media (forced-colors: active) {
-  .orbit {
+  .orbitInner {
     stroke: CanvasText;
+  }
+
+  .orbitMiddle,
+  .orbitOuter {
+    stroke: GrayText;
   }
 }
