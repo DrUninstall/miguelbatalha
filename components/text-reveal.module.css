@@ -25,30 +25,35 @@
   text-align: center;
 }
 
-/* The mask: letters start one full line-height below and rise into view. */
-.letters {
+/* The mask: each word clips its own letters, which start one full line-height
+   below and rise into view. A word never breaks, so a wrapped line keeps its mask. */
+.word {
   display: inline-block;
-  max-width: 100%;
   overflow: hidden;
+  white-space: nowrap;
   vertical-align: top;
 }
 
 .letter {
   display: inline-block;
-  animation: reveal 1.3s cubic-bezier(0.19, 1, 0.22, 1) backwards;
-  animation-delay: calc(30ms * var(--index));
+  animation: reveal 750ms cubic-bezier(0.19, 1, 0.22, 1) backwards;
+  /* Letters past the tenth start together, so a long line doesn't queue. */
+  animation-delay: calc(min(var(--index), 9) * 30ms);
 }
 
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
+/* While the letters are on screen the text is for screen readers only. */
+@media (prefers-reduced-motion: no-preference) {
+  .letters + .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
 }
 
 .button {
@@ -57,25 +62,28 @@
   justify-content: center;
   gap: var(--space-2);
   height: 32px;
-  padding-inline: var(--space-4);
+  padding-inline: calc(var(--space-4) - 1px);
   font-size: 14px;
   font-weight: 500;
   border-radius: 9999px;
   background: rgb(var(--background-raised));
   box-shadow: var(--stroke-weak), var(--elevation-raised);
   color: rgb(var(--text-strong));
-  border: none;
+  /* Invisible here; forced colours paint it, since they drop the box-shadow ring. */
+  border: 1px solid transparent;
   cursor: pointer;
 }
 
-.button:hover {
-  box-shadow: var(--stroke-weak-hover), var(--elevation-raised);
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    box-shadow: var(--stroke-weak-hover), var(--elevation-raised);
+  }
 }
 
 /* The global rule only shortens animation-duration; the per-letter delays
-   would still stagger the letters in. Turn the animation off outright. */
+   would still stagger the letters in. Show the plain text instead. */
 @media (prefers-reduced-motion: reduce) {
-  .letter {
-    animation: none;
+  .letters {
+    display: none;
   }
 }

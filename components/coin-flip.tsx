@@ -52,13 +52,13 @@ export function CoinFlip() {
         <span className={styles.scene}>
           <span
             className={styles.coin}
-            style={{ "--rotation": `${flips * 180}deg` } as React.CSSProperties}
+            style={{ "--rotation": `${flips * 180}deg` }}
           >
             {EDGE_LAYERS.map((z) => (
               <span
                 key={z}
                 className={styles.edge}
-                style={{ "--z": `${z}px` } as React.CSSProperties}
+                style={{ "--z": `${z}px` }}
               />
             ))}
             <span className={`${styles.face} ${styles.heads}`}>

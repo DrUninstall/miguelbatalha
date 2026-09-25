@@ -2,19 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check } from "lucide-react";
-import { useReducedMotion } from "framer-motion";
 import styles from "./hold-to-delete.module.css";
 
 const HOLD_MS = 1500;
 const CONFIRMED_MS = 1500;
 
 type HoldState = "idle" | "holding" | "done";
-
-const LABELS = {
-  idle: "Hold to delete",
-  holding: "Keep holding…",
-  done: "Deleted",
-} as const;
 
 const TrashIcon = () => (
   <svg height="16" strokeLinejoin="round" viewBox="0 0 16 16" width="16" aria-hidden="true">
@@ -28,17 +21,14 @@ const TrashIcon = () => (
 );
 
 /* Rendered twice: once as the button's own content, once inside the coloured overlay.
-   All labels are stacked in one grid cell so the button never changes width. */
-function Content({ label }: { label: keyof typeof LABELS }) {
+   Both labels are stacked in one grid cell so the button never changes width. */
+function Content({ done }: { done: boolean }) {
   return (
     <>
-      {label === "done" ? <Check size={16} strokeWidth={2.5} aria-hidden="true" /> : <TrashIcon />}
+      {done ? <Check size={16} strokeWidth={2.5} aria-hidden="true" /> : <TrashIcon />}
       <span className={styles.labels}>
-        {(Object.keys(LABELS) as (keyof typeof LABELS)[]).map((key) => (
-          <span key={key} data-active={key === label}>
-            {LABELS[key]}
-          </span>
-        ))}
+        <span data-active={!done}>Hold to delete account</span>
+        <span data-active={done}>Account deleted</span>
       </span>
     </>
   );
@@ -49,7 +39,6 @@ const isHoldKey = (key: string) => key === " " || key === "Enter";
 export function HoldToDelete() {
   const [state, setState] = useState<HoldState>("idle");
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const reduceMotion = useReducedMotion();
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
@@ -70,15 +59,13 @@ export function HoldToDelete() {
     setState("idle");
   };
 
-  const label =
-    state === "done" ? "done" : state === "holding" && reduceMotion ? "holding" : "idle";
-
   return (
     <>
       <button
         type="button"
         className={styles.button}
         data-state={state}
+        style={{ "--hold-duration": `${HOLD_MS}ms` }}
         onPointerDown={(e) => {
           if (e.button !== 0) return; // primary mouse button, pen tip or touch contact
           startHold();
@@ -87,6 +74,10 @@ export function HoldToDelete() {
         onPointerLeave={cancelHold}
         onPointerCancel={cancelHold}
         onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            cancelHold();
+            return;
+          }
           if (!isHoldKey(e.key)) return;
           e.preventDefault();
           if (e.repeat) return; // held keys auto-repeat; only the first press counts
@@ -103,13 +94,13 @@ export function HoldToDelete() {
           if (state === "holding") e.preventDefault();
         }}
       >
-        <Content label={label} />
+        <Content done={state === "done"} />
         <span className={styles.overlay} aria-hidden="true">
-          <Content label={label} />
+          <Content done={state === "done"} />
         </span>
       </button>
       <span className={styles.srOnly} role="status">
-        {state === "done" ? "Deleted" : ""}
+        {state === "done" ? "Account deleted" : ""}
       </span>
     </>
   );

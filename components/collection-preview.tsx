@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useId, useRef, useState, type RefObject } from "react";
 import {
   motion,
   AnimatePresence,
+  LayoutGroup,
   MotionConfig,
   useMotionValue,
   useReducedMotion,
@@ -126,27 +127,22 @@ function DockItem({
 
 function CollapsedState({
   onExpand,
-  focusOnMount,
+  autoFocus,
 }: {
   onExpand: () => void;
-  focusOnMount: boolean;
+  // True when returning from the dock: the Collapse button just unmounted, so
+  // focus goes to the control that re-opens it. False on page load.
+  autoFocus: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
   const fanned = isHovered || isFocused;
-
-  // Returning from the dock: the Collapse button just unmounted, so put
-  // focus back on the control that re-opens it.
-  useEffect(() => {
-    if (focusOnMount) buttonRef.current?.focus({ preventScroll: true });
-  }, [focusOnMount]);
 
   return (
     <div className={styles.collapsedWrapper}>
       <button
-        ref={buttonRef}
         type="button"
+        autoFocus={autoFocus}
         className={styles.stackContainer}
         // Mouse/pen only: a touch tap goes straight to expand.
         onPointerEnter={(e) => e.pointerType !== "touch" && setIsHovered(true)}
@@ -188,10 +184,18 @@ function CollapsedState({
       </button>
 
       <div className={styles.collectionInfo}>
-        <motion.p layoutId="collection-name" className={styles.collectionName}>
+        <motion.p
+          layoutId="collection-name"
+          layout="position"
+          className={styles.collectionName}
+        >
           Gradients
         </motion.p>
-        <motion.p layoutId="collection-count" className={styles.itemCount}>
+        <motion.p
+          layoutId="collection-count"
+          layout="position"
+          className={styles.itemCount}
+        >
           {COLLECTION_COLORS.length} items
         </motion.p>
       </div>
@@ -202,14 +206,7 @@ function CollapsedState({
 function ExpandedState({ onCollapse }: { onCollapse: () => void }) {
   const pointerX = useMotionValue(-Infinity);
   const containerRef = useRef<HTMLDivElement>(null);
-  const collapseRef = useRef<HTMLButtonElement>(null);
   const reduceMotion = useReducedMotion();
-
-  // Only ever mounted by a user action, so it's safe to take focus: the
-  // stack button that was focused has just unmounted.
-  useEffect(() => {
-    collapseRef.current?.focus({ preventScroll: true });
-  }, []);
 
   const handlePointerMove = (e: React.PointerEvent) => {
     const container = containerRef.current;
@@ -233,10 +230,18 @@ function ExpandedState({ onCollapse }: { onCollapse: () => void }) {
           <div className={styles.insetBorder} />
         </motion.div>
         <div className={styles.expandedInfo}>
-          <motion.p layoutId="collection-name" className={styles.collectionName}>
+          <motion.p
+            layoutId="collection-name"
+            layout="position"
+            className={styles.collectionName}
+          >
             Gradients
           </motion.p>
-          <motion.p layoutId="collection-count" className={styles.itemCount}>
+          <motion.p
+            layoutId="collection-count"
+            layout="position"
+            className={styles.itemCount}
+          >
             {COLLECTION_COLORS.length} items
           </motion.p>
         </div>
@@ -264,11 +269,15 @@ function ExpandedState({ onCollapse }: { onCollapse: () => void }) {
       </div>
 
       <motion.button
-        ref={collapseRef}
         type="button"
+        // Only ever mounted by a user action, and the stack button that had
+        // focus has just unmounted, so taking focus here is expected.
+        autoFocus
         className={styles.collapseButton}
         whileTap={{ scale: 0.95 }}
-        initial={reduceMotion ? false : { scale: 0.5, opacity: 0, filter: "blur(4px)" }}
+        initial={
+          reduceMotion ? false : { scale: 0.5, opacity: 0, filter: "blur(4px)" }
+        }
         animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
         exit={
           reduceMotion
@@ -288,6 +297,8 @@ export function CollectionPreview() {
   const [isExpanded, setIsExpanded] = useState(false);
   // False until the first toggle, so the page load never steals focus.
   const [hasToggled, setHasToggled] = useState(false);
+  // layoutIds are global to the page; the group prefixes them per instance.
+  const layoutGroupId = useId();
 
   const setExpanded = (value: boolean) => {
     setHasToggled(true);
@@ -296,22 +307,24 @@ export function CollectionPreview() {
 
   return (
     <MotionConfig transition={MORPH_SPRING}>
-      <div className={styles.container}>
-        <AnimatePresence mode="popLayout" initial={false}>
-          {!isExpanded ? (
-            <motion.div key="collapsed">
-              <CollapsedState
-                onExpand={() => setExpanded(true)}
-                focusOnMount={hasToggled}
-              />
-            </motion.div>
-          ) : (
-            <motion.div key="expanded">
-              <ExpandedState onCollapse={() => setExpanded(false)} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      <LayoutGroup id={layoutGroupId}>
+        <div className={styles.container}>
+          <AnimatePresence mode="popLayout" initial={false}>
+            {!isExpanded ? (
+              <motion.div key="collapsed">
+                <CollapsedState
+                  onExpand={() => setExpanded(true)}
+                  autoFocus={hasToggled}
+                />
+              </motion.div>
+            ) : (
+              <motion.div key="expanded">
+                <ExpandedState onCollapse={() => setExpanded(false)} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </LayoutGroup>
     </MotionConfig>
   );
 }

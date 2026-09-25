@@ -1,8 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
-import { IconButton } from "@/components/ui/icon-button";
 import styles from "./stages.module.css";
 
 interface Stage {
@@ -14,14 +12,8 @@ interface StagesProps {
   stages: Stage[];
   /** Zero-based index of the current stage. */
   currentStage: number;
-  onBack?: () => void;
   /** Accessible name for the step list. */
   "aria-label"?: string;
-  /**
-   * Element for the current stage's title. Defaults to a plain paragraph so
-   * the component never injects a heading into the surrounding outline.
-   */
-  titleAs?: "p" | "h2" | "h3" | "h4";
   className?: string;
 }
 
@@ -32,9 +24,7 @@ const CHECK_TRANSITION = { type: "spring", duration: 0.35, bounce: 0 } as const;
 export function Stages({
   stages,
   currentStage,
-  onBack,
   "aria-label": ariaLabel = "Progress",
-  titleAs: Title = "p",
   className = "",
 }: StagesProps) {
   const shouldReduceMotion = useReducedMotion();
@@ -44,18 +34,11 @@ export function Stages({
 
   return (
     <div className={`${styles.container} ${className}`}>
-      <div className={styles.header}>
-        {onBack && currentStage > 0 && (
-          <IconButton onClick={onBack} aria-label="Go back">
-            <ArrowLeft />
-          </IconButton>
-        )}
-        <div className={styles.headerContent} aria-live="polite">
-          <p className={styles.stepInfo}>
-            Step {currentStage + 1} of {stages.length}
-          </p>
-          <Title className={styles.stepTitle}>{stages[currentStage]?.label}</Title>
-        </div>
+      {/* Atomic, and one string per line: without both, screen readers
+          announce only the text node that changed ("2") instead of the line. */}
+      <div className={styles.header} aria-live="polite" aria-atomic="true">
+        <p className={styles.stepInfo}>{`Step ${currentStage + 1} of ${stages.length}`}</p>
+        <p className={styles.stepTitle}>{stages[currentStage]?.label}</p>
       </div>
 
       {/* Progress bar: scaled, not resized, so it never triggers layout. */}

@@ -6,8 +6,11 @@
   max-width: 100%;
   background: rgb(var(--fill-weak));
   box-shadow: var(--stroke-weak);
+  /* Invisible normally; forced-colors mode drops the hairline shadow and paints
+     this. Padding is 3px so the options still sit 4px from the outer edge. */
+  border: 1px solid transparent;
   border-radius: 8px;
-  padding: 4px;
+  padding: 3px;
 }
 
 .small {
@@ -68,9 +71,11 @@
   cursor: not-allowed;
 }
 
-.option:not(.disabled):not(.selected):hover {
-  color: rgb(var(--text-strong));
-  box-shadow: var(--fill-hover);
+@media (hover: hover) and (pointer: fine) {
+  .option:not(.disabled):not(.selected):hover {
+    color: rgb(var(--text-strong));
+    box-shadow: var(--fill-hover);
+  }
 }
 
 .option:not(.disabled):not(.selected):active {
@@ -81,4 +86,17 @@
   width: 16px;
   height: 16px;
   flex-shrink: 0;
+}
+
+/* The thumb's fill and shadow are both removed in forced colors, so the
+   selected option paints itself with the system selection colours. */
+@media (forced-colors: active) {
+  .thumb {
+    background: transparent;
+  }
+
+  .option.selected {
+    background: Highlight;
+    color: HighlightText;
+  }
 }

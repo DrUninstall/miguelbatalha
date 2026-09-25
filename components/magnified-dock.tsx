@@ -118,7 +118,15 @@ function DockIcon({
         <motion.button
           type="button"
           className={styles.appIcon}
-          style={{ x: xSpring, scale: scaleSpring, y, backgroundColor: app.color }}
+          style={{
+            x: xSpring,
+            scale: scaleSpring,
+            y,
+            backgroundColor: app.color,
+            // The hit area (::before) divides its insets by this, so it
+            // reaches the same distance past the icon at every scale.
+            "--scale": scaleSpring,
+          }}
           onClick={handleClick}
           onFocus={handleFocus}
           aria-label={app.name}

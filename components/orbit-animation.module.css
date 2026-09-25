@@ -5,7 +5,8 @@
   them: the moon passes in front of the planet, then behind it, and the far
   half of the ring disappears behind the planet.
 
-  Moon transform, read right to left from the moon's point of view:
+  Moon transform. Read left to right, each function moves the coordinate frame
+  the next one works in:
     rotateZ(tilt-z) rotateX(tilt-x)   tilt the orbital plane toward the viewer
     rotateY(a) translateZ(r)          walk out to the orbit, at angle a
     rotateY(-a)                       undo the spin so the moon faces us

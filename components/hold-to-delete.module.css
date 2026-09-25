@@ -5,11 +5,12 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  border: none;
+  /* Invisible here; forced colours paint it, since they drop the box-shadow ring. */
+  border: 1px solid transparent;
   border-radius: 9999px;
   background-color: rgb(var(--fill-weak));
   box-shadow: var(--stroke-weak);
-  padding-inline: var(--space-6);
+  padding-inline: calc(var(--space-6) - 1px);
   font: inherit;
   font-weight: 500;
   color: rgb(var(--text-strong));
@@ -47,7 +48,7 @@
    clip-path: inset() hides everything right of the progress edge. */
 .overlay {
   position: absolute;
-  inset: 0;
+  inset: -1px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,7 +64,7 @@
 .button[data-state="holding"] .overlay {
   clip-path: inset(0 0 0 0);
   /* Holding: fill at constant speed, so the edge position is honest progress. */
-  transition: clip-path 1500ms linear;
+  transition: clip-path var(--hold-duration) linear;
 }
 
 .button[data-state="done"] .overlay {
@@ -76,7 +77,7 @@
    something travelling across the screen, and without it a hold has no visible
    progress. The global reduced-motion rule collapses every transition-duration
    with !important, so this one has to be !important too (and it wins on
-   specificity). The label also reads "Keep holding…" while held. */
+   specificity). */
 @media (prefers-reduced-motion: reduce) {
   .button,
   .overlay {
@@ -88,7 +89,16 @@
   }
 
   .button[data-state="holding"] .overlay {
-    transition: clip-path 1500ms linear !important;
+    transition: clip-path var(--hold-duration) linear !important;
+  }
+}
+
+/* Forced colours would repaint the overlay as Canvas and hide the progress. */
+@media (forced-colors: active) {
+  .overlay {
+    forced-color-adjust: none;
+    background-color: Highlight;
+    color: HighlightText;
   }
 }
 

@@ -26,7 +26,8 @@
   border-radius: 16px;
   cursor: pointer;
   background: transparent;
-  border: none;
+  /* Transparent until forced-colors mode draws it. */
+  border: 1px solid transparent;
   touch-action: manipulation;
 }
 
@@ -50,7 +51,18 @@
 }
 
 .collectionInfo {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The name and count share layoutIds between the two states. Their boxes hug
+   the text and the parent's alignment places them, so the box is the same size
+   in both states and only its position animates. With text-align, the box
+   would stay wide and the glyphs would jump inside it. */
+.collectionName,
+.itemCount {
+  width: fit-content;
 }
 
 .collectionName {
@@ -90,7 +102,9 @@
 }
 
 .expandedInfo {
-  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .expandedContainer {
@@ -151,12 +165,12 @@
 }
 
 .collapseButton {
-  padding: 10px 20px;
+  padding: 9px 19px;
   font-size: 14px;
   font-weight: 500;
   background: rgb(var(--fill-brand-strong));
   color: rgb(var(--text-inverse-strong));
-  border: none;
+  border: 1px solid transparent;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -165,8 +179,10 @@
   transition: background var(--duration-fast) var(--ease-out-cubic);
 }
 
-.collapseButton:hover {
-  background: rgb(var(--fill-brand-strong) / 0.9);
+@media (hover: hover) and (pointer: fine) {
+  .collapseButton:hover {
+    background: rgb(var(--fill-brand-strong) / 0.9);
+  }
 }
 
 .collapseButton:active {

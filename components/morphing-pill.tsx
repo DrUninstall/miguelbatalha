@@ -1,34 +1,30 @@
 "use client";
 
-import { useRef, useState, type CSSProperties } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { flushSync } from "react-dom";
+import { motion, AnimatePresence, useReducedMotion, type Transition } from "framer-motion";
 import { Phone, PhoneOff, Timer, Music } from "lucide-react";
 import styles from "./morphing-pill.module.css";
 
-type PillState = "idle" | "call" | "timer" | "music";
+/** "incoming" rings with Accept/Decline; "inCall" is an accepted call. */
+type PillState = "idle" | "incoming" | "inCall" | "timer" | "music";
 
-const states: { id: PillState; label: string }[] = [
-  { id: "idle", label: "Idle" },
-  { id: "call", label: "Call" },
-  { id: "timer", label: "Timer" },
-  { id: "music", label: "Music" },
+/** The demo's controls. Both call states count as "Call". */
+const controls: { state: PillState; label: string }[] = [
+  { state: "idle", label: "Idle" },
+  { state: "incoming", label: "Call" },
+  { state: "timer", label: "Timer" },
+  { state: "music", label: "Music" },
 ];
 
 // The pill is dark in both themes, so icons use the light-on-dark tints.
-const pillContent: Record<
-  Exclude<PillState, "idle">,
-  { icon: React.ReactNode; label: string; color: string }
-> = {
-  call: { icon: <Phone size={16} />, label: "John Appleseed", color: "rgb(var(--green-dark-800))" },
-  timer: { icon: <Timer size={16} />, label: "0:42", color: "rgb(var(--amber-light-1000))" },
-  music: { icon: <Music size={16} />, label: "Now playing", color: "rgb(var(--brand-dark-1000))" },
-};
+const CALL_GREEN = "rgb(var(--green-dark-800))";
 
 /**
  * Size morph: stiffness 500, damping 35, mass 1
  * → damping ratio 35 / (2·√500) ≈ 0.78 (a barely-visible overshoot).
  */
-const LAYOUT_SPRING = { type: "spring" as const, stiffness: 500, damping: 35, mass: 1 };
+const LAYOUT_SPRING = { type: "spring", stiffness: 500, damping: 35, mass: 1 } satisfies Transition;
 
 /**
  * Equaliser bars: deterministic peaks (scaleY), loop durations and delays per
@@ -68,26 +64,131 @@ function MusicBars() {
   );
 }
 
+function formatDuration(seconds: number) {
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+}
+
+/** Seconds since the call was accepted, counted from mount. */
+function CallDuration() {
+  const [seconds, setSeconds] = useState(0);
+  useEffect(() => {
+    const started = Date.now();
+    const timer = setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  return <span className={`${styles.contentLabel} ${styles.duration}`}>{formatDuration(seconds)}</span>;
+}
+
+function PillIcon({ color, children }: { color: string; children: React.ReactNode }) {
+  return (
+    <div className={styles.contentIcon} style={{ color }}>
+      {children}
+    </div>
+  );
+}
+
 export function MorphingPill() {
   const [state, setState] = useState<PillState>("idle");
   const reduceMotion = useReducedMotion();
   const idleButtonRef = useRef<HTMLButtonElement>(null);
+  const endButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Accept/Decline end the call, which unmounts the button that had focus.
-  // Hand focus to the "Idle" control, which now reflects the pill's state.
-  const endCall = () => {
+  // Each call button unmounts the button that had focus. Commit the new state
+  // first so the control that takes focus exists.
+  const accept = () => {
+    flushSync(() => setState("inCall"));
+    endButtonRef.current?.focus();
+  };
+  const hangUp = () => {
     setState("idle");
     idleButtonRef.current?.focus();
   };
 
+  const renderContent = () => {
+    switch (state) {
+      case "idle":
+        return <div className={styles.idleDot} aria-hidden="true" />;
+      case "incoming":
+        return (
+          <div className={styles.expandedContent}>
+            <PillIcon color={CALL_GREEN}>
+              <Phone size={16} />
+            </PillIcon>
+            <span className={styles.contentLabel}>Incoming call</span>
+            <div className={styles.callActions}>
+              <button
+                type="button"
+                className={`${styles.callButton} ${styles.accept}`}
+                onClick={accept}
+                aria-label="Accept call"
+              >
+                <Phone size={14} />
+              </button>
+              <button
+                type="button"
+                className={`${styles.callButton} ${styles.decline}`}
+                onClick={hangUp}
+                aria-label="Decline call"
+              >
+                <PhoneOff size={14} />
+              </button>
+            </div>
+          </div>
+        );
+      case "inCall":
+        return (
+          <div className={styles.expandedContent}>
+            <PillIcon color={CALL_GREEN}>
+              <Phone size={16} />
+            </PillIcon>
+            <CallDuration />
+            <div className={styles.callActions}>
+              <button
+                ref={endButtonRef}
+                type="button"
+                className={`${styles.callButton} ${styles.decline}`}
+                onClick={hangUp}
+                aria-label="End call"
+              >
+                <PhoneOff size={14} />
+              </button>
+            </div>
+          </div>
+        );
+      case "timer":
+        return (
+          <div className={styles.expandedContent}>
+            <PillIcon color="rgb(var(--amber-light-1000))">
+              <Timer size={16} />
+            </PillIcon>
+            <span className={styles.contentLabel}>0:42</span>
+          </div>
+        );
+      case "music":
+        return (
+          <div className={styles.expandedContent}>
+            <PillIcon color="rgb(var(--brand-dark-1000))">
+              <Music size={16} />
+            </PillIcon>
+            <span className={styles.contentLabel}>Now playing</span>
+            <MusicBars />
+          </div>
+        );
+    }
+  };
+
+  const isCall = state === "incoming" || state === "inCall";
+
   return (
     <div className={styles.container}>
-      {/* The pill */}
       <div className={styles.pillWrapper}>
         <motion.div
           className={styles.pill}
           layout
           transition={LAYOUT_SPRING}
+          // Keep the radius here, in px: Framer only corrects the corners of a
+          // layout animation for a radius it sets itself. From the CSS, the
+          // corners would stretch with the pill's scale mid-morph.
           style={{ borderRadius: 50 }}
         >
           <motion.div className={styles.pillInner} layout transition={LAYOUT_SPRING}>
@@ -103,60 +204,29 @@ export function MorphingPill() {
                 exit={reduceMotion ? undefined : { opacity: 0, filter: "blur(4px)" }}
                 transition={{ duration: 0.2 }}
               >
-                {state === "idle" ? (
-                  <div className={styles.idleDot} aria-hidden="true" />
-                ) : (
-                  <div className={styles.expandedContent}>
-                    <div
-                      className={styles.contentIcon}
-                      style={{ color: pillContent[state].color }}
-                    >
-                      {pillContent[state].icon}
-                    </div>
-                    <span className={styles.contentLabel}>{pillContent[state].label}</span>
-                    {state === "call" && (
-                      <div className={styles.callActions}>
-                        <button
-                          type="button"
-                          className={`${styles.callButton} ${styles.accept}`}
-                          onClick={endCall}
-                          aria-label="Accept call"
-                        >
-                          <Phone size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          className={`${styles.callButton} ${styles.decline}`}
-                          onClick={endCall}
-                          aria-label="Decline call"
-                        >
-                          <PhoneOff size={14} />
-                        </button>
-                      </div>
-                    )}
-                    {state === "music" && <MusicBars />}
-                  </div>
-                )}
+                {renderContent()}
               </motion.div>
             </AnimatePresence>
           </motion.div>
         </motion.div>
       </div>
 
-      {/* Controls */}
       <div className={styles.controls} role="group" aria-label="Pill state">
-        {states.map((s) => (
-          <button
-            key={s.id}
-            ref={s.id === "idle" ? idleButtonRef : undefined}
-            type="button"
-            className={`${styles.controlButton} ${state === s.id ? styles.active : ""}`}
-            onClick={() => setState(s.id)}
-            aria-pressed={state === s.id}
-          >
-            {s.label}
-          </button>
-        ))}
+        {controls.map((control) => {
+          const pressed = control.state === "incoming" ? isCall : state === control.state;
+          return (
+            <button
+              key={control.state}
+              ref={control.state === "idle" ? idleButtonRef : undefined}
+              type="button"
+              className={`${styles.controlButton} ${pressed ? styles.active : ""}`}
+              onClick={() => setState(control.state)}
+              aria-pressed={pressed}
+            >
+              {control.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

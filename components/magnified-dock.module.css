@@ -41,6 +41,7 @@
 }
 
 .appIcon {
+  position: relative; /* for the hit area below */
   flex-shrink: 0;
   width: var(--icon-size);
   height: var(--icon-size);
@@ -50,19 +51,56 @@
   justify-content: center;
   cursor: pointer;
   transform-origin: bottom;
-  border: none;
+  /* Invisible normally; drawn as the icon's outline in forced colours, where
+     the coloured fill is removed. The icon is border-box, so its size holds. */
+  border: 1px solid transparent;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: box-shadow 0.2s ease;
 }
 
-/* The glyph is half the icon (20px at full size). */
+/*
+ * The hit area. The dock's gaps and padding are live (the pointer there still
+ * magnifies), so without this the tooltip blinks off and clicks do nothing
+ * between icons. It reaches half a gap to each side, the dock's padding above
+ * and below, and the dock's padding at the two ends. Each inset is divided by
+ * the icon's current scale (--scale, set from JS), so it covers the same
+ * on-screen distance past a magnified icon as a resting one; scaling it with
+ * the icon would push it over the neighbours.
+ */
+.appIcon::before {
+  content: "";
+  position: absolute;
+  --side: calc(var(--icon-gap) / 2);
+  top: calc(var(--dock-pad) / var(--scale, 1) * -1);
+  bottom: calc(var(--dock-pad) * 1.5 / var(--scale, 1) * -1);
+  left: calc(var(--side) / var(--scale, 1) * -1);
+  right: calc(var(--side) / var(--scale, 1) * -1);
+}
+
+.appIcon:first-of-type::before {
+  left: calc(var(--dock-pad) / var(--scale, 1) * -1);
+}
+
+.appIcon:last-of-type::before {
+  right: calc(var(--dock-pad) / var(--scale, 1) * -1);
+}
+
+/* The glyph is half the icon. */
 .appIcon svg {
   width: 50%;
   height: 50%;
 }
 
-.appIcon:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+@media (hover: hover) and (pointer: fine) {
+  .appIcon:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@media (forced-colors: active) {
+  .appIcon svg {
+    stroke: ButtonText;
+  }
 }
 
 /* Radix UI Tooltip - rendered via Portal so not affected by transforms */

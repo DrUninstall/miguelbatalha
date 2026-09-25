@@ -17,7 +17,9 @@
 .track {
   display: flex;
   flex-shrink: 0;
-  animation: scroll linear infinite;
+  /* --duration is set from the measured width; the fallback covers the
+     server-rendered first paint. */
+  animation: scroll var(--duration, 30s) linear infinite;
 }
 
 .group {
@@ -36,12 +38,16 @@
 }
 
 /* Only real hover; on touch screens :hover sticks after a tap. */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .pauseOnHover .viewport:hover .track {
     animation-play-state: paused;
   }
 
   .pauseOnHover .viewport:hover .item {
+    color: rgb(var(--text-strong));
+  }
+
+  .toggle:hover {
     color: rgb(var(--text-strong));
   }
 }
@@ -80,16 +86,14 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: none;
+  /* Invisible normally; drawn as the button's outline in forced colours,
+     where the shadow ring is removed. */
+  border: 1px solid transparent;
   border-radius: 50%;
   background: rgb(var(--fill-weak));
   box-shadow: var(--stroke-weak);
   color: rgb(var(--icon-neutral));
   cursor: pointer;
-}
-
-.toggle:hover {
-  color: rgb(var(--text-strong));
 }
 
 @keyframes scroll {
@@ -136,5 +140,12 @@
 
   .item::after {
     margin-left: 12px;
+  }
+}
+
+@media (forced-colors: active) {
+  .toggle[aria-pressed="true"] {
+    background: Highlight;
+    color: HighlightText;
   }
 }

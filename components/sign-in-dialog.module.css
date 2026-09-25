@@ -16,8 +16,10 @@
   transition: opacity var(--duration-fast) var(--ease-out-cubic);
 }
 
-.triggerButton:hover {
-  opacity: 0.9;
+@media (hover: hover) and (pointer: fine) {
+  .triggerButton:hover {
+    opacity: 0.9;
+  }
 }
 
 /* Overlay */
@@ -92,9 +94,11 @@
   transition: color var(--duration-fast) var(--ease-out-cubic), background-color var(--duration-fast) var(--ease-out-cubic);
 }
 
-.closeButton:hover {
-  background: rgb(var(--fill-weak));
-  color: rgb(var(--text-strong));
+@media (hover: hover) and (pointer: fine) {
+  .closeButton:hover {
+    background: rgb(var(--fill-weak));
+    color: rgb(var(--text-strong));
+  }
 }
 
 /* Back Button */
@@ -110,9 +114,11 @@
   transition: color var(--duration-fast) var(--ease-out-cubic), background-color var(--duration-fast) var(--ease-out-cubic);
 }
 
-.backButton:hover {
-  color: rgb(var(--text-strong));
-  background: rgb(var(--fill-weak));
+@media (hover: hover) and (pointer: fine) {
+  .backButton:hover {
+    color: rgb(var(--text-strong));
+    background: rgb(var(--fill-weak));
+  }
 }
 
 /* Tabs */
@@ -138,8 +144,10 @@
   transition: color var(--duration-fast) var(--ease-out-cubic);
 }
 
-.tab:hover {
-  color: rgb(var(--text-strong));
+@media (hover: hover) and (pointer: fine) {
+  .tab:hover {
+    color: rgb(var(--text-strong));
+  }
 }
 
 .tabActive {
@@ -194,8 +202,10 @@
   transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
-.optionButton:hover {
-  box-shadow: var(--stroke-weak-hover);
+@media (hover: hover) and (pointer: fine) {
+  .optionButton:hover {
+    box-shadow: var(--stroke-weak-hover);
+  }
 }
 
 .optionButton + .optionButton {
@@ -254,6 +264,16 @@
   transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
+.inputInvalid {
+  box-shadow: var(--stroke-error-strong);
+}
+
+.fieldError {
+  margin-top: var(--space-2);
+  font-size: 13px;
+  color: rgb(var(--text-error));
+}
+
 .input::placeholder {
   color: rgb(var(--text-weak));
 }
@@ -269,25 +289,10 @@
   transition: opacity var(--duration-fast) var(--ease-out-cubic);
 }
 
-.submitButton:hover {
-  opacity: 0.9;
-}
-
-.textButton {
-  display: block;
-  width: 100%;
-  margin-top: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  font-size: 14px;
-  font-weight: 500;
-  color: rgb(var(--text-weak));
-  border-radius: 10px;
-  transition: color var(--duration-fast) var(--ease-out-cubic), background-color var(--duration-fast) var(--ease-out-cubic);
-}
-
-.textButton:hover {
-  color: rgb(var(--text-strong));
-  background: rgb(var(--fill-weak));
+@media (hover: hover) and (pointer: fine) {
+  .submitButton:hover {
+    opacity: 0.9;
+  }
 }
 
 /* Step text */
@@ -430,8 +435,10 @@
   transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
-.walletButton:hover {
-  box-shadow: var(--stroke-weak-hover);
+@media (hover: hover) and (pointer: fine) {
+  .walletButton:hover {
+    box-shadow: var(--stroke-weak-hover);
+  }
 }
 
 .walletIcon {
@@ -467,4 +474,37 @@
   font-size: 12px;
   font-weight: 500;
   color: rgb(var(--text-strong));
+}
+
+/* Forced colors drop every box-shadow and background above, which is all that
+   draws these controls' edges and the selected tab. */
+@media (forced-colors: active) {
+  .dialogPanel,
+  .input,
+  .optionButton,
+  .walletButton,
+  .submitButton,
+  .triggerButton,
+  .tabsContainer {
+    border: 1px solid CanvasText;
+  }
+
+  .input[aria-invalid="true"] {
+    border-width: 2px;
+  }
+
+  .tab,
+  .tab:hover {
+    forced-color-adjust: none;
+    color: ButtonText;
+  }
+
+  .tabIndicator {
+    background: Highlight;
+  }
+
+  .tabActive,
+  .tabActive:hover {
+    color: HighlightText;
+  }
 }

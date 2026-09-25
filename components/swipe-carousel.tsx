@@ -9,6 +9,7 @@ import {
   animate,
   type MotionValue,
   type PanInfo,
+  type Transition,
 } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMeasure } from "@/lib/use-measure";
@@ -41,25 +42,21 @@ const defaultCards: CarouselCard[] = blogPosts.map((post, i) => ({
 const MAX_CARD_WIDTH = 280;
 const CARD_WIDTH_RATIO = 0.85;
 const CARD_GAP = 16;
-/** A swipe commits if it travelled this far (px)… */
-const DISTANCE_THRESHOLD = 50;
-/** …or was released faster than this (px/s). */
-const VELOCITY_THRESHOLD = 500;
 
 /**
- * Drag release: stiffness 300, damping 22, mass 1 → damping ratio
- * 22 / (2·√300) ≈ 0.64. Underdamped, and it starts with the finger's release
- * velocity, so a hard fling carries through and overshoots a little before
- * settling. Only used when there is a throw to carry.
+ * How far (px) a release at `velocity` (px/s) would coast if the track
+ * decelerated like a scroll view: exponential decay at `rate` per millisecond.
+ * 0.99 is the faster, paging-style deceleration.
  */
-const RELEASE_SPRING = { type: "spring" as const, stiffness: 300, damping: 22, mass: 1 };
+function project(velocity: number, rate = 0.99) {
+  return ((velocity / 1000) * rate) / (1 - rate);
+}
 
-/**
- * Buttons, dots and arrow keys: stiffness 400, damping 40, mass 1 → damping
- * ratio 40 / (2·√400) = 1. Nothing was thrown, so the track arrives without
- * overshooting.
- */
-const SNAP_SPRING = { type: "spring" as const, stiffness: 400, damping: 40, mass: 1 };
+/** Drag release: damping ratio 22 / (2·√300) ≈ 0.64, so a thrown card overshoots a little. */
+const RELEASE_SPRING = { type: "spring", stiffness: 300, damping: 22, mass: 1 } satisfies Transition;
+
+/** Buttons, dots, arrow keys and the edges: damping ratio 40 / (2·√400) = 1, no overshoot from rest. */
+const SNAP_SPRING = { type: "spring", stiffness: 400, damping: 40, mass: 1 } satisfies Transition;
 
 function Card({
   card,
@@ -123,15 +120,11 @@ export function SwipeCarousel({
     if (!x.isAnimating()) x.set(-activeIndex * step);
   }, [step, activeIndex, x]);
 
-  const canGoLeft = activeIndex > 0;
-  const canGoRight = activeIndex < cards.length - 1;
+  const lastIndex = cards.length - 1;
 
-  /**
-   * Moves to a card. `release` is the drag's release velocity (px/s) when the
-   * move ends a drag; without it (buttons, dots, keys) the snap spring is used.
-   */
-  const goTo = (index: number, release?: number) => {
-    const clamped = Math.max(0, Math.min(index, cards.length - 1));
+  /** Moves to a card; buttons, dots and keys pass nothing and get the snap spring. */
+  const goTo = (index: number, transition: Transition = SNAP_SPRING) => {
+    const clamped = Math.max(0, Math.min(index, lastIndex));
     setActiveIndex(clamped);
     const target = -clamped * step;
     if (reduceMotion) {
@@ -139,31 +132,27 @@ export function SwipeCarousel({
       x.set(target);
       return;
     }
-    animate(
-      x,
-      target,
-      release === undefined
-        ? SNAP_SPRING
-        : // Hand the release velocity to the spring, so a hard fling arrives
-          // with more energy (and overshoots further) than a gentle drag.
-          { ...RELEASE_SPRING, velocity: release }
-    );
+    animate(x, target, transition);
   };
 
   const handleDragEnd = (
     _: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo
   ) => {
-    const offset = info.offset.x;
     const velocity = info.velocity.x;
+    // Where the track would come to rest, in cards (fractional, may lie past either end).
+    const resting = -(x.get() + project(velocity)) / step;
+    const index = Math.max(0, Math.min(Math.round(resting), lastIndex));
 
-    // A fast flick decides by its direction, even if the finger had first
-    // dragged the other way; otherwise the distance travelled decides.
-    let direction = 0;
-    if (Math.abs(velocity) > VELOCITY_THRESHOLD) direction = velocity < 0 ? 1 : -1;
-    else if (Math.abs(offset) > DISTANCE_THRESHOLD) direction = offset < 0 ? 1 : -1;
-
-    goTo(activeIndex + direction, velocity);
+    if (resting >= 0 && resting <= lastIndex) {
+      goTo(index, { ...RELEASE_SPRING, velocity });
+      return;
+    }
+    // The fling points past the first or last card. Keep its speed only if it is
+    // heading toward that card: velocity pointing away (a drag the edge was
+    // resisting) would carry the underdamped spring out into empty space.
+    const headingToTarget = (-index * step - x.get()) * velocity > 0;
+    goTo(index, { ...SNAP_SPRING, velocity: headingToTarget ? velocity : 0 });
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -195,7 +184,7 @@ export function SwipeCarousel({
           className={styles.track}
           style={{ x }}
           drag="x"
-          dragConstraints={{ left: -(cards.length - 1) * step, right: 0 }}
+          dragConstraints={{ left: -lastIndex * step, right: 0 }}
           dragElastic={0.1}
           dragMomentum={false}
           onDragEnd={handleDragEnd}
@@ -224,7 +213,7 @@ export function SwipeCarousel({
           type="button"
           className={styles.navButton}
           onClick={() => goTo(activeIndex - 1)}
-          disabled={!canGoLeft}
+          disabled={activeIndex === 0}
           aria-label="Previous card"
         >
           <ChevronLeft size={18} />
@@ -245,7 +234,7 @@ export function SwipeCarousel({
           type="button"
           className={styles.navButton}
           onClick={() => goTo(activeIndex + 1)}
-          disabled={!canGoRight}
+          disabled={activeIndex === lastIndex}
           aria-label="Next card"
         >
           <ChevronRight size={18} />

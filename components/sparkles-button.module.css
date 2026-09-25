@@ -4,14 +4,16 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: 14px 32px;
+  /* 1px less than 14px 32px: the transparent border takes that space. It is
+     invisible normally and drawn as the outline in forced colours. */
+  padding: 13px 31px;
   border-radius: 12px;
   background: rgb(var(--fill-brand-strong));
   color: rgb(var(--text-inverse-strong));
   font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
   overflow: visible;
   isolation: isolate;
 }

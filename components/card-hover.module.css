@@ -6,6 +6,8 @@
   border-radius: 16px;
   background: rgb(var(--background-raised));
   box-shadow: var(--stroke-weak), var(--elevation-raised);
+  /* The ring above is a shadow, which forced colours remove; this draws it there. */
+  border: 1px solid transparent;
   overflow: hidden; /* clips the overlay while it is parked off an edge */
   cursor: default;
   -webkit-tap-highlight-color: transparent;

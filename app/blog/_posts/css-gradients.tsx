@@ -37,11 +37,15 @@ export default function CssGradients() {
 
       <h2>Where the colours travel</h2>
       <p>
-        A gradient between two colours is a path through a colour space. By
-        default, that space is sRGB, and the path is a straight line through
-        the RGB cube. Between complementary colours, that line runs straight
-        through the grey in the middle: blue <code>#0000ff</code> to yellow{" "}
-        <code>#ffff00</code> passes through <code>rgb(128 128 128)</code>.
+        A gradient between two colours is a path through a colour space, and
+        the default space depends on how you wrote the stops. If every stop is
+        a legacy colour (hex, <code>rgb()</code>, <code>hsl()</code> or a
+        named colour), it’s sRGB, and the path is a straight line through the
+        RGB cube. Blue <code>#0000ff</code> and yellow <code>#ffff00</code>{" "}
+        sit on opposite corners of that cube, so the line runs straight
+        through the grey in the middle: <code>rgb(128 128 128)</code>. If any
+        stop is written as <code>oklch()</code>, <code>oklab()</code> or{" "}
+        <code>color()</code>, the default switches to oklab.
       </p>
       <p>
         Since mid-2024 (Chrome and Safari had it earlier, Firefox arrived
@@ -56,22 +60,49 @@ background: linear-gradient(to right in oklch, blue, yellow);
         <li>
           <strong>oklab</strong> is built so that equal steps look like equal
           changes. The path is still a straight line, but the brightness in the
-          middle sits where your eye expects it. Complements still pass close
-          to grey, just a nicer grey.
+          middle sits where your eye expects it. Whether it passes near grey
+          depends on whether the two hues are opposite in Oklab, not in RGB.
+          Blue and yellow are 154° apart there, so the blend misses grey and
+          lands on a muted steel blue. Green and magenta are 186° apart and do
+          pass close to grey, just a lighter one than sRGB gives.
         </li>
         <li>
           <strong>oklch</strong> is the same space in polar form: lightness,
           chroma, hue. Interpolating there walks around the hue wheel and keeps
           the saturation up. Blue to yellow stays vivid, but it gets there
-          through cyan and green. Some of those in-between colours are outside
+          through cyan and green. Most of those in-between colours are outside
           what an sRGB screen can show, so the browser clips them.
         </li>
       </ul>
       <p>
+        Clipping isn’t graceful. A clipped colour shifts in hue and lightness,
+        and where the path comes back inside the gamut you get a hard seam: the
+        sharp edge in the green on the blue → yellow oklch row below. The fixes
+        are to lower the endpoints’ chroma until the whole path fits, or to add
+        a mid stop you picked yourself inside sRGB. A mid stop leaves a soft
+        corner of its own, but that’s the smaller problem.
+      </p>
+      <p>
+        oklch also has to choose a direction round the hue wheel. By default it
+        takes the shorter arc. <code>longer hue</code> takes the other one, and{" "}
+        <code>increasing hue</code> or <code>decreasing hue</code> fix the
+        direction outright:
+      </p>
+      <Code label="CSS">{`
+background: linear-gradient(to right in oklch longer hue, blue, yellow);
+background: linear-gradient(to right in oklch decreasing hue, blue, yellow);
+`}</Code>
+      <p>
+        Green and magenta are 186° apart, which puts them on the knife edge: the
+        short way is only 12° shorter than the long way, and nudging either
+        colour a few degrees flips which one counts as shorter. For pairs near
+        180°, I name the direction.
+      </p>
+      <p>
         Each row below uses the same two endpoints with no extra stops. Only
-        the interpolation space changes. The small square at the end of each
-        row is the exact midpoint, computed with <code>color-mix()</code> in
-        the same space:
+        the interpolation space changes, and the oklch row has a switch for the
+        hue direction. The small square at the end of each row is the exact
+        midpoint, computed with <code>color-mix()</code> in the same space:
       </p>
       <Code label="gradient-demos.module.css">{`
 .oklch {
@@ -81,7 +112,7 @@ background: linear-gradient(to right in oklch, blue, yellow);
   background: color-mix(in oklch, var(--from), var(--to));
 }
 `}</Code>
-      <Demo caption="Switch between three pairs. Blue → yellow shows the sRGB grey; green → magenta shows how far oklch can detour.">
+      <Demo caption="Switch between three pairs, and between the shorter and longer hue on the oklch row. Blue → yellow shows the sRGB grey and the clipping seam; green → magenta shows how far oklch can detour.">
         <GradientColorSpaces />
       </Demo>
       <p>
@@ -89,6 +120,17 @@ background: linear-gradient(to right in oklch, blue, yellow);
         the blend to stay between them, oklch when I want saturation and I’m
         happy with the detour. The midpoint swatch is how I check. If it
         surprises me, I add a stop.
+      </p>
+      <p>
+        There’s one case where that check misses: oklch with white, black or a
+        grey as a stop. Those have no hue (the spec calls it powerless), so the
+        hue should come from the other stop. <code>color-mix()</code> does
+        that. Chrome’s gradients don’t: in oklch, <code>#fff</code> →{" "}
+        <code>#f00</code> renders <code>rgb(241 182 89)</code> at the middle,
+        an orange detour, while <code>color-mix()</code> gives{" "}
+        <code>rgb(255 161 145)</code>, a pink. I’ve only measured this in
+        Chrome. For a fade to a neutral I use oklab, where there’s no hue to
+        get wrong.
       </p>
       <p>
         One gotcha with fallbacks. If the gradient comes through a CSS
@@ -102,19 +144,46 @@ background: linear-gradient(to right in oklch, blue, yellow);
       <h2>Animating a gradient</h2>
       <p>
         You can’t transition one gradient into another: the browser treats
-        gradient images as not interpolable, so it swaps them in one step. What
-        you can animate is where the gradient sits. Make the tile twice as
-        wide as the box, let it repeat, and slide it by exactly one tile:
+        gradient images as not interpolable, so it swaps them in one step.
+        There are two ways round it. The first is to animate the values the
+        gradient reads instead of the gradient. Register a custom property
+        with <code>@property</code> and it gets a type, so the browser can
+        transition it, and the gradient redraws at every step:
+      </p>
+      <Code label="CSS">{`
+@property --from {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #6366f1;
+}
+
+.card {
+  background: linear-gradient(135deg, var(--from), #ef4444);
+  transition: --from 300ms;
+}
+.card:hover { --from: #22c55e; }
+`}</Code>
+      <p>
+        The swatches in the first demo use this. <code>--pointer-x</code> and{" "}
+        <code>--pointer-y</code> are registered as numbers, so when the pointer
+        leaves or you press an arrow key they ease to the new position instead
+        of jumping. While the pointer is over a swatch there’s no transition,
+        so it tracks one to one.
+      </p>
+      <p>
+        The second way is to animate where the gradient sits. Make the tile
+        twice as wide as the box, let it repeat, and slide it by exactly one
+        tile:
       </p>
       <Code label="gradient-demos.module.css">{`
-.animated {
+.animatedGradient {
   background-image: linear-gradient(
     90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b
   );
   background-size: 200% 100%;
-  animation: slide 12s linear infinite;
+  animation: gradientSlide 12s linear infinite;
 }
-@keyframes slide { to { background-position: 200% 0; } }
+@keyframes gradientSlide { to { background-position: 200% 0; } }
 `}</Code>
       <p>
         The gradient starts and ends on the same colour, and a position of
@@ -133,8 +202,12 @@ background: linear-gradient(to right in oklch, blue, yellow);
 
       <h2>A rotating border with @property</h2>
       <p>
-        Custom properties are normally just strings, so the browser can’t
-        animate them smoothly. Registering one with a type fixes that:
+        The same registration turns a conic gradient into a spinning border.
+        It’s one element: a transparent 2px border, and two background layers.
+        The card colour is clipped to the padding box, and the conic gradient
+        fills the border box, so it only shows through the border. The card
+        colour is written as a one-colour gradient because{" "}
+        <code>background-color</code> can’t take its own clip box.
       </p>
       <Code label="gradient-demos.module.css">{`
 @property --angle {
@@ -143,29 +216,42 @@ background: linear-gradient(to right in oklch, blue, yellow);
   initial-value: 0deg;
 }
 
-.border {
-  padding: 2px;
-  background: conic-gradient(
-    from var(--angle), #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b
-  );
-  animation: spin 4s linear infinite;
+.borderCard {
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background:
+    linear-gradient(rgb(var(--background-raised)), rgb(var(--background-raised))) padding-box,
+    conic-gradient(from var(--angle), #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b) border-box;
+  animation: spinAngle 4s linear infinite;
 }
-@keyframes spin { to { --angle: 360deg; } }
+@keyframes spinAngle { to { --angle: 360deg; } }
 `}</Code>
       <p>
-        The “border” is 2px of the wrapper’s background showing around an
-        inner card. <code>@property</code> has worked in every major browser
-        since mid-2024. Without it, the angle can’t interpolate, and the border
-        jumps instead of turning.
+        <code>@property</code> has worked in every major browser since
+        mid-2024. Without it, <code>--angle</code> has no type and no starting
+        value. For the first half of each loop <code>var(--angle)</code> is
+        empty, so the whole <code>background</code> is invalid and the card
+        loses its border and its fill. Halfway through, it flips to{" "}
+        <code>360deg</code> and sits still.
       </p>
-      <Demo loop caption="The border is 2px of the wrapper’s background showing around the card.">
+      <Demo loop caption="One element: a transparent 2px border with the conic gradient painted under it.">
         <AnimatedBorderGradient />
       </Demo>
       <p>
-        This also repaints every frame. The alternative, a rotating
-        pseudo-element behind the card, uses <code>transform</code> and stays
-        on the compositor, but it needs extra markup and clipping. For one
-        small card I take the simpler CSS.
+        This keeps the real <code>border-radius</code>.{" "}
+        <code>border-image</code> takes a gradient directly, but it ignores{" "}
+        <code>border-radius</code>, so the corners come out square. If the card
+        needs to be see-through inside, the padding-box layer can’t hide the
+        gradient; there you put the gradient on a pseudo-element and cut out
+        the middle with <code>mask-composite: exclude</code>.
+      </p>
+      <p>
+        It also repaints every frame. The alternative, a rotating{" "}
+        <code>::before</code> behind the card, uses <code>transform</code> and
+        stays on the compositor, but the pseudo-element has to be an oversized
+        square so its corners still cover the card as it turns, and the card
+        needs <code>overflow: hidden</code> to clip it. For one small card I
+        take the simpler CSS.
       </p>
 
       <h2>Layers</h2>
@@ -195,6 +281,35 @@ background:
         <LayeredGradients />
       </Demo>
 
+      <h2>Smaller things I check</h2>
+      <p>
+        If a gradient is built on a brand colour, derive the other stops from
+        that one token instead of picking them, so changing the token moves the
+        whole gradient. <code>color-mix()</code> does it, and so does relative
+        colour syntax, which lets you edit one channel. Here it lightens and
+        pulls chroma back, so the tint stays inside sRGB:
+      </p>
+      <Code label="CSS">{`
+background: linear-gradient(
+  in oklab, var(--brand), color-mix(in oklab, var(--brand), white 30%)
+);
+background: linear-gradient(
+  in oklch, var(--brand), oklch(from var(--brand) calc(l + 0.15) calc(c * 0.6) h)
+);
+`}</Code>
+      <p>
+        Big, subtle gradients band: 8 bits per channel don’t have enough
+        values across a dark, low-contrast range, and you see steps. A faint
+        noise layer, like the grain tile above, dithers them away. Separately,
+        a plain two-stop ramp starts and stops abruptly, which reads as a line
+        at each end; a few extra stops following an easing curve soften that.
+      </p>
+      <p>
+        Text on a gradient has no single background colour, so there’s no
+        single contrast number. Measure the text against the lightest and the
+        darkest point that sits under it. Both have to pass.
+      </p>
+
       <h2>What changed my mind</h2>
       <p>
         I used to think of gradients as decoration you get right by eye.
@@ -202,8 +317,8 @@ background:
         something I can reason about. It’s one keyword and a{" "}
         <code>color-mix()</code> to check it. I’m still not sure oklch is
         always the right default for UI. It can be too vivid for subtle
-        surfaces. But I now choose the space deliberately instead of
-        inheriting sRGB by accident.
+        surfaces. But I now choose the space deliberately instead of taking
+        whatever default the stop syntax happens to imply.
       </p>
     </>
   );

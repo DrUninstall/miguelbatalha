@@ -4,6 +4,7 @@ import { useRef } from "react";
 import styles from "./card-hover.module.css";
 
 type Edge = "top" | "right" | "bottom" | "left";
+type Point = { x: number; y: number };
 
 // Where the overlay waits (off-card) before sliding in from / after sliding out to an edge.
 const OFFSCREEN: Record<Edge, string> = {
@@ -13,10 +14,8 @@ const OFFSCREEN: Record<Edge, string> = {
   left: "translate3d(-100%, 0, 0)",
 };
 const SHOWN = "translate3d(0, 0, 0)";
-const TRANSITION_MS = 300; // keep in sync with .overlay transition
 
-// Which edge of `rect` is the point nearest to? For a point just outside the
-// card (pointerleave) the crossed edge has a negative distance, so it still wins.
+// The edge nearest to a point. A fallback for when there is no direction of travel.
 function nearestEdge(rect: DOMRect, clientX: number, clientY: number): Edge {
   const x = clientX - rect.left;
   const y = clientY - rect.top;
@@ -29,6 +28,21 @@ function nearestEdge(rect: DOMRect, clientX: number, clientY: number): Edge {
   return distances.reduce((a, b) => (b[1] < a[1] ? b : a))[0];
 }
 
+// Follow a ray from a point inside `rect` in direction (dx, dy): which edge
+// does it leave through? Each edge is some distance away along the ray, and
+// the ray hits the nearest one first.
+function edgeAlong(rect: DOMRect, from: Point, dx: number, dy: number): Edge {
+  const x = from.x - rect.left;
+  const y = from.y - rect.top;
+  const hits: [Edge, number][] = [];
+  if (dy < 0) hits.push(["top", y / -dy]);
+  if (dx > 0) hits.push(["right", (rect.width - x) / dx]);
+  if (dy > 0) hits.push(["bottom", (rect.height - y) / dy]);
+  if (dx < 0) hits.push(["left", x / -dx]);
+  if (hits.length === 0) return nearestEdge(rect, from.x, from.y);
+  return hits.reduce((a, b) => (b[1] < a[1] ? b : a))[0];
+}
+
 interface CardHoverProps {
   title: string;
   subtitle: string;
@@ -38,16 +52,19 @@ interface CardHoverProps {
 export function CardHover({ title, subtitle, children }: CardHoverProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const shown = useRef(false);
-  const hiddenAt = useRef(-Infinity);
+  // Set by pointerenter, cleared by the pointermove that follows it.
+  const entering = useRef(false);
+  // The last pointer position seen inside the card, to tell which way it left.
+  const lastInside = useRef<Point | null>(null);
 
   const show = (from: Edge) => {
     const el = overlayRef.current;
     if (!el || shown.current) return;
     shown.current = true;
-    // If the overlay is fully parked off-card, teleport it (no transition) to
-    // the entry edge first; otherwise it would sweep across from the old exit
-    // edge. If it's still mid-exit, just reverse from where it is.
-    if (performance.now() - hiddenAt.current > TRANSITION_MS) {
+    // Parked off-card (no transition running): jump it, transitions off, to the
+    // entry edge first, or it would sweep across from the old exit edge.
+    // Still mid-exit: just reverse from where it is.
+    if (el.getAnimations().length === 0) {
       el.style.transition = "none";
       el.style.transform = OFFSCREEN[from];
       void el.offsetWidth; // flush so the start position is committed
@@ -60,18 +77,38 @@ export function CardHover({ title, subtitle, children }: CardHoverProps) {
     const el = overlayRef.current;
     if (!el || !shown.current) return;
     shown.current = false;
-    hiddenAt.current = performance.now();
     el.style.transform = OFFSCREEN[to];
   };
 
+  // pointerenter carries no movement (movementX/Y are 0 on boundary events), so
+  // the edge is decided by the pointermove the browser sends straight after it:
+  // step back from the entry point along the direction of travel.
   const handlePointerEnter = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType === "touch") return; // touch uses tap-to-toggle
-    show(nearestEdge(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY));
+    entering.current = true;
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "touch") return;
+    const point = { x: e.clientX, y: e.clientY };
+    if (entering.current) {
+      entering.current = false;
+      show(edgeAlong(e.currentTarget.getBoundingClientRect(), point, -e.movementX, -e.movementY));
+    }
+    lastInside.current = point;
   };
 
   const handlePointerLeave = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType === "touch") return;
-    hide(nearestEdge(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY));
+    entering.current = false;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const last = lastInside.current;
+    lastInside.current = null;
+    hide(
+      last
+        ? edgeAlong(rect, last, e.clientX - last.x, e.clientY - last.y)
+        : nearestEdge(rect, e.clientX, e.clientY)
+    );
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -92,6 +129,7 @@ export function CardHover({ title, subtitle, children }: CardHoverProps) {
       role="group"
       aria-label={title}
       onPointerEnter={handlePointerEnter}
+      onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
       onPointerUp={handlePointerUp}
       onFocus={handleFocus}

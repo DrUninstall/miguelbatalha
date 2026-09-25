@@ -71,6 +71,10 @@
   color: rgb(255 255 255);
 }
 
+.duration {
+  font-variant-numeric: tabular-nums;
+}
+
 .callActions {
   display: flex;
   gap: 6px;
@@ -81,7 +85,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: none;
+  /* Transparent until forced-colors mode paints it. */
+  border: 1px solid transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -103,8 +108,10 @@
   background: rgb(var(--red-light-1000));
 }
 
-.callButton:hover {
-  opacity: 0.85;
+@media (hover: hover) and (pointer: fine) {
+  .callButton:hover {
+    opacity: 0.85;
+  }
 }
 
 .musicBars {
@@ -147,9 +154,10 @@
 }
 
 .controlButton {
-  padding: 8px 16px;
+  padding: 7px 15px;
   border-radius: 8px;
-  border: none;
+  /* Transparent until forced-colors mode, which drops the box-shadow and paints this. */
+  border: 1px solid transparent;
   box-shadow: var(--stroke-weak);
   background: transparent;
   color: rgb(var(--text-weak));
@@ -162,13 +170,28 @@
     color 0.15s;
 }
 
-.controlButton:hover {
-  background: rgb(var(--fill-weak));
-  box-shadow: var(--stroke-weak-hover);
+@media (hover: hover) and (pointer: fine) {
+  .controlButton:hover {
+    background: rgb(var(--fill-weak));
+    box-shadow: var(--stroke-weak-hover);
+  }
 }
 
 .controlButton.active {
   background: rgb(var(--fill-brand-weak));
   box-shadow: var(--stroke-brand-weak);
   color: rgb(var(--text-brand));
+}
+
+@media (forced-colors: active) {
+  .pill {
+    outline: 1px solid CanvasText;
+  }
+
+  .controlButton.active {
+    forced-color-adjust: none;
+    background: Highlight;
+    border-color: Highlight;
+    color: HighlightText;
+  }
 }

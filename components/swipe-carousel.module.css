@@ -74,7 +74,8 @@
   height: 36px;
   flex-shrink: 0;
   border-radius: 50%;
-  border: none;
+  /* Transparent until forced-colors mode, which drops the box-shadow and paints this. */
+  border: 1px solid transparent;
   box-shadow: var(--stroke-weak);
   background: transparent;
   color: rgb(var(--text-strong));
@@ -88,9 +89,11 @@
     opacity 0.15s;
 }
 
-.navButton:hover:not(:disabled) {
-  background: rgb(var(--fill-weak));
-  box-shadow: var(--stroke-weak-hover);
+@media (hover: hover) and (pointer: fine) {
+  .navButton:hover:not(:disabled) {
+    background: rgb(var(--fill-weak));
+    box-shadow: var(--stroke-weak-hover);
+  }
 }
 
 .navButton:disabled {
@@ -128,7 +131,7 @@
     transform 0.2s;
 }
 
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .dot:not(.dotActive):hover::before {
     transform: scale(1.25);
   }
@@ -136,6 +139,24 @@
 
 .dotActive::before {
   background: rgb(var(--fill-brand-strong));
+}
+
+@media (forced-colors: active) {
+  .navButton:disabled {
+    color: GrayText;
+  }
+
+  /* Hollow for the others, filled for the current card: shape, not only colour. */
+  .dot::before {
+    forced-color-adjust: none;
+    background: Canvas;
+    border: 1px solid ButtonText;
+  }
+
+  .dotActive::before {
+    background: Highlight;
+    border-color: Highlight;
+  }
 }
 
 .srOnly {

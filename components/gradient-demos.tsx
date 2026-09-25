@@ -1,79 +1,104 @@
 "use client";
 
-import { useState, useCallback, CSSProperties } from "react";
+import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import styles from "./gradient-demos.module.css";
 
-// ─────────── Pointer Position Hook ───────────
+// ─────────── Pointer surface ───────────
 
 type Point = { x: number; y: number };
 
+/** Must match the `initial-value` of the `@property --pointer-x/-y` rules in the CSS. */
 const CENTER: Point = { x: 0.5, y: 0.5 };
+
+const KEY_DIRECTIONS: Partial<Record<string, Point>> = {
+  ArrowLeft: { x: -1, y: 0 },
+  ArrowRight: { x: 1, y: 0 },
+  ArrowUp: { x: 0, y: -1 },
+  ArrowDown: { x: 0, y: 1 },
+};
+
 const clamp = (n: number) => Math.min(1, Math.max(0, n));
 
-/**
- * Tracks the pointer as 0–1 fractions of the element's box.
- * `capture: true` keeps a touch/pen drag attached to the element after it
- * leaves the box (pair it with `touch-action: none` in CSS).
- */
-function usePointerPosition({ capture = false } = {}) {
-  const [point, setPoint] = useState<Point>(CENTER);
+function place(el: HTMLElement, p: Point) {
+  el.style.setProperty("--pointer-x", String(p.x));
+  el.style.setProperty("--pointer-y", String(p.y));
+}
 
-  const update = useCallback((e: React.PointerEvent<HTMLElement>) => {
+/** Removing the inline values lets the registered properties ease back to their initial value. */
+function unplace(el: HTMLElement) {
+  el.style.removeProperty("--pointer-x");
+  el.style.removeProperty("--pointer-y");
+}
+
+/**
+ * Writes the pointer position, as 0–1 fractions of the element's box, straight
+ * to `--pointer-x` / `--pointer-y` on the element. Nothing re-renders per move;
+ * `onSettle` reports the position once it stops changing (release, leave, key).
+ * `capture` keeps a touch/pen drag attached after it leaves the box (pair it
+ * with `touch-action: none`).
+ */
+function usePointerSurface({
+  capture = false,
+  onSettle,
+}: { capture?: boolean; onSettle?: (p: Point) => void } = {}) {
+  const latest = useRef(CENTER);
+
+  const moveTo = (el: HTMLElement, p: Point) => {
+    latest.current = p;
+    place(el, p);
+  };
+
+  const reset = (el: HTMLElement) => {
+    latest.current = CENTER;
+    unplace(el);
+    onSettle?.(CENTER);
+  };
+
+  const fromPointer = (e: React.PointerEvent<HTMLElement>): Point => {
     const rect = e.currentTarget.getBoundingClientRect();
-    setPoint({
+    return {
       x: clamp((e.clientX - rect.left) / rect.width),
       y: clamp((e.clientY - rect.top) / rect.height),
-    });
-  }, []);
-
-  const onPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLElement>) => {
-      if (capture) e.currentTarget.setPointerCapture(e.pointerId);
-      update(e);
-    },
-    [capture, update]
-  );
-
-  const onPointerMove = useCallback(
-    (e: React.PointerEvent<HTMLElement>) => {
-      // Mouse updates on hover; touch/pen only while pressed (dragging).
-      if (e.pointerType === "mouse" || e.buttons !== 0) update(e);
-    },
-    [update]
-  );
-
-  // A mouse leaving resets to the default; a finger lifting keeps its result.
-  const onPointerLeave = useCallback((e: React.PointerEvent<HTMLElement>) => {
-    if (e.pointerType === "mouse") setPoint(CENTER);
-  }, []);
-
-  const onKeyDown = useCallback((e: React.KeyboardEvent<HTMLElement>) => {
-    const step = e.shiftKey ? 0.2 : 0.05;
-    const delta: Record<string, [number, number]> = {
-      ArrowLeft: [-step, 0],
-      ArrowRight: [step, 0],
-      ArrowUp: [0, -step],
-      ArrowDown: [0, step],
     };
+  };
+
+  const pointer = {
+    onPointerDown(e: React.PointerEvent<HTMLElement>) {
+      if (capture) e.currentTarget.setPointerCapture(e.pointerId);
+      moveTo(e.currentTarget, fromPointer(e));
+    },
+    onPointerMove(e: React.PointerEvent<HTMLElement>) {
+      // Mouse updates on hover; touch/pen only while pressed (dragging).
+      if (e.pointerType === "mouse" || e.buttons !== 0) moveTo(e.currentTarget, fromPointer(e));
+    },
+    onPointerUp() {
+      onSettle?.(latest.current);
+    },
+    // A mouse leaving returns to the centre; a finger lifting keeps its result.
+    onPointerLeave(e: React.PointerEvent<HTMLElement>) {
+      if (e.pointerType === "mouse") reset(e.currentTarget);
+    },
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.key === "Home" || e.key === "Escape") {
       e.preventDefault();
-      setPoint(CENTER);
+      reset(e.currentTarget);
       return;
     }
-    const d = delta[e.key];
-    if (!d) return;
+    const direction = KEY_DIRECTIONS[e.key];
+    if (!direction) return;
     e.preventDefault();
-    setPoint((p) => ({ x: clamp(p.x + d[0]), y: clamp(p.y + d[1]) }));
-  }, []);
-
-  const style = { "--pointer-x": point.x, "--pointer-y": point.y } as CSSProperties;
-
-  return {
-    point,
-    style,
-    handlers: { onPointerDown, onPointerMove, onPointerLeave },
-    onKeyDown,
+    const step = e.shiftKey ? 0.2 : 0.05;
+    const next = {
+      x: clamp(latest.current.x + direction.x * step),
+      y: clamp(latest.current.y + direction.y * step),
+    };
+    moveTo(e.currentTarget, next);
+    onSettle?.(next);
   };
+
+  return { pointer, onKeyDown };
 }
 
 // ─────────── Gradient Types Demo ───────────
@@ -81,55 +106,60 @@ function usePointerPosition({ capture = false } = {}) {
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 const deg = (n: number) => `${Math.round(n * 360)}deg`;
 
-export function GradientTypes() {
-  const linear = usePointerPosition({ capture: true });
-  const radial = usePointerPosition({ capture: true });
-  const conic = usePointerPosition({ capture: true });
+type Swatch = {
+  className: string;
+  label: string;
+  description: string;
+  describe: (p: Point) => string;
+};
 
-  const swatches = [
-    {
-      key: "linear",
-      className: styles.linearGradient,
-      state: linear,
-      label: "Linear",
-      description: "Along a line. Pointer X sets the angle.",
-      aria: `Linear gradient at ${deg(linear.point.x)}`,
-    },
-    {
-      key: "radial",
-      className: styles.radialGradient,
-      state: radial,
-      label: "Radial",
-      description: "Out from a centre that follows the pointer.",
-      aria: `Radial gradient centred at ${pct(radial.point.x)} ${pct(radial.point.y)}`,
-    },
-    {
-      key: "conic",
-      className: styles.conicGradient,
-      state: conic,
-      label: "Conic",
-      description: "Around a centre that follows the pointer; X also turns it.",
-      aria: `Conic gradient from ${deg(conic.point.x)} at ${pct(conic.point.x)} ${pct(conic.point.y)}`,
-    },
-  ];
+const SWATCHES: Swatch[] = [
+  {
+    className: styles.linearGradient,
+    label: "Linear",
+    description: "Along a line. Pointer X sets the angle.",
+    describe: (p) => `Linear gradient at ${deg(p.x)}`,
+  },
+  {
+    className: styles.radialGradient,
+    label: "Radial",
+    description: "Out from a centre that follows the pointer.",
+    describe: (p) => `Radial gradient centred at ${pct(p.x)} ${pct(p.y)}`,
+  },
+  {
+    className: styles.conicGradient,
+    label: "Conic",
+    description: "Around a centre that follows the pointer; X also turns it.",
+    describe: (p) => `Conic gradient from ${deg(p.x)} at ${pct(p.x)} ${pct(p.y)}`,
+  },
+];
+
+function GradientSwatch({ className, label, description, describe }: Swatch) {
+  const [settled, setSettled] = useState(CENTER);
+  const { pointer, onKeyDown } = usePointerSurface({ capture: true, onSettle: setSettled });
 
   return (
+    <div className={styles.gradientCard}>
+      <div
+        className={`${styles.gradientBox} ${styles.pointerSurface} ${className}`}
+        {...pointer}
+        onKeyDown={onKeyDown}
+        tabIndex={0}
+        role="group"
+        aria-roledescription="gradient control"
+        aria-label={`${describe(settled)}. Arrow keys move, Home resets.`}
+      />
+      <span className={styles.gradientLabel}>{label}</span>
+      <span className={styles.gradientDescription}>{description}</span>
+    </div>
+  );
+}
+
+export function GradientTypes() {
+  return (
     <div className={styles.typesContainer}>
-      {swatches.map(({ key, className, state, label, description, aria }) => (
-        <div key={key} className={styles.gradientCard}>
-          <div
-            className={`${styles.gradientBox} ${styles.pointerSurface} ${className}`}
-            style={state.style}
-            {...state.handlers}
-            tabIndex={0}
-            role="group"
-            aria-roledescription="gradient control"
-            aria-label={`${aria}. Arrow keys move, Home resets.`}
-            onKeyDown={state.onKeyDown}
-          />
-          <span className={styles.gradientLabel}>{label}</span>
-          <span className={styles.gradientDescription}>{description}</span>
-        </div>
+      {SWATCHES.map((swatch) => (
+        <GradientSwatch key={swatch.label} {...swatch} />
       ))}
     </div>
   );
@@ -137,47 +167,105 @@ export function GradientTypes() {
 
 // ─────────── Color Space Comparison Demo ───────────
 
-const COLOR_PAIRS = [
-  {
-    id: "blue-yellow",
-    name: "Blue → Yellow",
-    from: "#0000ff",
-    to: "#ffff00",
-    notes: {
-      srgb: "Straight line through the RGB cube. The midpoint is flat grey, rgb(128 128 128).",
-      oklab: "Straight line in a perceptual space. Even lightness; the midpoint is a soft, greyish blue.",
-      oklch: "Hue takes the shorter arc (264° → 110°), passing through cyan and green.",
-    },
-  },
-  {
-    id: "red-blue",
-    name: "Red → Blue",
-    from: "#ff0000",
-    to: "#0000ff",
-    notes: {
-      srgb: "The midpoint is rgb(128 0 128), a dark purple that sags below both ends in lightness.",
-      oklab: "Lightness stays even; the midpoint is a muted violet.",
-      oklch: "Hue swings through magenta and chroma stays high, so the middle stays vivid.",
-    },
-  },
-  {
-    id: "green-magenta",
-    name: "Green → Magenta",
-    from: "#00ff00",
-    to: "#ff00ff",
-    notes: {
-      srgb: "Straight line through the RGB cube. The midpoint is flat grey, darker than both ends.",
-      oklab: "Lighter than sRGB, but the midpoint is still a near-grey: these are opposites in Oklab.",
-      oklch: "Hue travels round through yellow, orange and red instead of cutting through grey.",
-    },
-  },
-] as const;
+type Interpolation = "srgb" | "oklab" | "oklch" | "oklchLonger";
 
-const COLOR_SPACES = ["srgb", "oklab", "oklch"] as const;
+const INTERPOLATIONS = {
+  srgb: { syntax: "in srgb", gradient: styles.srgb, midpoint: styles.srgbMid },
+  oklab: { syntax: "in oklab", gradient: styles.oklab, midpoint: styles.oklabMid },
+  oklch: { syntax: "in oklch", gradient: styles.oklch, midpoint: styles.oklchMid },
+  oklchLonger: {
+    syntax: "in oklch longer hue",
+    gradient: styles.oklchLonger,
+    midpoint: styles.oklchLongerMid,
+  },
+} satisfies Record<Interpolation, { syntax: string; gradient: string; midpoint: string }>;
+
+type Pair = {
+  name: string;
+  from: string;
+  to: string;
+  notes: Record<Interpolation, string>;
+};
+
+const BLUE_YELLOW: Pair = {
+  name: "Blue → Yellow",
+  from: "#0000ff",
+  to: "#ffff00",
+  notes: {
+    srgb: "Straight line through the RGB cube. The midpoint is flat grey, rgb(128 128 128).",
+    oklab:
+      "Straight line in a perceptual space. Blue and yellow are 154° apart in Oklab, not opposite, so the line misses grey: the midpoint is a muted steel blue.",
+    oklch:
+      "Hue takes the shorter arc (264° → 110°) through cyan and green. Most of that path is outside sRGB and gets clipped; the hard edge in the green is where the clipping stops.",
+    oklchLonger: "The long way round, up through 0°: violet, pink, red and orange.",
+  },
+};
+
+const RED_BLUE: Pair = {
+  name: "Red → Blue",
+  from: "#ff0000",
+  to: "#0000ff",
+  notes: {
+    srgb: "The midpoint is rgb(128 0 128), a dark purple that sags below both ends in lightness.",
+    oklab: "Lightness stays even; the midpoint is a muted violet.",
+    oklch: "Hue swings through magenta and chroma stays high, so the middle stays vivid.",
+    oklchLonger: "The other way round: orange, green and teal, everything the short arc skipped.",
+  },
+};
+
+const GREEN_MAGENTA: Pair = {
+  name: "Green → Magenta",
+  from: "#00ff00",
+  to: "#ff00ff",
+  notes: {
+    srgb: "Straight line through the RGB cube. The midpoint is flat grey, darker than both ends.",
+    oklab:
+      "Lighter than sRGB, but the midpoint is still a near-grey: these two are 186° apart in Oklab, close to opposite.",
+    oklch:
+      "186° apart, so the shorter arc goes backwards, through yellow, orange and red instead of cutting through grey.",
+    oklchLonger:
+      "Only 12° further than the short way: through cyan, blue and violet. Pairs this close to 180° flip direction if an endpoint moves a few degrees.",
+  },
+};
+
+const COLOR_PAIRS = [BLUE_YELLOW, RED_BLUE, GREEN_MAGENTA];
+
+function ColorSpaceRow({
+  pair,
+  interpolation,
+  control,
+}: {
+  pair: Pair;
+  interpolation: Interpolation;
+  control?: ReactNode;
+}) {
+  const { syntax, gradient, midpoint } = INTERPOLATIONS[interpolation];
+
+  return (
+    <div className={styles.colorSpaceRow}>
+      <div className={styles.colorSpaceHeader}>
+        <div className={styles.colorSpaceTitle}>
+          <code className={styles.colorSpaceLabel}>{syntax}</code>
+          {control}
+        </div>
+        <span className={styles.midpoint}>
+          <span className={styles.midpointLabel}>50%</span>
+          <span className={`${styles.midpointSwatch} ${midpoint}`} aria-hidden="true" />
+        </span>
+      </div>
+      <div
+        className={`${styles.colorSpaceGradient} ${gradient}`}
+        role="img"
+        aria-label={`linear-gradient(to right ${syntax}, ${pair.from}, ${pair.to})`}
+      />
+      <p className={styles.colorSpaceNote}>{pair.notes[interpolation]}</p>
+    </div>
+  );
+}
 
 export function GradientColorSpaces() {
-  const [pairId, setPairId] = useState<(typeof COLOR_PAIRS)[number]["id"]>("blue-yellow");
-  const pair = COLOR_PAIRS.find((p) => p.id === pairId) ?? COLOR_PAIRS[0];
+  const [pair, setPair] = useState(BLUE_YELLOW);
+  const [longerHue, setLongerHue] = useState(false);
 
   return (
     <div
@@ -187,11 +275,11 @@ export function GradientColorSpaces() {
       <div className={styles.segmented} role="group" aria-label="Gradient endpoints">
         {COLOR_PAIRS.map((p) => (
           <button
-            key={p.id}
+            key={p.name}
             type="button"
             className={styles.segment}
-            aria-pressed={p.id === pairId}
-            onClick={() => setPairId(p.id)}
+            aria-pressed={p === pair}
+            onClick={() => setPair(p)}
           >
             <span
               className={styles.segmentChip}
@@ -203,26 +291,31 @@ export function GradientColorSpaces() {
         ))}
       </div>
 
-      {COLOR_SPACES.map((space) => (
-        <div key={space} className={styles.colorSpaceRow}>
-          <div className={styles.colorSpaceHeader}>
-            <code className={styles.colorSpaceLabel}>in {space}</code>
-            <span className={styles.midpoint}>
-              <span className={styles.midpointLabel}>50%</span>
-              <span
-                className={`${styles.midpointSwatch} ${styles[`${space}Mid`]}`}
-                aria-hidden="true"
-              />
-            </span>
-          </div>
+      <ColorSpaceRow pair={pair} interpolation="srgb" />
+      <ColorSpaceRow pair={pair} interpolation="oklab" />
+      <ColorSpaceRow
+        pair={pair}
+        interpolation={longerHue ? "oklchLonger" : "oklch"}
+        control={
           <div
-            className={`${styles.colorSpaceGradient} ${styles[space]}`}
-            role="img"
-            aria-label={`linear-gradient(to right in ${space}, ${pair.from}, ${pair.to})`}
-          />
-          <p className={styles.colorSpaceNote}>{pair.notes[space]}</p>
-        </div>
-      ))}
+            className={`${styles.segmented} ${styles.hueToggle}`}
+            role="group"
+            aria-label="Hue direction"
+          >
+            {[false, true].map((longer) => (
+              <button
+                key={String(longer)}
+                type="button"
+                className={styles.segment}
+                aria-pressed={longerHue === longer}
+                onClick={() => setLongerHue(longer)}
+              >
+                {longer ? "Longer" : "Shorter"}
+              </button>
+            ))}
+          </div>
+        }
+      />
 
       <p className={styles.supportNote}>
         This browser doesn&apos;t support <code>in &lt;colorspace&gt;</code> in gradients, so all
@@ -255,11 +348,9 @@ export function AnimatedGradient() {
 export function AnimatedBorderGradient() {
   return (
     <div className={styles.animatedContainer}>
-      <div className={styles.borderWrapper}>
-        <div className={styles.borderInner}>
-          <span className={styles.borderTitle}>Gradient border</span>
-          <code className={styles.borderCode}>conic-gradient(from var(--angle), …)</code>
-        </div>
+      <div className={styles.borderCard}>
+        <span className={styles.borderTitle}>Gradient border</span>
+        <code className={styles.borderCode}>conic-gradient(from var(--angle), …) border-box</code>
       </div>
       <span className={styles.animatedLabel}>
         <span className={styles.motionOnly}>
@@ -276,40 +367,28 @@ export function AnimatedBorderGradient() {
 // ─────────── Layered Gradients Demo ───────────
 
 export function LayeredGradients() {
-  const mesh = usePointerPosition();
-  const striped = usePointerPosition();
-  const noise = usePointerPosition();
+  const mesh = usePointerSurface();
+  const striped = usePointerSurface();
+  const noise = usePointerSurface();
 
   return (
     <div className={styles.layeredContainer}>
       <div className={styles.layeredCard}>
-        <div
-          className={`${styles.layeredBox} ${styles.meshGradient}`}
-          style={mesh.style}
-          {...mesh.handlers}
-        />
+        <div className={`${styles.layeredBox} ${styles.meshGradient}`} {...mesh.pointer} />
         <span className={styles.layeredLabel}>Mesh gradient</span>
         <span className={styles.layeredDescription}>
           Six radial gradients over a dark linear base
         </span>
       </div>
       <div className={styles.layeredCard}>
-        <div
-          className={`${styles.layeredBox} ${styles.stripedOverlay}`}
-          style={striped.style}
-          {...striped.handlers}
-        />
+        <div className={`${styles.layeredBox} ${styles.stripedOverlay}`} {...striped.pointer} />
         <span className={styles.layeredLabel}>Striped overlay</span>
         <span className={styles.layeredDescription}>
           Repeating gradient over a linear one
         </span>
       </div>
       <div className={styles.layeredCard}>
-        <div
-          className={`${styles.layeredBox} ${styles.noiseTexture}`}
-          style={noise.style}
-          {...noise.handlers}
-        />
+        <div className={`${styles.layeredBox} ${styles.noiseTexture}`} {...noise.pointer} />
         <span className={styles.layeredLabel}>Noise texture</span>
         <span className={styles.layeredDescription}>
           SVG turbulence blended over a gradient

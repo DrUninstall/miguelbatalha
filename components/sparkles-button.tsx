@@ -22,6 +22,9 @@ const BURST_COUNT = 12;
 const BURST_DURATION = 0.7; // s
 const TRAIL_DURATION = 0.6; // s
 const TONES = 4;
+// Distance the pointer travels per trail sparkle, so the trail's density
+// depends on how far you move, not on how many events the screen delivers.
+const TRAIL_SPACING = 24; // px
 const EASE_OUT_CUBIC = [0.215, 0.61, 0.355, 1] as const;
 
 let sparkleId = 0;
@@ -72,6 +75,9 @@ export function SparklesButton({
 }) {
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
   const timeouts = useRef(new Set<ReturnType<typeof setTimeout>>());
+  // Last pointer position and distance travelled since the last trail sparkle.
+  const lastPoint = useRef<{ x: number; y: number } | null>(null);
+  const travelled = useRef(0);
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
@@ -108,12 +114,29 @@ export function SparklesButton({
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (reduceMotion || Math.random() > 0.6) return; // ~60% of move events leave a sparkle
+    if (reduceMotion || e.pointerType === "touch") return;
     const rect = e.currentTarget.getBoundingClientRect();
-    spawn(
-      [createTrailParticle(e.clientX - rect.left, e.clientY - rect.top)],
-      TRAIL_DURATION * 1000
-    );
+    const point = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    const last = lastPoint.current;
+    lastPoint.current = point;
+    if (!last) return;
+    const step = Math.hypot(point.x - last.x, point.y - last.y);
+    travelled.current += step;
+    const count = Math.floor(travelled.current / TRAIL_SPACING);
+    if (count === 0) return;
+    travelled.current -= count * TRAIL_SPACING;
+    // A fast move covers several spacings in one event: lay them along the
+    // segment it travelled, ending `travelled` px short of the pointer.
+    const batch = Array.from({ length: count }, (_, i) => {
+      const back = (travelled.current + (count - 1 - i) * TRAIL_SPACING) / step;
+      return createTrailParticle(point.x - (point.x - last.x) * back, point.y - (point.y - last.y) * back);
+    });
+    spawn(batch, TRAIL_DURATION * 1000);
+  };
+
+  const handlePointerLeave = () => {
+    lastPoint.current = null;
+    travelled.current = 0;
   };
 
   return (
@@ -122,7 +145,8 @@ export function SparklesButton({
       className={styles.button}
       onClick={handleClick}
       onPointerMove={handlePointerMove}
-      whileHover={{ scale: 1.03 }}
+      onPointerLeave={handlePointerLeave}
+      whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.97 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
     >

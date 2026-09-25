@@ -5,15 +5,7 @@
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
   margin-bottom: 24px;
-}
-
-.headerContent {
-  flex: 1;
-  min-width: 0;
 }
 
 .stepInfo {
@@ -32,6 +24,8 @@
 
 .progressBar {
   position: relative;
+  /* Takes no space; forced-colors mode paints it as the bar's edge. */
+  outline: 1px solid transparent;
   width: 100%;
   height: 4px;
   background: rgb(var(--fill-weak));
@@ -73,6 +67,8 @@
   font-size: 14px;
   line-height: 20px;
   font-weight: 500;
+  /* Invisible normally; forced-colors mode drops the shadow rings and paints this. */
+  border: 1px solid transparent;
   transition:
     background-color var(--duration-fast) var(--ease-out-cubic),
     color var(--duration-fast) var(--ease-out-cubic),
@@ -125,4 +121,14 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+@media (forced-colors: active) {
+  .progressFill {
+    background: Highlight;
+  }
+
+  .indicatorCircle.active {
+    border: 2px solid Highlight;
+  }
 }

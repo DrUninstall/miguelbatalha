@@ -13,21 +13,41 @@ import styles from "./toast.module.css";
 
 type ToastType = "success" | "error" | "info" | "loading";
 
+interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
+interface ToastOptions {
+  /** ms before it dismisses itself; Infinity keeps it until dismissed. */
+  duration?: number;
+  /** A button in the toast. A toast with an action stays until it's used or dismissed. */
+  action?: ToastAction;
+}
+
 interface ToastData {
   id: string;
   type: ToastType;
   message: string;
+  action?: ToastAction;
+  /** How many identical toasts arrived in a row and were folded into this one. */
+  count: number;
   /** True for the EXIT_MS window between dismissal and removal from the DOM */
   removing: boolean;
 }
 
-// Auto-dismiss durations (ms). Loading toasts stay until updated or dismissed.
-const DEFAULT_DURATION: Record<ToastType, number> = {
-  success: 4000,
-  info: 4000,
-  error: 6000,
-  loading: Infinity,
-};
+// Reading time: ~200 words a minute is 300ms a word, with a floor so a
+// two-word toast is still on screen long enough to be noticed.
+const MS_PER_WORD = 300;
+const MIN_DWELL_MS = 4000;
+
+/** Errors, actions and loading toasts wait for the person; the rest time out. */
+function dwellMs(type: ToastType, message: string, action?: ToastAction): number {
+  if (type === "error" || type === "loading" || action) return Infinity;
+  const words = message.trim().split(/\s+/).length;
+  return Math.max(MIN_DWELL_MS, words * MS_PER_WORD);
+}
+
 const EXIT_MS = 200; // matches the exit transition in toast.module.css
 const VISIBLE_TOASTS = 3; // collapsed stack shows the newest three
 const STACK_PEEK = 8; // px each older toast peeks out above the one in front
@@ -56,11 +76,25 @@ const EMPTY: ToastData[] = [];
 const getSnapshot = () => toasts;
 const getServerSnapshot = () => EMPTY;
 
-function addToast(type: ToastType, message: string, duration?: number): string {
+function addToast(type: ToastType, message: string, options: ToastOptions = {}): string {
+  const { action } = options;
+  const duration = options.duration ?? dwellMs(type, message, action);
+
+  // The same message again, straight after itself, bumps a count and restarts
+  // the timer instead of stacking a copy.
+  const newest = toasts.findLast((t) => !t.removing);
+  const repeatable = type !== "loading" && !action;
+  if (repeatable && newest && !newest.action && newest.type === type && newest.message === message) {
+    toasts = toasts.map((t) => (t.id === newest.id ? { ...t, count: t.count + 1 } : t));
+    emit();
+    scheduleRemoval(newest.id, duration);
+    return newest.id;
+  }
+
   const id = `toast-${++toastId}`;
-  toasts = [...toasts, { id, type, message, removing: false }];
+  toasts = [...toasts, { id, type, message, action, count: 1, removing: false }];
   emit();
-  scheduleRemoval(id, duration ?? DEFAULT_DURATION[type]);
+  scheduleRemoval(id, duration);
   return id;
 }
 
@@ -144,13 +178,13 @@ if (typeof document !== "undefined") {
 // Public Toast API
 // ============================================
 export const toast = Object.assign(
-  (message: string, options?: { type?: ToastType; duration?: number }) => {
-    return addToast(options?.type ?? "info", message, options?.duration);
+  (message: string, options?: ToastOptions & { type?: ToastType }) => {
+    return addToast(options?.type ?? "info", message, options);
   },
   {
-    success: (message: string, duration?: number) => addToast("success", message, duration),
-    error: (message: string, duration?: number) => addToast("error", message, duration),
-    info: (message: string, duration?: number) => addToast("info", message, duration),
+    success: (message: string, options?: ToastOptions) => addToast("success", message, options),
+    error: (message: string, options?: ToastOptions) => addToast("error", message, options),
+    info: (message: string, options?: ToastOptions) => addToast("info", message, options),
     loading: (message: string) => addToast("loading", message),
     dismiss: (id: string) => dismissToast(id),
     promise: <T,>(
@@ -163,12 +197,12 @@ export const toast = Object.assign(
         (data) => {
           const msg = typeof messages.success === "function" ? messages.success(data) : messages.success;
           updateToast(id, { type: "success", message: msg });
-          scheduleRemoval(id, DEFAULT_DURATION.success);
+          scheduleRemoval(id, dwellMs("success", msg));
         },
         (err) => {
           const msg = typeof messages.error === "function" ? messages.error(err) : messages.error;
           updateToast(id, { type: "error", message: msg });
-          scheduleRemoval(id, DEFAULT_DURATION.error);
+          scheduleRemoval(id, dwellMs("error", msg));
         }
       );
 
@@ -300,13 +334,32 @@ function Toast({
       <span className={styles.message}>
         {data.type === "error" && <span className={styles.srOnly}>Error: </span>}
         {data.message}
+        {data.count > 1 && (
+          <span className={styles.count}>
+            <span aria-hidden="true">×{data.count}</span>
+            <span className={styles.srOnly}>, {data.count} times</span>
+          </span>
+        )}
       </span>
+      {data.action && (
+        <button
+          type="button"
+          className={styles.action}
+          data-toast-control={data.id}
+          onClick={(e) => {
+            data.action?.onClick();
+            onDismiss(data.id, e.detail === 0);
+          }}
+        >
+          {data.action.label}
+        </button>
+      )}
       {data.type !== "loading" && (
         <button
           type="button"
           className={styles.dismiss}
           aria-label="Dismiss notification"
-          data-dismiss={data.id}
+          data-toast-control={data.id}
           onClick={(e) => onDismiss(data.id, e.detail === 0)}
         >
           <X aria-hidden="true" className={styles.dismissIcon} />
@@ -367,14 +420,13 @@ export function Toaster({ children }: { children?: React.ReactNode }) {
     const active = document.activeElement as HTMLElement | null;
     if (active && regionRef.current?.contains(active)) {
       // Keep keyboard users inside the stack: move to a neighbouring toast's
-      // dismiss button. Mouse users just lose focus (so the stack can collapse).
-      const buttons = Array.from(
-        regionRef.current.querySelectorAll<HTMLButtonElement>(
-          '[data-toast]:not([data-removing="true"]) [data-dismiss]'
-        )
+      // first button. Mouse users just lose focus (so the stack can collapse).
+      const toastEls = Array.from(
+        regionRef.current.querySelectorAll<HTMLElement>('[data-toast]:not([data-removing="true"])')
       );
-      const i = buttons.findIndex((b) => b.dataset.dismiss === id);
-      const next = viaKeyboard && i !== -1 ? buttons[i + 1] ?? buttons[i - 1] : undefined;
+      const firstButtons = toastEls.map((el) => el.querySelector<HTMLButtonElement>("[data-toast-control]"));
+      const i = firstButtons.findIndex((b) => b?.dataset.toastControl === id);
+      const next = viaKeyboard && i !== -1 ? firstButtons[i + 1] ?? firstButtons[i - 1] : undefined;
       if (next) next.focus();
       else active.blur();
     }

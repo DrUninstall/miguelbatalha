@@ -65,6 +65,14 @@
   transform: translateZ(var(--z));
 }
 
+/* Forced colours would repaint the edge discs as Canvas and hollow the coin out.
+   It is an illustration, so it keeps its own colours. */
+@media (forced-colors: active) {
+  .scene {
+    forced-color-adjust: none;
+  }
+}
+
 .caption {
   margin: 0;
   font-size: 13px;

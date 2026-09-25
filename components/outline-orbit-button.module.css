@@ -1,15 +1,15 @@
-/* Outline Orbit Button - Animated SVG orbit effect */
-
 .container {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 24px;
-  border: none;
+  /* 1px less than 12px 24px: the transparent border below takes that space. */
+  padding: 11px 23px;
+  /* Invisible normally; drawn as the button's outline in forced colours,
+     where the background fill is removed. */
+  border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
-  text-decoration: none;
   border-radius: 28px; /* matches the pill so the global focus outline is rounded */
 }
 
@@ -40,7 +40,7 @@
   gap: 8px;
 }
 
-/* SVG orbit layers - centered and non-interactive */
+/* Rings are drawn once the button is measured, so they fade in rather than pop. */
 .orbitSvg {
   position: absolute;
   left: 50%;
@@ -48,38 +48,46 @@
   transform: translate(-50%, -50%);
   pointer-events: none;
   flex-shrink: 0;
+  animation: ringsIn var(--duration-normal) var(--ease-out-cubic);
 }
 
-/* Brand blue orbit strokes with opacity variants */
+@keyframes ringsIn {
+  from {
+    opacity: 0;
+  }
+}
+
 .orbitInner {
   stroke: rgb(var(--fill-brand-strong));
-  transition: stroke var(--duration-normal) var(--ease-out-cubic);
 }
 
 .orbitMiddle {
   stroke: rgb(var(--fill-brand-strong) / 0.25);
-  transition: stroke var(--duration-normal) var(--ease-out-cubic);
 }
 
 .orbitOuter {
-  stroke: rgb(var(--fill-brand-strong) / 0.10);
+  stroke: rgb(var(--fill-brand-strong) / 0.1);
+}
+
+.orbitMiddle,
+.orbitOuter {
   transition: stroke var(--duration-normal) var(--ease-out-cubic);
 }
 
-/* Hover states - brighten outer orbits */
-.hovered .orbitMiddle {
+.active .orbitMiddle {
   stroke: rgb(var(--fill-brand-strong) / 0.35);
 }
 
-.hovered .orbitOuter {
-  stroke: rgb(var(--fill-brand-strong) / 0.20);
+.active .orbitOuter {
+  stroke: rgb(var(--fill-brand-strong) / 0.2);
 }
 
-/* The orbit loop. The rect path runs clockwise on screen, so a falling
-   stroke-dashoffset moves the dashes clockwise. strokeDasharray is "4 4" (an
-   8px period), so moving the dashes 64px (8 periods) lands exactly where it
-   started and the loop is seamless. One pass takes 3s, linear; hover/focus speeds it up from JS by
-   changing each animation's playbackRate, not this duration. */
+/*
+ * The orbit. Each rect's pathLength is a multiple of 8 (see the component), so
+ * dasharray "4 4" fits a whole number of periods around the ring, and moving
+ * the offset 64 (8 periods) lands exactly where it started. It starts paused;
+ * JS plays it and eases its playbackRate on hover and focus.
+ */
 @keyframes orbitClockwise {
   to {
     stroke-dashoffset: -64;
@@ -94,21 +102,21 @@
 
 .orbit {
   stroke-dashoffset: 0;
-  animation: orbitClockwise 3s linear infinite;
+  animation: orbitClockwise 1.2s linear infinite paused;
 }
 
 .orbitMiddle {
   animation-name: orbitCounterClockwise;
 }
 
-/* Off-screen: stop repainting dashes nobody can see */
-.offScreen .orbit {
-  animation-play-state: paused;
-}
-
-/* Reduced motion: no loop, the orbits render as static dashed rings. */
 @media (prefers-reduced-motion: reduce) {
   .orbit {
     animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .orbit {
+    stroke: CanvasText;
   }
 }

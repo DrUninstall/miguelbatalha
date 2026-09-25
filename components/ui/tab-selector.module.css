@@ -36,9 +36,11 @@
   cursor: not-allowed;
 }
 
-.tab:not(.disabled):not(.active):hover {
-  color: rgb(var(--text-strong));
-  box-shadow: var(--fill-hover);
+@media (hover: hover) and (pointer: fine) {
+  .tab:not(.disabled):not(.active):hover {
+    color: rgb(var(--text-strong));
+    box-shadow: var(--fill-hover);
+  }
 }
 
 .tab:not(.disabled):not(.active):active {
@@ -58,5 +60,12 @@
 @media (max-width: 400px) {
   .tab {
     padding: 12px;
+  }
+}
+
+/* Forced colors replace the brand fill with the page colour; Highlight is kept. */
+@media (forced-colors: active) {
+  .indicator {
+    background: Highlight;
   }
 }

@@ -1,38 +1,43 @@
 "use client";
 
 import { useState, useId } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  animate,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+  type Transition,
+} from "framer-motion";
 import { Eye, EyeOff, Lock, Check, X } from "lucide-react";
 import styles from "./password-strength.module.css";
 
-interface StrengthRule {
+interface PasswordRule {
   label: string;
   test: (pw: string) => boolean;
 }
 
-const rules: StrengthRule[] = [
+// This demo's composition rules. Meeting all of them says nothing about how
+// guessable the password is: "Password1!" passes every one.
+const rules: PasswordRule[] = [
   { label: "At least 8 characters", test: (pw) => pw.length >= 8 },
   { label: "Contains uppercase", test: (pw) => /[A-Z]/.test(pw) },
   { label: "Contains number", test: (pw) => /\d/.test(pw) },
-  { label: "Contains special character", test: (pw) => /[^A-Za-z0-9]/.test(pw) },
+  // Whitespace is not a special character.
+  { label: "Contains special character", test: (pw) => /[^A-Za-z0-9\s]/.test(pw) },
 ];
 
-const levels = [
-  { label: "Weak", className: styles.weak },
-  { label: "Fair", className: styles.fair },
-  { label: "Good", className: styles.good },
-  { label: "Strong", className: styles.strong },
-];
+const shareOfRulesMet = (pw: string) =>
+  rules.filter((rule) => rule.test(pw)).length / rules.length;
 
 /**
- * stiffness 400, damping 40, mass 1 → damping ratio 40 / (2·√400) = 1.
- * Critically damped: the meter indicates a value, so it arrives as fast as it
- * can without overshooting it. Settles in ~0.3s.
+ * Damping ratio 40 / (2·√400) = 1: the meter indicates a value, so it arrives
+ * as fast as it can without passing it. Settles in about 0.3s.
  */
-const METER_SPRING = { type: "spring" as const, stiffness: 400, damping: 40, mass: 1 };
+const METER_SPRING = { type: "spring", stiffness: 400, damping: 40, mass: 1 } satisfies Transition;
 
-/** Check icon pop: damping ratio 15 / (2·√500) ≈ 0.34, a quick bouncy settle. */
-const POP_SPRING = { type: "spring" as const, stiffness: 500, damping: 15, mass: 1 };
+/** Icon swap: no bounce, since overshoot on a 14px icon reads as a glitch. */
+const CHECK_SPRING = { type: "spring", duration: 0.3, bounce: 0 } satisfies Transition;
 
 export function PasswordStrength() {
   const [password, setPassword] = useState("");
@@ -42,9 +47,20 @@ export function PasswordStrength() {
   const inputId = `${id}-input`;
   const rulesId = `${id}-rules`;
 
-  const passed = rules.map((r) => r.test(password));
-  const strength = passed.filter(Boolean).length; // 0..4
-  const level = levels[Math.max(0, strength - 1)];
+  // Share of rules met (0–1), sprung on every change. The fill is clipped rather
+  // than scaled, so its rounded end keeps its shape.
+  const fill = useMotionValue(0);
+  const clipPath = useTransform(fill, (share) => `inset(0 ${(1 - share) * 100}% 0 0 round 2px)`);
+
+  const handleChange = (value: string) => {
+    setPassword(value);
+    const share = shareOfRulesMet(value);
+    if (reduceMotion) fill.set(share);
+    else animate(fill, share, METER_SPRING);
+  };
+
+  const passed = rules.map((rule) => rule.test(password));
+  const metCount = passed.filter(Boolean).length;
 
   return (
     <div className={styles.container}>
@@ -52,7 +68,6 @@ export function PasswordStrength() {
         Password
       </label>
 
-      {/* Input */}
       <div className={styles.inputWrapper}>
         <div className={styles.iconWrapper} aria-hidden="true">
           <Lock size={16} className={styles.lockIcon} />
@@ -63,7 +78,7 @@ export function PasswordStrength() {
           className={styles.input}
           placeholder="Enter password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
           autoComplete="new-password"
           aria-describedby={rulesId}
         />
@@ -78,36 +93,17 @@ export function PasswordStrength() {
         </button>
       </div>
 
-      {/* Strength meter: one bar, filled with a spring on scaleX (0, ¼, ½, ¾, 1). */}
-      <div className={`${styles.strengthTrack} ${level.className}`} aria-hidden="true">
-        <motion.div
-          className={styles.strengthFill}
-          initial={false}
-          animate={{ scaleX: strength / rules.length }}
-          transition={METER_SPRING}
-        />
+      <div
+        className={`${styles.meterTrack} ${metCount === rules.length ? styles.complete : ""}`}
+        aria-hidden="true"
+      >
+        <motion.div className={styles.meterFill} style={{ clipPath }} />
       </div>
 
-      {/* Strength label */}
-      <p className={styles.strengthLabel} aria-live="polite">
-        <AnimatePresence mode="wait" initial={false}>
-          {password.length > 0 && (
-            <motion.span
-              key={level.label}
-              className={`${styles.strengthText} ${level.className}`}
-              initial={reduceMotion ? false : { opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduceMotion ? undefined : { opacity: 0, y: 4 }}
-              transition={{ duration: 0.15 }}
-            >
-              <span className={styles.srOnly}>Password strength: </span>
-              {level.label}
-            </motion.span>
-          )}
-        </AnimatePresence>
+      <p className={styles.meterLabel} aria-live="polite">
+        {password.length > 0 && `${metCount} of ${rules.length} rules met`}
       </p>
 
-      {/* Rules checklist */}
       <ul className={styles.rules} id={rulesId}>
         {rules.map((rule, i) => (
           <li
@@ -119,9 +115,9 @@ export function PasswordStrength() {
                 <motion.span
                   key="met"
                   className={styles.ruleIconInner}
-                  initial={{ scale: 0.4 }}
-                  animate={{ scale: 1 }}
-                  transition={POP_SPRING}
+                  initial={reduceMotion ? false : { scale: 0.25, opacity: 0, filter: "blur(2px)" }}
+                  animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+                  transition={CHECK_SPRING}
                 >
                   <Check size={14} />
                 </motion.span>

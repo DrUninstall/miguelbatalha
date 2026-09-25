@@ -1,226 +1,133 @@
-/* Button base styles using design system CSS variables */
+/*
+ * A tone supplies the colours; a variant decides which of them paint the
+ * background, the text and the hairline. Hairlines (--stroke-*) and the
+ * hover/press overlays (--fill-hover/--fill-press) are box-shadow values,
+ * so a variant's ring is listed first and the overlay second.
+ */
 
 .button {
+  --button-ring: 0 0 0 0 transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  /* Invisible normally; forced-colors mode drops the shadows and paints this. */
+  border: 1px solid transparent;
   border-radius: 8px;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
-  position: relative;
+  box-shadow: var(--button-ring);
   transition:
     color 150ms ease,
     background-color 150ms ease,
     box-shadow 150ms ease,
-    opacity 150ms ease,
-    transform 150ms var(--ease-out-cubic);
+    scale 150ms var(--ease-out-cubic);
 }
 
-/* Press feedback: one mechanism, plain CSS. :active covers mouse, touch
-   and the Space key, and releases on its own, so it can never stick. */
-.button:active:not(:disabled) {
-  transform: scale(0.97);
+.pressable:active:not(:disabled) {
+  scale: 0.97;
+}
+
+/* Tones */
+
+.brand {
+  --button-strong: rgb(var(--fill-brand-strong));
+  --button-weak: rgb(var(--fill-brand-weak));
+  --button-text: rgb(var(--text-brand));
+  --button-hairline: var(--stroke-brand-weak);
+  --button-hairline-hover: var(--stroke-brand-weak);
+}
+
+.neutral {
+  --button-strong: rgb(var(--fill-strong));
+  --button-weak: rgb(var(--fill-weak));
+  --button-text: rgb(var(--text-strong));
+  --button-hairline: var(--stroke-weak);
+  --button-hairline-hover: var(--stroke-weak-hover);
+}
+
+.destructive {
+  --button-strong: rgb(var(--fill-error-strong));
+  --button-weak: rgb(var(--fill-error-weak));
+  --button-text: rgb(var(--text-error));
+  --button-hairline: var(--stroke-error-weak);
+  --button-hairline-hover: var(--stroke-error-weak);
+}
+
+/* Variants */
+
+.primary {
+  background: var(--button-strong);
+  color: rgb(var(--text-inverse-strong));
+}
+
+.secondary {
+  --button-ring: var(--button-hairline);
+  background: var(--button-weak);
+  color: var(--button-text);
+}
+
+.tertiary {
+  background: transparent;
+  color: var(--button-text);
+}
+
+.tertiary.neutral {
+  color: rgb(var(--text-weak));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    box-shadow: var(--button-ring), var(--fill-hover);
+  }
+
+  .secondary:hover {
+    --button-ring: var(--button-hairline-hover);
+  }
+
+  .tertiary.neutral:hover {
+    color: rgb(var(--text-strong));
+  }
+}
+
+.button:active {
+  box-shadow: var(--button-ring), var(--fill-press);
 }
 
 .button:disabled {
   opacity: 0.6;
-  pointer-events: none;
+  cursor: not-allowed;
   background: rgb(var(--fill-disabled));
+  box-shadow: none;
 }
 
-/* Sizes (4px grid) */
+/* Sizes, 4px grid. Side padding is 1px short of the stated value because the
+   border takes the other pixel. */
+
 .small {
   height: 32px;
-  padding: 0 12px;
+  padding: 0 11px;
   font-size: 14px;
   gap: 8px;
 }
 
 .medium {
   height: 40px;
-  padding: 0 16px;
+  padding: 0 15px;
   font-size: 16px;
   gap: 8px;
 }
 
 .large {
   height: 48px;
-  padding: 0 24px;
+  padding: 0 23px;
   font-size: 18px;
   gap: 12px;
 }
 
-.fullWidth {
-  width: 100%;
-}
-
-/*
- * Variants. Hover and press darken the surface with an inset box-shadow
- * (--fill-hover / --fill-press), so they never change the button's size.
- * Hairline borders are box-shadow tokens too (--stroke-*), so a stroked
- * variant lists its stroke first and the hover/press fill second.
- */
-
-/* Primary */
-.primaryBrand {
-  background: rgb(var(--fill-brand-strong));
-  color: rgb(var(--text-inverse-strong));
-}
-
-.primaryNeutral {
-  background: rgb(var(--fill-strong));
-  color: rgb(var(--text-inverse-strong));
-}
-
-.primaryDestructive {
-  background: rgb(var(--fill-error-strong));
-  color: rgb(var(--text-inverse-strong));
-}
-
-.primaryInverse {
-  background: rgb(var(--fill-inverse-strong));
-  color: rgb(var(--text-inverse-strong));
-}
-
-.primaryBrand:hover,
-.primaryNeutral:hover,
-.primaryDestructive:hover,
-.primaryInverse:hover {
-  box-shadow: var(--fill-hover);
-}
-
-.primaryBrand:active,
-.primaryNeutral:active,
-.primaryDestructive:active,
-.primaryInverse:active {
-  box-shadow: var(--fill-press);
-}
-
-/* Secondary */
-.secondaryBrand {
-  background: rgb(var(--fill-brand-weak));
-  color: rgb(var(--text-brand));
-  box-shadow: var(--stroke-brand-weak);
-}
-
-.secondaryBrand:hover {
-  box-shadow: var(--stroke-brand-weak), var(--fill-hover);
-}
-
-.secondaryBrand:active {
-  box-shadow: var(--stroke-brand-weak), var(--fill-press);
-}
-
-.secondaryNeutral {
-  background: rgb(var(--fill-weak));
-  color: rgb(var(--text-strong));
-  box-shadow: var(--stroke-weak);
-}
-
-.secondaryNeutral:hover {
-  box-shadow: var(--stroke-weak-hover), var(--fill-hover);
-}
-
-.secondaryNeutral:active {
-  box-shadow: var(--stroke-weak-hover), var(--fill-press);
-}
-
-.secondaryDestructive {
-  background: rgb(var(--fill-error-weak));
-  color: rgb(var(--text-error));
-  box-shadow: var(--stroke-error-weak);
-}
-
-.secondaryDestructive:hover {
-  box-shadow: var(--stroke-error-weak), var(--fill-hover);
-}
-
-.secondaryDestructive:active {
-  box-shadow: var(--stroke-error-weak), var(--fill-press);
-}
-
-.secondaryInverse {
-  background: rgb(var(--fill-inverse-weak));
-  color: rgb(var(--text-inverse-strong));
-  box-shadow: var(--stroke-inverse-weak);
-}
-
-.secondaryInverse:hover {
-  box-shadow: var(--stroke-inverse-weak), var(--fill-hover);
-}
-
-.secondaryInverse:active {
-  box-shadow: var(--stroke-inverse-weak), var(--fill-press);
-}
-
-/* Tertiary */
-.tertiaryBrand {
-  background: transparent;
-  color: rgb(var(--text-brand));
-}
-
-.tertiaryNeutral {
-  background: transparent;
-  color: rgb(var(--text-weak));
-}
-
-.tertiaryNeutral:hover {
-  color: rgb(var(--text-strong));
-}
-
-.tertiaryDestructive {
-  background: transparent;
-  color: rgb(var(--text-error));
-}
-
-.tertiaryInverse {
-  background: transparent;
-  color: rgb(var(--text-inverse-strong));
-}
-
-.tertiaryBrand:hover,
-.tertiaryNeutral:hover,
-.tertiaryDestructive:hover,
-.tertiaryInverse:hover {
-  box-shadow: var(--fill-hover);
-}
-
-.tertiaryBrand:active,
-.tertiaryNeutral:active,
-.tertiaryDestructive:active,
-.tertiaryInverse:active {
-  box-shadow: var(--fill-press);
-}
-
-/* Icon container */
-.icon {
-  display: inline-flex;
-  flex-shrink: 0;
-}
-
-.icon > svg {
-  width: 100%;
-  height: 100%;
-}
-
-.iconSmall {
-  width: 16px;
-  height: 16px;
-}
-
-.iconMedium {
-  width: 20px;
-  height: 20px;
-}
-
-.iconLarge {
-  width: 24px;
-  height: 24px;
-}
-
-.label {
-  display: inline-flex;
-  align-items: center;
+@media (forced-colors: active) {
+  .button:disabled {
+    color: GrayText;
+    border-color: GrayText;
+  }
 }

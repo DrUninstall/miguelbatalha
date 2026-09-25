@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { RotateCcw } from "lucide-react";
 import styles from "./text-reveal.module.css";
 
@@ -13,22 +13,8 @@ export function TextReveal({ text = "Animations" }: TextRevealProps) {
 
   return (
     <div className={styles.container}>
-      {/* Changing the key remounts the paragraph, which restarts every CSS animation in it. */}
-      <p key={replays} className={styles.text}>
-        {/* Screen readers get the word once; the per-letter spans are hidden from them. */}
-        <span className={styles.srOnly}>{text}</span>
-        <span className={styles.letters} aria-hidden="true">
-          {Array.from(text).map((char, index) => (
-            <span
-              key={index}
-              className={styles.letter}
-              style={{ "--index": index } as React.CSSProperties}
-            >
-              {char === " " ? " " : char}
-            </span>
-          ))}
-        </span>
-      </p>
+      {/* Changing the key remounts the reveal, which restarts every CSS animation in it. */}
+      <Reveal key={replays} text={text} />
       <button
         type="button"
         className={styles.button}
@@ -38,5 +24,53 @@ export function TextReveal({ text = "Animations" }: TextRevealProps) {
         Replay
       </button>
     </div>
+  );
+}
+
+/** Splits text into words, numbering letters across the whole line (spaces don't count). */
+function splitWords(text: string) {
+  let offset = 0;
+  return text.split(" ").map((word) => {
+    const letters = Array.from(word);
+    const start = offset;
+    offset += letters.length;
+    return { letters, start };
+  });
+}
+
+function Reveal({ text }: { text: string }) {
+  const [revealed, setRevealed] = useState(false);
+  const words = splitWords(text);
+  const lastIndex = words.reduce((n, word) => n + word.letters.length, 0) - 1;
+
+  return (
+    <p className={styles.text}>
+      {/* Letters in separate inline-blocks lose kerning, so once the last one lands
+          they are swapped for the plain text. */}
+      {!revealed && (
+        <span className={styles.letters} aria-hidden="true">
+          {words.map(({ letters, start }, w) => (
+            <Fragment key={w}>
+              {w > 0 && " "}
+              <span className={styles.word}>
+                {letters.map((char, i) => (
+                  <span
+                    key={i}
+                    className={styles.letter}
+                    style={{ "--index": start + i }}
+                    onAnimationEnd={
+                      start + i === lastIndex ? () => setRevealed(true) : undefined
+                    }
+                  >
+                    {char}
+                  </span>
+                ))}
+              </span>
+            </Fragment>
+          ))}
+        </span>
+      )}
+      <span className={styles.label}>{text}</span>
+    </p>
   );
 }

@@ -16,9 +16,14 @@ interface ToggleProps {
   className?: string;
 }
 
-/** Thumb travel in px: track width - thumb width - 2px inset on each side. */
-const THUMB_INSET = 2;
-const THUMB_CHECKED_X = { small: 36 - 16 - THUMB_INSET, medium: 44 - 20 - THUMB_INSET };
+// Thumb x in px, measured inside the track's 1px border, so the thumb sits 2px
+// from the track's outer edge in both positions.
+const TRACK_BORDER = 1;
+const THUMB_INSET = 2 - TRACK_BORDER;
+const THUMB_CHECKED_X = {
+  small: 36 - 2 * TRACK_BORDER - 16 - THUMB_INSET,
+  medium: 44 - 2 * TRACK_BORDER - 20 - THUMB_INSET,
+};
 
 const THUMB_SPRING = { type: "spring", stiffness: 500, damping: 30 } as const;
 

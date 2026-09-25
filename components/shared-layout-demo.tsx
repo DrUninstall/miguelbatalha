@@ -6,18 +6,20 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type CSSProperties,
   type KeyboardEvent,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence, useIsPresent, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, spring, useIsPresent } from "framer-motion";
 import styles from "./shared-layout-demo.module.css";
 
-// Critically damped (bounce: 0): the highlight settles without overshoot.
-const tabSpring = { type: "spring" as const, bounce: 0, duration: 0.4 };
+// Critically damped (bounce: 0): everything here moves because of a click, so
+// nothing overshoots.
+const moveSpring = { type: "spring" as const, bounce: 0, duration: 0.4 };
 
-// A touch of bounce for things that physically move somewhere new.
-const moveSpring = { type: "spring" as const, bounce: 0.1, duration: 0.55 };
+// Exits run at about three quarters of the entrance.
+const closeSpring = { type: "spring" as const, bounce: 0, duration: 0.3 };
 
 // Arrow keys, Home and End switch tabs instantly: the key press is frequent and
 // focus already shows where you are.
@@ -48,11 +50,18 @@ const tabs = [
   },
 ];
 
+// The pill's spring written out as a CSS `linear()` easing, so the label colour
+// transition runs on exactly the same curve as the pill. `duration` is in ms here.
+const tabColorTiming = spring({
+  keyframes: [0, 1],
+  bounce: moveSpring.bounce,
+  duration: moveSpring.duration * 1000,
+}).toString();
+
 export function SharedLayoutTabs() {
   const [active, setActive] = useState(0);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const baseId = useId();
-  const reduceMotion = useReducedMotion();
   // Set by arrow/Home/End, cleared by any pointer press on the tabs.
   const [viaKeyboard, setViaKeyboard] = useState(false);
 
@@ -89,6 +98,8 @@ export function SharedLayoutTabs() {
         role="tablist"
         aria-label="Teams"
         className={styles.tabList}
+        style={{ "--tab-color-timing": tabColorTiming } as CSSProperties}
+        data-instant={viaKeyboard || undefined}
         onKeyDown={onKeyDown}
         onPointerDown={() => setViaKeyboard(false)}
       >
@@ -109,17 +120,14 @@ export function SharedLayoutTabs() {
               className={styles.tab}
               onClick={() => setActive(index)}
             >
-              {/* The highlight only exists inside the active tab. When another
-                  tab becomes active, a new span with the same layoutId mounts
-                  there and Framer animates it from the old one's box. */}
               {isActive && (
                 <motion.span
-                  layoutId="tab-highlight"
+                  // layoutIds are global to the page: prefix them per instance.
+                  layoutId={`${baseId}-highlight`}
                   className={styles.tabHighlight}
-                  // Radius set via style so Framer can scale-correct it while
-                  // the pill stretches between tabs of different widths.
+                  // A pixel radius in `style` is what Framer scale-corrects.
                   style={{ borderRadius: 16 }}
-                  transition={viaKeyboard ? instant : tabSpring}
+                  transition={viaKeyboard ? instant : moveSpring}
                 />
               )}
               <span className={styles.tabLabel}>{tab.label}</span>
@@ -128,19 +136,22 @@ export function SharedLayoutTabs() {
         })}
       </div>
 
-      <motion.div
-        key={current.id}
-        role="tabpanel"
-        id={`${baseId}-panel`}
-        aria-labelledby={`${baseId}-tab-${current.id}`}
-        tabIndex={0}
-        className={styles.tabPanel}
-        initial={reduceMotion || viaKeyboard ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
-      >
-        {current.body}
-      </motion.div>
+      {/* initial={false}: the first panel is rendered visible, on the server too. */}
+      <AnimatePresence initial={false}>
+        <motion.div
+          key={current.id}
+          role="tabpanel"
+          id={`${baseId}-panel`}
+          aria-labelledby={`${baseId}-tab-${current.id}`}
+          tabIndex={0}
+          className={styles.tabPanel}
+          initial={viaKeyboard ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+        >
+          {current.body}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
@@ -153,12 +164,12 @@ const colors = [
   { id: "success", className: styles.circleSuccess },
 ];
 
-// Fisher–Yates, retried until the result differs from the input so every
-// press visibly moves something.
-function shuffleDifferent(order: number[]) {
-  let next = order;
-  while (next.every((value, index) => value === order[index])) {
-    next = [...order];
+// Fisher–Yates, retried until the order differs, so every press moves something.
+// Needs at least two items, or no different order exists.
+function shuffleDifferent<T>(items: readonly T[]): T[] {
+  let next = [...items];
+  while (next.every((item, index) => item === items[index])) {
+    next = [...items];
     for (let i = next.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [next[i], next[j]] = [next[j], next[i]];
@@ -168,26 +179,24 @@ function shuffleDifferent(order: number[]) {
 }
 
 export function SharedLayoutSwap() {
-  const [order, setOrder] = useState([0, 1, 2]);
+  const [items, setItems] = useState(colors);
 
   return (
     <div className={styles.swapContainer}>
       {/* Purely decorative: the circles carry no information of their own. */}
       <div className={styles.swapCircles} aria-hidden="true">
-        {order.map((colorIndex) => (
+        {items.map((item) => (
           <motion.div
-            // Stable key = identity. React keeps the same DOM node and just
-            // moves it; `layout` animates it from its old box to its new one.
-            key={colors[colorIndex].id}
+            key={item.id}
             layout
-            className={`${styles.swapCircle} ${colors[colorIndex].className}`}
+            className={`${styles.swapCircle} ${item.className}`}
             transition={moveSpring}
           />
         ))}
       </div>
       <button
         type="button"
-        onClick={() => setOrder(shuffleDifferent(order))}
+        onClick={() => setItems(shuffleDifferent(items))}
         className={styles.shuffleButton}
       >
         Shuffle
@@ -212,11 +221,13 @@ function useIsClient() {
  * out, so an exiting layer can stop taking clicks and focus immediately
  * instead of blocking the page until its exit animation finishes.
  */
-function ExitGuard({ children }: { children: (exiting: boolean) => ReactNode }) {
+function ExitGuard({
+  children,
+}: {
+  children: (exiting: boolean) => ReactNode;
+}) {
   return children(!useIsPresent());
 }
-
-const exitingStyle = { pointerEvents: "none" } as const;
 
 const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -224,172 +235,170 @@ const FOCUSABLE =
 export function SharedLayoutCard() {
   const [isOpen, setIsOpen] = useState(false);
   const cardRef = useRef<HTMLButtonElement>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const wasOpen = useRef(false);
-  const titleId = useId();
+  const id = useId();
+  const layoutIds = {
+    surface: `${id}-surface`,
+    title: `${id}-title`,
+    subtitle: `${id}-subtitle`,
+  };
+  const titleId = `${id}-heading`;
   const isClient = useIsClient();
-  const reduceMotion = useReducedMotion();
 
-  // Focus: into the dialog on open, back to the card on close.
-  useEffect(() => {
-    if (isOpen) {
-      closeRef.current?.focus({ preventScroll: true });
-    } else if (wasOpen.current) {
-      cardRef.current?.focus({ preventScroll: true });
-    }
-    wasOpen.current = isOpen;
-  }, [isOpen]);
-
-  // Escape to close, Tab trapped inside the dialog, page scroll locked.
+  // Page scroll locked while open, with the scrollbar's width kept as padding.
   useEffect(() => {
     if (!isOpen) return;
-
-    const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setIsOpen(false);
-        return;
-      }
-      if (event.key !== "Tab" || !dialogRef.current) return;
-      const focusables = Array.from(
-        dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE),
-      );
-      if (focusables.length === 0) return;
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      const activeEl = document.activeElement;
-      const inside = dialogRef.current.contains(activeEl);
-      if (event.shiftKey && (activeEl === first || !inside)) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && (activeEl === last || !inside)) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
     const { body, documentElement } = document;
     const scrollbar = window.innerWidth - documentElement.clientWidth;
     const prevOverflow = body.style.overflow;
     const prevPadding = body.style.paddingRight;
     body.style.overflow = "hidden";
     if (scrollbar > 0) body.style.paddingRight = `${scrollbar}px`;
-
-    document.addEventListener("keydown", onKeyDown);
     return () => {
-      document.removeEventListener("keydown", onKeyDown);
       body.style.overflow = prevOverflow;
       body.style.paddingRight = prevPadding;
     };
   }, [isOpen]);
 
-  const close = () => setIsOpen(false);
+  const close = () => {
+    setIsOpen(false);
+    cardRef.current?.focus({ preventScroll: true });
+  };
+
+  // Escape closes; Tab and Shift+Tab wrap inside the dialog. The dialog itself
+  // is focusable (tabIndex -1), so a click on its text keeps focus in here.
+  const onDialogKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      close();
+      return;
+    }
+    if (event.key !== "Tab") return;
+    const dialog = event.currentTarget;
+    const focusables = Array.from(
+      dialog.querySelectorAll<HTMLElement>(FOCUSABLE),
+    );
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const activeEl = document.activeElement;
+    if (event.shiftKey && (activeEl === first || activeEl === dialog)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && activeEl === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
 
   return (
     <div className={styles.cardContainer}>
-      {/* The card stays mounted. While the dialog (same layoutId) is open,
-          Framer makes the dialog the lead and hides the card; on close the
-          card becomes lead again and animates back from the dialog's box. */}
-      <motion.button
-        ref={cardRef}
-        type="button"
-        className={styles.card}
-        layoutId="expandable-card"
-        onClick={() => setIsOpen(true)}
-        aria-haspopup="dialog"
-        aria-expanded={isOpen}
-        style={{ borderRadius: 12 }}
-        transition={moveSpring}
-      >
-        <motion.span
-          className={styles.cardTitle}
-          layoutId="card-title"
-          transition={moveSpring}
+      {/* The focus ring is drawn by this wrapper, which Framer never transforms,
+          so it isn't stretched while the card morphs back. */}
+      <div className={styles.cardFrame}>
+        {/* The card stays mounted. While the dialog (same layoutId) is open,
+            Framer makes the dialog the lead and fades the card out; on close
+            the card becomes lead again and animates back from the dialog's box. */}
+        <motion.button
+          ref={cardRef}
+          type="button"
+          className={styles.card}
+          layoutId={layoutIds.surface}
+          onClick={() => setIsOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          style={{ borderRadius: 12 }}
+          transition={closeSpring}
         >
-          Project update
-        </motion.span>
-        <motion.span
-          className={styles.cardSubtitle}
-          layoutId="card-subtitle"
-          transition={moveSpring}
-        >
-          Q3 roadmap · 3 min read
-        </motion.span>
-      </motion.button>
+          <motion.span
+            className={styles.cardTitle}
+            layoutId={layoutIds.title}
+            transition={closeSpring}
+          >
+            Project update
+          </motion.span>
+          <motion.span
+            className={styles.cardSubtitle}
+            layoutId={layoutIds.subtitle}
+            layout="position"
+            transition={closeSpring}
+          >
+            Q3 roadmap · 3 min read
+          </motion.span>
+        </motion.button>
+      </div>
 
       {isClient &&
         createPortal(
           <AnimatePresence>
             {isOpen && (
-              <ExitGuard key="overlay">
+              <ExitGuard key="dialog">
                 {(exiting) => (
-                  <motion.div
-                    className={styles.overlay}
-                    aria-hidden="true"
-                    inert={exiting}
-                    style={exiting ? exitingStyle : undefined}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: reduceMotion ? 0 : 0.2 }}
-                    onClick={close}
-                  />
-                )}
-              </ExitGuard>
-            )}
-            {isOpen && (
-              // Full-viewport grid does the centring, so the dialog itself
-              // carries no CSS transform for Framer's inline transform to clobber.
-              <ExitGuard key="dialog-layer">
-                {(exiting) => (
+                  // One fixed layer holds the overlay and the dialog. Its grid
+                  // does the centring, so the dialog carries no CSS transform
+                  // for Framer's inline transform to clobber.
                   <div className={styles.dialogLayer} inert={exiting}>
                     <motion.div
-                      ref={dialogRef}
+                      className={styles.overlay}
+                      aria-hidden="true"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1, transition: moveSpring }}
+                      exit={{ opacity: 0, transition: closeSpring }}
+                      onClick={close}
+                    />
+                    <motion.div
                       role="dialog"
                       aria-modal="true"
                       aria-labelledby={titleId}
+                      tabIndex={-1}
                       className={styles.dialog}
-                      layoutId="expandable-card"
-                      style={{ borderRadius: 16, ...(exiting ? exitingStyle : null) }}
+                      layoutId={layoutIds.surface}
+                      style={{ borderRadius: 16 }}
                       transition={moveSpring}
+                      onKeyDown={onDialogKeyDown}
                     >
                       <motion.h2
                         id={titleId}
                         className={styles.dialogTitle}
-                        layoutId="card-title"
+                        layoutId={layoutIds.title}
                         transition={moveSpring}
                       >
                         Project update
                       </motion.h2>
                       <motion.p
                         className={styles.dialogSubtitle}
-                        layoutId="card-subtitle"
+                        layoutId={layoutIds.subtitle}
+                        layout="position"
                         transition={moveSpring}
                       >
                         Q3 roadmap · 3 min read
                       </motion.p>
+                      {/* `layout` makes Framer counter-scale this block, so its
+                          text isn't stretched by the dialog's scale. */}
                       <motion.div
                         className={styles.dialogContent}
-                        initial={reduceMotion ? false : { opacity: 0 }}
+                        layout
+                        transition={moveSpring}
+                        initial={{ opacity: 0 }}
                         animate={{
                           opacity: 1,
-                          transition: { duration: 0.2, delay: 0.1, ease: "easeOut" },
+                          transition: {
+                            duration: 0.2,
+                            delay: 0.1,
+                            ease: "easeOut",
+                          },
                         }}
-                        exit={{
-                          opacity: 0,
-                          transition: { duration: reduceMotion ? 0 : 0.1 },
-                        }}
+                        exit={{ opacity: 0, transition: { duration: 0.1 } }}
                       >
                         <p>
-                          The card and this dialog are two different elements that
-                          share a layoutId. Framer measures both boxes and animates
-                          the difference with transforms, while this text fades in
-                          once the morph is underway.
+                          The card and this dialog are two different elements
+                          that share a layoutId. Framer measures both boxes and
+                          animates the difference with transforms, while this
+                          text fades in once the morph is underway.
                         </p>
                         <button
-                          ref={closeRef}
                           type="button"
+                          // Mounted only by opening the dialog, so taking focus is expected.
+                          autoFocus
                           onClick={close}
                           className={styles.closeButton}
                         >

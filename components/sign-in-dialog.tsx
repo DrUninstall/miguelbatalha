@@ -17,28 +17,33 @@ import {
   AnimatePresence,
   useIsPresent,
   useReducedMotion,
+  type Transition,
 } from "framer-motion";
 import { X, ArrowLeft, Fingerprint, Wallet, Check } from "lucide-react";
 import { useMeasure } from "@/lib/use-measure";
 import styles from "./sign-in-dialog.module.css";
 
-type DialogStep =
-  | "default"
-  | "email"
-  | "phone"
-  | "passkey"
-  | "connect-wallet"
-  | "wallet-pending"
-  | "success";
-type TabType = "email" | "phone" | "passkey";
+type Channel = "email" | "phone";
+/** The tabs on the first step. */
+type Method = Channel | "passkey";
+
+type Step =
+  | { kind: "choose" }
+  | { kind: "wallets" }
+  | { kind: "code"; channel: Channel; to: string }
+  | { kind: "pending"; via: "passkey" | { wallet: string } }
+  | { kind: "success"; via: string };
+
+const CHOOSE: Step = { kind: "choose" };
 
 /** Height + tab indicator: critically damped (no overshoot), settles in ~0.4s. */
-const heightTransition = { type: "spring" as const, duration: 0.4, bounce: 0 };
+const heightTransition = { type: "spring", duration: 0.4, bounce: 0 } satisfies Transition;
 /** Step content crossfade/scale/blur. */
-const contentTransition = { type: "spring" as const, duration: 0.3, bounce: 0 };
-/** Dialog panel entrance/exit: a hint of bounce. */
-const panelTransition = { type: "spring" as const, duration: 0.4, bounce: 0.1 };
-const instant = { duration: 0 };
+const contentTransition = { type: "spring", duration: 0.3, bounce: 0 } satisfies Transition;
+/** Overlay and panel move as one: same spring, and the exit runs at 80% of the entrance. */
+const openTransition = { type: "spring", duration: 0.3, bounce: 0 } satisfies Transition;
+const closeTransition = { type: "spring", duration: 0.24, bounce: 0 } satisfies Transition;
+const instant = { duration: 0 } satisfies Transition;
 
 const PASSKEY_DELAY_MS = 1800;
 const WALLET_DELAY_MS = 1500;
@@ -54,7 +59,7 @@ const tabPaneVariants = {
     skip ? { opacity: 0, transition: instant } : { opacity: 0, y: -8 },
 };
 
-const tabs: { id: TabType; label: string }[] = [
+const tabs: { id: Method; label: string }[] = [
   { id: "email", label: "Email" },
   { id: "phone", label: "Phone" },
   { id: "passkey", label: "Passkey" },
@@ -95,9 +100,9 @@ function BackButton({ onBack }: { onBack: () => void }) {
 // ─────────── Default State ───────────
 
 interface DefaultStateProps {
-  activeTab: TabType;
+  activeTab: Method;
   /** `viaKeyboard` is true for arrow/Home/End, which switch instantly. */
-  onTabChange: (tab: TabType, viaKeyboard: boolean) => void;
+  onTabChange: (tab: Method, viaKeyboard: boolean) => void;
   /** Pointer press on the tabs: later tab changes animate again. */
   onTabPointerDown: () => void;
   /** Last tab change came from the keyboard: skip the crossfade. */
@@ -124,7 +129,7 @@ function DefaultState({
 }: DefaultStateProps) {
   const id = useId();
   const reduceMotion = useReducedMotion();
-  const tabId = (t: TabType) => `${id}-tab-${t}`;
+  const tabId = (t: Method) => `${id}-tab-${t}`;
   const panelId = `${id}-panel`;
 
   const handleTabKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -311,28 +316,46 @@ function ConnectWalletState({
 
 // ─────────── Code State (email + phone) ───────────
 
+const CODE_LENGTH = 6;
+
 function CodeState({
-  title,
-  description,
+  channel,
+  to,
   onBack,
   onVerify,
 }: {
-  title: string;
-  description: string;
+  channel: Channel;
+  to: string;
   onBack: () => void;
   onVerify: () => void;
 }) {
   const id = useId();
+  const [code, setCode] = useState("");
+  // Validate on submit; once it has failed, the message clears as soon as the code is fixed.
+  const [submitted, setSubmitted] = useState(false);
+  // Pasted codes arrive as "123 456" or "123-456": keep only the digits.
+  const isComplete = code.replace(/\D/g, "").length === CODE_LENGTH;
+  const showError = submitted && !isComplete;
+  const errorId = `${id}-error`;
+
   return (
     <form
+      noValidate
       onSubmit={(e) => {
         e.preventDefault();
-        onVerify();
+        setSubmitted(true);
+        if (isComplete) onVerify();
       }}
     >
       <BackButton onBack={onBack} />
-      <h3 className={styles.stepTitle}>{title}</h3>
-      <p className={`${styles.bodyText} ${styles.stepDescription}`}>{description}</p>
+      <h3 className={styles.stepTitle}>
+        {channel === "email" ? "Check your email" : "Verify your phone"}
+      </h3>
+      <p className={`${styles.bodyText} ${styles.stepDescription}`}>
+        {channel === "email"
+          ? `We sent a verification code to ${to || "your email address"}.`
+          : `We sent a verification code via SMS to ${to || "your phone"}.`}
+      </p>
       <div className={styles.formGroup}>
         <label className={styles.label} htmlFor={`${id}-code`}>
           Verification code
@@ -342,10 +365,19 @@ function CodeState({
           type="text"
           inputMode="numeric"
           autoComplete="one-time-code"
-          className={styles.input}
+          spellCheck={false}
+          className={`${styles.input} ${showError ? styles.inputInvalid : ""}`}
           placeholder="Enter 6-digit code"
-          maxLength={6}
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          aria-invalid={showError}
+          aria-describedby={showError ? errorId : undefined}
         />
+        {showError && (
+          <p id={errorId} className={styles.fieldError} role="alert">
+            Enter the {CODE_LENGTH}-digit code from the {channel === "email" ? "email" : "text message"}.
+          </p>
+        )}
       </div>
       <button type="submit" className={styles.submitButton}>
         Verify
@@ -382,8 +414,7 @@ function PendingState({
       <BackButton onBack={onBack} />
       <div className={styles.passkeyContainer}>
         <div className={styles.passkeyWrapper}>
-          {/* CSS keyframes (1.25s linear, infinite), so the blog's Pause toggle
-              and the reduced-motion rule both stop it. */}
+          {/* CSS keyframes, so the reduced-motion rule stops it. */}
           <div className={styles.passkeySpinner} />
           <div className={styles.passkeyInner}>
             <div className={styles.passkeyIconWrapper}>
@@ -401,15 +432,7 @@ function PendingState({
 
 // ─────────── Success State ───────────
 
-function SuccessState({
-  method,
-  onDone,
-  onRestart,
-}: {
-  method: string;
-  onDone: () => void;
-  onRestart: () => void;
-}) {
+function SuccessState({ via, onDone }: { via: string; onDone: () => void }) {
   return (
     <div className={styles.successContainer}>
       <div className={styles.successIcon}>
@@ -420,7 +443,7 @@ function SuccessState({
         You&apos;re signed in
       </p>
       <p className={`${styles.bodyText} ${styles.stepDescription}`}>
-        Signed in with {method}.
+        Signed in with {via}.
       </p>
       <button
         type="button"
@@ -430,9 +453,6 @@ function SuccessState({
       >
         Done
       </button>
-      <button type="button" className={styles.textButton} onClick={onRestart}>
-        Use a different method
-      </button>
     </div>
   );
 }
@@ -441,11 +461,10 @@ function SuccessState({
 
 export function SignInDialog() {
   const [isOpen, setIsOpen] = useState(false);
-  const [step, setStep] = useState<DialogStep>("default");
-  const [activeTab, setActiveTab] = useState<TabType>("email");
+  const [step, setStep] = useState<Step>(CHOOSE);
+  const [activeTab, setActiveTab] = useState<Method>("email");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [method, setMethod] = useState("email");
   // Set when the method tab was changed with arrow/Home/End: the tab pane,
   // indicator and dialog height then switch instantly. Cleared by a pointer
   // press on the tabs and by any step change.
@@ -467,17 +486,12 @@ export function SignInDialog() {
     triggerRef.current?.focus();
   };
 
-  // Reset to default state after the exit animation
-  useEffect(() => {
-    if (!isOpen) {
-      const timer = setTimeout(() => {
-        setStep("default");
-        setActiveTab("email");
-        setInstantTabs(false);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
+  // Runs once the dialog has finished animating out, so it reopens at the start.
+  const reset = () => {
+    setStep(CHOOSE);
+    setActiveTab("email");
+    setInstantTabs(false);
+  };
 
   // Escape closes
   const onEscape = useEffectEvent(close);
@@ -509,14 +523,14 @@ export function SignInDialog() {
   useEffect(() => {
     if (!isOpen) return;
     const pane = dialogRef.current?.querySelector<HTMLElement>(
-      `[data-step="${step}"] > [data-pane]`
+      `[data-step="${step.kind}"] > [data-pane]`
     );
     const target =
       pane?.querySelector<HTMLElement>("[data-autofocus]") ??
       pane?.querySelector<HTMLElement>("input") ??
       pane?.querySelector<HTMLElement>(FOCUSABLE);
     target?.focus({ preventScroll: true });
-  }, [isOpen, step]);
+  }, [isOpen, step.kind]);
 
   // Trap Tab / Shift+Tab inside the dialog
   const handleDialogKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -537,30 +551,19 @@ export function SignInDialog() {
     }
   };
 
-  const goToStep = (next: DialogStep) => {
+  const goToStep = (next: Step) => {
     setInstantTabs(false);
     setStep(next);
   };
 
   const handleContinue = () => {
-    if (activeTab === "passkey") {
-      setMethod("a passkey");
-      goToStep("passkey");
-    } else if (activeTab === "email") {
-      setMethod(email || "email");
-      goToStep("email");
-    } else {
-      setMethod(phone || "phone");
-      goToStep("phone");
-    }
+    if (activeTab === "passkey") goToStep({ kind: "pending", via: "passkey" });
+    else goToStep({ kind: "code", channel: activeTab, to: (activeTab === "email" ? email : phone).trim() });
   };
 
-  const handleBack = () => goToStep("default");
-  const handleSuccess = () => goToStep("success");
-
-  const renderState = () => {
-    switch (step) {
-      case "default":
+  const renderStep = () => {
+    switch (step.kind) {
+      case "choose":
         return (
           <DefaultState
             activeTab={activeTab}
@@ -575,64 +578,58 @@ export function SignInDialog() {
             phone={phone}
             onPhoneChange={setPhone}
             onContinue={handleContinue}
-            onConnectWallet={() => goToStep("connect-wallet")}
+            onConnectWallet={() => goToStep({ kind: "wallets" })}
           />
         );
-      case "connect-wallet":
+      case "wallets":
         return (
           <ConnectWalletState
-            onBack={handleBack}
-            onSelect={(name) => {
-              setMethod(name);
-              goToStep("wallet-pending");
-            }}
+            onBack={() => goToStep(CHOOSE)}
+            onSelect={(wallet) => goToStep({ kind: "pending", via: { wallet } })}
           />
         );
-      case "wallet-pending":
-        return (
-          <PendingState
-            icon={<Wallet size={32} />}
-            message={`Confirm in ${method}…`}
-            delay={WALLET_DELAY_MS}
-            onBack={() => goToStep("connect-wallet")}
-            onDone={handleSuccess}
-          />
-        );
-      case "email":
+      case "code": {
+        const { channel, to } = step;
         return (
           <CodeState
-            title="Check your email"
-            description={`We sent a verification code to ${email || "your email address"}.`}
-            onBack={handleBack}
-            onVerify={handleSuccess}
+            channel={channel}
+            to={to}
+            onBack={() => goToStep(CHOOSE)}
+            onVerify={() => goToStep({ kind: "success", via: to || channel })}
           />
         );
-      case "phone":
-        return (
-          <CodeState
-            title="Verify your phone"
-            description={`We sent a verification code via SMS to ${phone || "your phone"}.`}
-            onBack={handleBack}
-            onVerify={handleSuccess}
-          />
-        );
-      case "passkey":
-        return (
+      }
+      case "pending": {
+        const { via } = step;
+        return via === "passkey" ? (
           <PendingState
             icon={<Fingerprint size={32} />}
             message="Waiting for authentication…"
             delay={PASSKEY_DELAY_MS}
-            onBack={handleBack}
-            onDone={handleSuccess}
+            onBack={() => goToStep(CHOOSE)}
+            onDone={() => goToStep({ kind: "success", via: "a passkey" })}
+          />
+        ) : (
+          <PendingState
+            icon={<Wallet size={32} />}
+            message={`Confirm in ${via.wallet}…`}
+            delay={WALLET_DELAY_MS}
+            onBack={() => goToStep({ kind: "wallets" })}
+            onDone={() => goToStep({ kind: "success", via: via.wallet })}
           />
         );
+      }
       case "success":
-        return <SuccessState method={method} onDone={close} onRestart={handleBack} />;
+        return <SuccessState via={step.via} onDone={close} />;
+      default: {
+        const unhandled: never = step;
+        return unhandled;
+      }
     }
   };
 
   const dialog = (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={reset}>
       {isOpen && (
         <ExitGuard key="dialog">
           {(exiting) => (
@@ -643,9 +640,8 @@ export function SignInDialog() {
                 inert={exiting}
                 style={exiting ? exitingStyle : undefined}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={reduceMotion ? instant : { duration: 0.2 }}
+                animate={{ opacity: 1, transition: reduceMotion ? instant : openTransition }}
+                exit={{ opacity: 0, transition: reduceMotion ? instant : closeTransition }}
                 onClick={close}
               />
               {/* Full-viewport grid layer does the centring; the panel only animates scale/y/opacity. */}
@@ -659,9 +655,18 @@ export function SignInDialog() {
                   // The panel sets pointer-events: auto in CSS; drop it while exiting.
                   style={exiting ? exitingStyle : undefined}
                   initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                  transition={reduceMotion ? instant : panelTransition}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    y: 0,
+                    transition: reduceMotion ? instant : openTransition,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.95,
+                    y: 10,
+                    transition: reduceMotion ? instant : closeTransition,
+                  }}
                   onKeyDown={handleDialogKeyDown}
                 >
                   <motion.div
@@ -689,8 +694,8 @@ export function SignInDialog() {
                       {/* Content */}
                       <AnimatePresence mode="popLayout" initial={false}>
                         <motion.div
-                          key={step}
-                          data-step={step}
+                          key={step.kind}
+                          data-step={step.kind}
                           initial={
                             reduceMotion
                               ? false
@@ -704,7 +709,7 @@ export function SignInDialog() {
                           }
                           transition={contentTransition}
                         >
-                          <PresenceGuard>{renderState()}</PresenceGuard>
+                          <PresenceGuard>{renderStep()}</PresenceGuard>
                         </motion.div>
                       </AnimatePresence>
                     </div>

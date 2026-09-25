@@ -1,5 +1,3 @@
-/* Input styles using design system CSS variables */
-
 .container {
   width: 100%;
 }
@@ -11,16 +9,6 @@
   font-weight: 500;
   margin-bottom: 8px;
   color: rgb(var(--text-strong));
-}
-
-.label.disabled {
-  color: rgb(var(--text-disabled));
-}
-
-.optional {
-  color: rgb(var(--text-weak));
-  font-weight: 400;
-  margin-left: 4px;
 }
 
 .error {
@@ -38,47 +26,22 @@
   }
 }
 
-.inputWrapper {
-  position: relative;
-}
-
-.iconWrapper {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  pointer-events: none;
-  color: rgb(var(--text-weak));
-}
-
-.iconWrapper.disabled {
-  opacity: 0.5;
-}
-
-.icon {
-  width: 16px;
-  height: 16px;
-}
-
-.iconLarge {
-  width: 20px;
-  height: 20px;
-}
-
 /*
- * Shared field surface. The hairline and the error ring are box-shadows,
- * so neither affects layout. Focus is the global :focus-visible outline,
- * which is drawn outside the box-shadow, so it stays visible on an
- * invalid field instead of fighting the red ring for the same property.
+ * The hairline and the error ring are box-shadows, so neither affects layout.
+ * Focus is the global :focus-visible outline, drawn outside the shadow, so it
+ * stays visible on an invalid field. The transparent border is invisible
+ * normally; forced-colors mode drops the shadows and paints it as the edge.
  */
-.input,
-.textarea {
+.input {
   width: 100%;
+  height: 36px;
+  padding: 0 11px;
   font: inherit;
+  font-size: 14px;
+  line-height: 20px;
   color: rgb(var(--text-strong));
+  border: 1px solid transparent;
   border-radius: 8px;
-  border: none;
   box-shadow: var(--stroke-weak);
   background: rgb(var(--background-base));
   transition:
@@ -86,72 +49,32 @@
     background-color var(--duration-fast) var(--ease-out-cubic);
 }
 
-.input::placeholder,
-.textarea::placeholder {
+.input::placeholder {
   color: rgb(var(--text-weak));
 }
 
-.input:hover:not(:disabled),
-.textarea:hover:not(:disabled) {
-  background: rgb(var(--fill-weaker));
-  box-shadow: var(--stroke-weak-hover);
+@media (hover: hover) and (pointer: fine) {
+  .input:hover:not(:disabled) {
+    background: rgb(var(--fill-weaker));
+    box-shadow: var(--stroke-weak-hover);
+  }
 }
 
-.input:disabled,
-.textarea:disabled {
+.input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   background: rgb(var(--fill-weaker));
 }
 
-/* Listed with :hover so the red ring wins over the hover hairline. */
-.input.invalid,
-.input.invalid:hover:not(:disabled),
-.textarea.invalid,
-.textarea.invalid:hover:not(:disabled) {
+/* Doubled so the red ring also wins over the hover hairline. */
+.input.invalid.invalid {
   box-shadow: var(--stroke-error-strong);
 }
 
-/* Input sizes */
-.small {
-  height: 36px;
-  padding: 0 12px;
-  font-size: 14px;
-  line-height: 20px;
-}
-
-.small.withIcon {
-  padding-left: 36px;
-}
-
-.large {
-  height: 48px;
-  padding: 0 16px;
-  font-size: 16px;
-  line-height: 24px;
-}
-
-.large.withIcon {
-  padding-left: 44px;
-}
-
-/* TextArea */
-.textarea {
-  display: block;
-  resize: vertical;
-  max-height: 300px;
-}
-
-.textareaSmall {
-  min-height: 96px;
-  padding: 12px;
-  font-size: 14px;
-  line-height: 20px;
-}
-
-.textareaLarge {
-  min-height: 128px;
-  padding: 16px;
-  font-size: 16px;
-  line-height: 24px;
+/* The red ring is a shadow and disappears here; a heavier edge stands in. */
+@media (forced-colors: active) {
+  .input.invalid {
+    border-width: 2px;
+    padding: 0 10px;
+  }
 }

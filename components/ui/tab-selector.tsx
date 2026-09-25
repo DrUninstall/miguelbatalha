@@ -16,9 +16,16 @@ interface TabSelectorProps {
   tabs: Tab[];
   activeTab: string;
   onTabChange: (tabId: string) => void;
+  /** id of the tablist. Each tab's id is derived from it with `getTabId`. */
+  id?: string;
   /** Accessible name for the tablist. */
   "aria-label"?: string;
   className?: string;
+}
+
+/** The id TabSelector gives a tab, for a tabpanel's aria-labelledby. */
+export function getTabId(tablistId: string, tabId: string) {
+  return `${tablistId}-tab-${tabId}`;
 }
 
 // stiffness 400, damping 40 → damping ratio 40 / (2·√400) = 1: critically
@@ -48,11 +55,14 @@ export function TabSelector({
   tabs,
   activeTab,
   onTabChange,
+  id,
   "aria-label": ariaLabel,
   className = "",
 }: TabSelectorProps) {
+  const generatedId = useId();
+  const tablistId = id ?? generatedId;
   // Unique per instance so two tab bars on one page never share an indicator.
-  const indicatorLayoutId = `tab-indicator-${useId()}`;
+  const indicatorLayoutId = `tab-indicator-${tablistId}`;
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [viaKeyboard, setViaKeyboard] = useState(false);
 
@@ -72,7 +82,7 @@ export function TabSelector({
   };
 
   return (
-    <div className={`${styles.container} ${className}`} role="tablist" aria-label={ariaLabel}>
+    <div id={tablistId} className={`${styles.container} ${className}`} role="tablist" aria-label={ariaLabel}>
       {tabs.map((tab, index) => {
         const isActive = index === activeIndex;
 
@@ -88,6 +98,7 @@ export function TabSelector({
             ref={(el) => {
               tabRefs.current[index] = el;
             }}
+            id={getTabId(tablistId, tab.id)}
             type="button"
             role="tab"
             aria-selected={isActive}

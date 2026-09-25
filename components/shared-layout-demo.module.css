@@ -32,14 +32,21 @@
   isolation: isolate;
   flex: 1 0 auto;
   height: 32px;
-  padding: 0 var(--space-4);
+  /* Transparent until forced-colors mode draws it; padding is 1px less to match. */
+  border: 1px solid transparent;
+  padding: 0 15px;
   border-radius: 16px;
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
   color: rgb(var(--text-weak));
   cursor: pointer;
-  transition: color var(--duration-fast) var(--ease-out-cubic);
+  /* --tab-color-timing is the pill's spring as a linear() easing, set inline. */
+  transition: color var(--tab-color-timing);
+}
+
+.tabList[data-instant] .tab {
+  transition: none;
 }
 
 /* The list scrolls (overflow), so keep the ring inside the tab. */
@@ -47,8 +54,10 @@
   outline-offset: -2px;
 }
 
-.tab:hover {
-  color: rgb(var(--text-strong));
+@media (hover: hover) and (pointer: fine) {
+  .tab:hover {
+    color: rgb(var(--text-strong));
+  }
 }
 
 .tab[aria-selected="true"] {
@@ -57,7 +66,7 @@
 
 .tabHighlight {
   position: absolute;
-  inset: 0;
+  inset: -1px;
   z-index: 0;
   background: rgb(var(--fill-brand-strong) / 0.14);
 }
@@ -79,8 +88,24 @@
 
 @media (max-width: 400px) {
   .tab {
-    padding: 0 8px;
+    padding: 0 7px;
     font-size: 13px;
+  }
+}
+
+@media (forced-colors: active) {
+  .tabHighlight {
+    background: Highlight;
+  }
+
+  .tab[aria-selected="true"] {
+    color: HighlightText;
+  }
+
+  .tab {
+    forced-color-adjust: none;
+    color: ButtonText;
+    border-color: ButtonText;
   }
 }
 
@@ -119,7 +144,8 @@
 }
 
 .shuffleButton {
-  padding: var(--space-2) var(--space-6);
+  border: 1px solid transparent;
+  padding: 7px 23px;
   font-size: 14px;
   font-weight: 500;
   border-radius: 8px;
@@ -129,8 +155,10 @@
   transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
-.shuffleButton:hover {
-  box-shadow: var(--stroke-weak-hover);
+@media (hover: hover) and (pointer: fine) {
+  .shuffleButton:hover {
+    box-shadow: var(--stroke-weak-hover);
+  }
 }
 
 /* ─────────── Shared Layout Card Demo ─────────── */
@@ -144,10 +172,23 @@
   justify-content: center;
 }
 
-.card {
+/* Draws the card's focus ring. Framer transforms the card while it morphs, and
+   an outline on the card would be stretched with it; this wrapper never moves. */
+.cardFrame {
   width: 200px;
   max-width: 100%;
-  padding: var(--space-6);
+  border-radius: 12px;
+}
+
+.cardFrame:has(> .card:focus-visible) {
+  outline: 2px solid rgb(var(--text-strong));
+  outline-offset: 2px;
+}
+
+.card {
+  width: 100%;
+  border: 1px solid transparent;
+  padding: 23px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -159,10 +200,18 @@
   transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
-.card:hover {
-  box-shadow: var(--stroke-weak-hover), var(--elevation-raised);
+.card:focus-visible {
+  outline: none;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    box-shadow: var(--stroke-weak-hover), var(--elevation-raised);
+  }
+}
+
+/* Both text boxes hug their glyphs (the card's flex column aligns them to the
+   start), so each has the same proportions as its counterpart in the dialog. */
 .cardTitle {
   display: block;
   font-size: 16px;
@@ -176,35 +225,39 @@
   color: rgb(var(--text-weak));
 }
 
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgb(0 0 0 / 0.5);
-  z-index: 100;
-}
-
-/* Centres the dialog without putting a transform on it. */
+/* Portalled to <body>. The z-index lifts the whole layer over anything on the
+   page that creates its own stacking context; overlay and dialog then paint in
+   DOM order inside it. */
 .dialogLayer {
   position: fixed;
   inset: 0;
-  z-index: 101;
+  z-index: 100;
   display: grid;
   place-items: center;
   padding: 16px;
-  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.5);
 }
 
 .dialog {
-  pointer-events: auto;
+  position: relative;
+  border: 1px solid transparent;
   width: min(400px, calc(100vw - 32px));
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
-  padding: var(--space-6);
+  padding: 23px;
   background: rgb(var(--background-overlay));
   box-shadow: var(--stroke-weak), var(--elevation-overlay);
 }
 
+/* fit-content: the box hugs the text, like the card's, so the shared layoutId
+   morph never has to stretch one to the other's width. */
 .dialogTitle {
+  width: fit-content;
   font-size: 20px;
   font-weight: 600;
   color: rgb(var(--text-strong));
@@ -212,6 +265,7 @@
 }
 
 .dialogSubtitle {
+  width: fit-content;
   font-size: 14px;
   color: rgb(var(--text-weak));
   margin-bottom: var(--space-4);
@@ -231,7 +285,8 @@
 
 .closeButton {
   align-self: flex-end;
-  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  padding: 7px 15px;
   font-size: 14px;
   font-weight: 500;
   border-radius: 8px;
@@ -240,6 +295,8 @@
   transition: opacity var(--duration-fast) var(--ease-out-cubic);
 }
 
-.closeButton:hover {
-  opacity: 0.9;
+@media (hover: hover) and (pointer: fine) {
+  .closeButton:hover {
+    opacity: 0.9;
+  }
 }
