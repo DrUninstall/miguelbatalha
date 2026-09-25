@@ -24,6 +24,9 @@
   display: flex;
   align-items: center;
   gap: 20px;
+  /* Pull the borderless theme toggle's padding into the gutter so its icon
+     lines up with the text edge. */
+  margin-right: -8px;
 }
 
 .navLink {

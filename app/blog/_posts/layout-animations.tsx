@@ -82,7 +82,11 @@ export default function LayoutAnimations() {
       </p>
       <Code label="shared-layout-demo.tsx">{`
 {order.map((id) => (
-  <motion.div key={id} layout transition={{ type: "spring", bounce: 0.1, duration: 0.55 }} />
+  <motion.div
+    key={id}
+    layout
+    transition={{ type: "spring", bounce: 0.1, duration: 0.55 }}
+  />
 ))}
 `}</Code>
       <p>

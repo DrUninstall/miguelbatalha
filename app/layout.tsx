@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   },
   description:
     "Head of Product & Strategy at KovaaK Games. Writing on interface design, motion, and building products.",
+  alternates: {
+    types: { "application/rss+xml": "/blog/rss.xml" },
+  },
 };
 
 export default function RootLayout({

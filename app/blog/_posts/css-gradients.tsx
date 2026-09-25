@@ -44,7 +44,8 @@ export default function CssGradients() {
         <code>#ffff00</code> passes through <code>rgb(128 128 128)</code>.
       </p>
       <p>
-        Since 2023, every major browser lets you pick the space:
+        Since mid-2024 (Chrome and Safari had it earlier, Firefox arrived
+        last), every major browser lets you pick the space:
       </p>
       <Code label="CSS">{`
 background: linear-gradient(to right in oklab, blue, yellow);
@@ -73,8 +74,12 @@ background: linear-gradient(to right in oklch, blue, yellow);
         the same space:
       </p>
       <Code label="gradient-demos.module.css">{`
-.oklch    { background: linear-gradient(to right in oklch, var(--from), var(--to)); }
-.oklchMid { background: color-mix(in oklch, var(--from), var(--to)); }
+.oklch {
+  background: linear-gradient(to right in oklch, var(--from), var(--to));
+}
+.oklchMid {
+  background: color-mix(in oklch, var(--from), var(--to));
+}
 `}</Code>
       <Demo caption="Switch between three pairs. Blue → yellow shows the sRGB grey; green → magenta shows how far oklch can detour.">
         <GradientColorSpaces />
@@ -103,7 +108,9 @@ background: linear-gradient(to right in oklch, blue, yellow);
       </p>
       <Code label="gradient-demos.module.css">{`
 .animated {
-  background-image: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);
+  background-image: linear-gradient(
+    90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b
+  );
   background-size: 200% 100%;
   animation: slide 12s linear infinite;
 }
@@ -138,7 +145,9 @@ background: linear-gradient(to right in oklch, blue, yellow);
 
 .border {
   padding: 2px;
-  background: conic-gradient(from var(--angle), #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);
+  background: conic-gradient(
+    from var(--angle), #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b
+  );
   animation: spin 4s linear infinite;
 }
 @keyframes spin { to { --angle: 360deg; } }

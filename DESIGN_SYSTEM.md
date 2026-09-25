@@ -22,8 +22,13 @@ background: rgb(var(--fill-brand-strong) / 0.2);
 
 ```css
 .control:hover { box-shadow: var(--stroke-weak-hover), var(--fill-hover); }
-.control:focus-visible { box-shadow: var(--stroke-focus); }
 ```
+
+Never pass a `--stroke-*` token to `rgb()` or use it in `border`: it isn't a colour, and the whole declaration is silently dropped.
+
+## Focus
+
+One global rule draws focus as a 2px brand `outline` with a 2px offset. It's an outline rather than a box-shadow so component shadows can't override it. Don't set `outline: none`; inside an `overflow: hidden` parent, use a negative `outline-offset`.
 
 ## Layout
 
@@ -38,5 +43,7 @@ Geist Sans and Geist Mono. Body 15–16px; headings are set by weight and a smal
 - Hover colour changes: 150ms `ease`.
 - State changes: 200–300ms `--ease-out-cubic`.
 - Nothing animates on scroll or page load. Motion answers to input.
+- Keyboard-driven changes (arrow keys in tabs and segmented controls) snap instead of animating.
+- Infinite loops and JS-driven animations check `useReducedMotion()`; `MotionConfig` only stops transform and layout animations.
 - `prefers-reduced-motion` collapses CSS durations globally, and `MotionConfig reducedMotion="user"` does the same for Framer Motion.
 - The theme switch grows the new theme as a circle from the toggle (View Transitions API), skipped under reduced motion.

@@ -1,7 +1,10 @@
+/* Full width of the stage: the dock scales itself from this measurement, so it
+   must not shrink to fit the dock (that would feed back into a smaller dock). */
 .container {
   display: flex;
   justify-content: center;
-  padding: 64px 24px 48px;
+  width: 100%;
+  padding: 64px 0 48px;
 }
 
 .dock {
@@ -71,10 +74,4 @@
 
 .tooltipArrow {
   fill: rgb(var(--background-overlay));
-}
-
-@media (max-width: 479px) {
-  .container {
-    padding-inline: 0;
-  }
 }

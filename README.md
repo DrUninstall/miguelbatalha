@@ -19,12 +19,15 @@ app/
   _data/resume.ts     experience, education, links
   blog/_data/posts.ts post index
   blog/_posts/        one component per post
+  blog/_components/   Demo and Code frames, article styles
 components/
   site/               header, footer, shared list rows
   ui/                 design-system primitives used in posts
   *.tsx               the demo components posts embed
 ```
 
-To add a post: write `app/blog/_posts/<slug>.tsx`, add an entry to `posts.ts`, and register it in `app/blog/[slug]/page.tsx`.
+To add a post: write `app/blog/_posts/<slug>.tsx` using plain elements plus `Demo` and `Code` from `app/blog/_components/demo.tsx`, add an entry to `posts.ts`, and register it in `app/blog/[slug]/page.tsx`. Every claim a post makes about a demo should match the component's code.
+
+The blog publishes an RSS feed at `/blog/rss.xml`.
 
 See `DESIGN_SYSTEM.md` for tokens.

@@ -169,11 +169,15 @@
   transition: none;
 }
 
+/* Leaving "done": fade out, then reset the dash once invisible */
 .check {
+  color: rgb(var(--icon-success));
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   opacity: 0;
-  transition: opacity 150ms var(--ease-out-cubic);
+  transition:
+    opacity 150ms var(--ease-out-cubic),
+    stroke-dashoffset 0s 150ms;
 }
 
 /* Check draws itself (stroke-dashoffset 1 → 0 over pathLength=1) */

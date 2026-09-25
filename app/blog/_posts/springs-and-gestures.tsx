@@ -47,7 +47,8 @@ export default function SpringsAndGestures() {
         back. Either way, the release velocity goes into the spring:
       </p>
       <Code label="swipe-carousel.tsx">{`
-const SPRING = { type: "spring", stiffness: 300, damping: 22, mass: 1 }; // ζ ≈ 0.64
+// ζ = 22 / (2 · √300) ≈ 0.64
+const SPRING = { type: "spring", stiffness: 300, damping: 22, mass: 1 };
 
 // on release, and on every button or arrow-key move (velocity 0)
 animate(x, target, { ...SPRING, velocity });
@@ -156,7 +157,7 @@ animate(x, target, { ...SPRING, velocity });
       </Demo>
       <p>
         The content uses <code>AnimatePresence</code> with{" "}
-        <code>mode="popLayout"</code>, which takes the outgoing content out of
+        <code>{`mode="popLayout"`}</code>, which takes the outgoing content out of
         the layout immediately. The pill springs to the new size while the old
         content fades out on top, instead of waiting for it. The equaliser
         bars animate <code>scaleY</code> from the bottom, not{" "}

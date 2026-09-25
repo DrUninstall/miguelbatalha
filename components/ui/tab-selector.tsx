@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef } from "react";
+import { useId, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import styles from "./tab-selector.module.css";
 
@@ -22,6 +22,8 @@ interface TabSelectorProps {
 }
 
 const INDICATOR_SPRING = { type: "spring", stiffness: 400, damping: 30 } as const;
+// Keyboard moves are frequent and already give focus feedback, so they snap.
+const INSTANT = { duration: 0 } as const;
 
 /**
  * Keyboard target for a horizontal tablist: Left/Right move to the
@@ -50,6 +52,7 @@ export function TabSelector({
   // Unique per instance so two tab bars on one page never share an indicator.
   const indicatorLayoutId = `tab-indicator-${useId()}`;
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [viaKeyboard, setViaKeyboard] = useState(false);
 
   const enabled = tabs.map((tab) => !tab.disabled);
   const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
@@ -60,6 +63,7 @@ export function TabSelector({
     const target = getKeyTarget(event.key, index, enabled);
     if (target === null || target === -1) return;
     event.preventDefault();
+    setViaKeyboard(true);
     // Automatic activation: moving focus also selects the tab.
     onTabChange(tabs[target].id);
     tabRefs.current[target]?.focus();
@@ -89,7 +93,10 @@ export function TabSelector({
             tabIndex={index === tabStop ? 0 : -1}
             disabled={tab.disabled}
             className={tabClasses}
-            onClick={() => onTabChange(tab.id)}
+            onClick={() => {
+              setViaKeyboard(false);
+              onTabChange(tab.id);
+            }}
             onKeyDown={(event) => handleKeyDown(event, index)}
           >
             {tab.label}
@@ -99,7 +106,7 @@ export function TabSelector({
               <motion.span
                 layoutId={indicatorLayoutId}
                 className={styles.indicator}
-                transition={INDICATOR_SPRING}
+                transition={viaKeyboard ? INSTANT : INDICATOR_SPRING}
                 aria-hidden="true"
               />
             )}

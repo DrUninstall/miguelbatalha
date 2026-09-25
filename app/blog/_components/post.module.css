@@ -30,20 +30,20 @@
   padding-left: 20px;
 }
 
-.prose li + li {
+.prose > :is(ul, ol) > li + li {
   margin-top: 6px;
 }
 
-.prose li::marker {
+.prose > :is(ul, ol) > li::marker {
   color: rgb(var(--icon-neutral));
 }
 
-.prose strong {
+.prose > :is(p, ul, ol) strong {
   font-weight: 600;
   color: rgb(var(--text-strong));
 }
 
-.prose a {
+.prose > :is(p, ul, ol) a {
   color: rgb(var(--text-strong));
   text-decoration: underline;
   text-decoration-color: rgb(var(--text-strong) / 0.25);
@@ -53,12 +53,12 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .prose a:hover {
+  .prose > :is(p, ul, ol) a:hover {
     text-decoration-color: rgb(var(--text-strong));
   }
 }
 
-.prose :not(pre) > code {
+.prose > :is(p, ul, ol, h2) code {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-size: 0.875em;
   padding: 1px 5px;
@@ -143,4 +143,46 @@
   line-height: 21px;
   color: rgb(var(--text-strong));
   tab-size: 2;
+}
+
+/* Layout helpers for arranging several controls inside one demo. */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 24px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.stackCentered {
+  align-items: center;
+}
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 20px 8px;
+  width: 100%;
+}
+
+.iconItem {
+  display: grid;
+  grid-template-rows: 40px auto;
+  justify-items: center;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgb(var(--text-weak));
+  text-align: center;
 }
