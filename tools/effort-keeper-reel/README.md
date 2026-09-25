@@ -10,7 +10,11 @@ included). Tempo is 120 BPM; something happens on every beat.
 
 Assets come from the Effort Keeper app: its fonts, blob art rendered by its own
 `BlobAvatar`, and `ek-audio.js`, an esbuild bundle of its
-`src/lib/audio/palette.ts`, so the sound effects are the app's own recipes.
+`src/lib/audio/palette.ts` and `utils/bloomSound.ts`, so the sound effects are
+the app's own recipes. The Blossom's thirty caps (positions, colours, stacking,
+split halves) were captured from the running picker and are embedded in
+`reel.html`; their shading and open/close keyframes follow
+`EffortBloom.module.css`, and the bento's springs follow `BentoStats.tsx`.
 
 ## Render
 

@@ -26,6 +26,7 @@
   --pointer: #111;
   --pointer-edge: #fff;
   --acc: #F47A2F;
+  --sheen: rgb(255 255 255 / 0.5);
 }
 :root[data-theme="dark"] {
   --canvas: rgb(20 20 22);
@@ -44,6 +45,7 @@
   --inv-ink: #1b1c20;
   --pointer: #fff;
   --pointer-edge: #111;
+  --sheen: rgb(255 255 255 / 0.05);
 }
 
 * { box-sizing: border-box; margin: 0; }
@@ -56,9 +58,9 @@ body { font-family: 'Quicksand', sans-serif; color: var(--ink); -webkit-font-smo
 .srf { position: absolute; inset: 0; border-radius: inherit; }
 .srf.cream {
   background: var(--cream);
-  box-shadow: inset 0 1.5px 0 var(--hi), inset 0 0 0 1.5px var(--cream-edge), 0 4px 0 var(--cream-lip), 0 20px 44px rgb(var(--shadow) / 0.13);
+  box-shadow: inset 0 1.5px 0 var(--hi), inset 0 0 0 1.5px var(--cream-edge), 0 var(--wall, 4px) 0 var(--cream-lip), 0 calc(var(--wall, 4px) + 16px) 44px rgb(var(--shadow) / 0.13);
 }
-:root[data-theme="dark"] .srf.cream { box-shadow: inset 0 1.5px 0 var(--hi), inset 0 0 0 1.5px var(--cream-edge), 0 4px 0 var(--cream-lip), 0 20px 44px rgb(0 0 0 / 0.45); }
+:root[data-theme="dark"] .srf.cream { box-shadow: inset 0 1.5px 0 var(--hi), inset 0 0 0 1.5px var(--cream-edge), 0 var(--wall, 4px) 0 var(--cream-lip), 0 calc(var(--wall, 4px) + 16px) 44px rgb(0 0 0 / 0.45); }
 .srf.dark, .display {
   background: linear-gradient(168deg, #1d1e23 0%, #15161a 46%, #0e0f13 100%);
   box-shadow: inset 0 3px 10px rgb(0 0 0 / 0.45), inset 0 0 0 1.5px rgb(255 255 255 / 0.07), 0 0 0 1.5px rgb(22 24 28 / 0.6), 0 0 0 9px var(--bezel), 0 0 0 10.5px rgb(46 50 56 / 0.25), 0 22px 44px rgb(var(--shadow) / 0.16);
@@ -86,6 +88,35 @@ body { font-family: 'Quicksand', sans-serif; color: var(--ink); -webkit-font-smo
 .abs { position: absolute; }
 #cursor { position: absolute; left: 0; top: 0; width: 60px; height: 60px; }
 #rain { position: absolute; inset: 0; pointer-events: none; }
+:root { --blk-drop: rgba(56, 52, 46, 0.2); }
+:root[data-theme="dark"] { --blk-drop: rgba(0, 0, 0, 0.42); }
+/* EffortBloom.module.css's cap recipe */
+.cap {
+  position: absolute; border-radius: 50%; border: 1px solid;
+  border-top-color: color-mix(in srgb, var(--cap) 76%, #fff);
+  border-right-color: color-mix(in srgb, var(--cap) 88%, #000);
+  border-left-color: color-mix(in srgb, var(--cap) 88%, #000);
+  border-bottom-color: color-mix(in srgb, var(--cap) 62%, #000);
+  background-color: var(--cap);
+  background-image: var(--grain), radial-gradient(115% 100% at 50% 0%, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.09) 26%, rgba(255,255,255,0) 52%, rgba(0,0,0,0.09) 78%, rgba(0,0,0,0.2) 100%);
+  background-size: 120px 120px, 100% 100%;
+  background-blend-mode: soft-light, normal;
+  box-shadow: 0 calc(2px + var(--lift) * 1.5px) 0 color-mix(in srgb, var(--cap) 52%, #000), 0 calc(3px + var(--lift) * 2.5px) calc(4px + var(--lift) * 3px) var(--blk-drop), inset 0 1px 0 rgba(255,255,255,0.38);
+}
+.cap.on { box-shadow: 0 calc(3px + var(--lift) * 1px) 0 color-mix(in srgb, var(--cap) 52%, #000), 0 calc(6px + var(--lift) * 1.5px) calc(9px + var(--lift) * 2px) var(--blk-drop), inset 0 1px 0 rgba(255,255,255,0.42); }
+.key.ctl {
+  --lip: 9px;
+  background-color: var(--cream);
+  background-image: var(--grain), linear-gradient(180deg, var(--sheen), rgb(255 255 255 / 0));
+  background-size: 120px 120px, 100% 100%;
+  background-blend-mode: soft-light, normal;
+  box-shadow: inset 0 2px 0 var(--hi), inset 0 0 0 1.5px var(--cream-edge), 0 var(--lip) 0 var(--cream-lip), 0 calc(var(--lip) + 6px) 14px rgb(var(--shadow) / 0.12);
+  font-family: 'Quicksand', sans-serif; font-weight: 700; letter-spacing: 0.1em; color: var(--ink);
+}
+.ctl-label { font-size: 27px; }
+.key.ctl.sel { --lip: 0px; background-color: var(--cell); box-shadow: inset 0 3px 8px rgb(var(--shadow) / 0.16), inset 0 0 0 1.5px var(--cream-edge); color: var(--acc); }
+.key.sel { box-shadow: inset 0 2px 6px rgb(var(--shadow) / 0.16), inset 0 0 0 1.5px var(--cream-edge); background: var(--cell); }
+.tile { background: var(--cell); box-shadow: inset 0 1.5px 0 var(--hi), inset 0 0 0 1.5px var(--cream-edge), 0 var(--lip, 4px) 0 var(--cream-lip), 0 8px 18px rgb(var(--shadow) / 0.08); }
 #filament { position: absolute; inset: auto 0 0; height: 16px; border-radius: inherit; border-bottom: 3px solid var(--acc); filter: drop-shadow(0 0 10px color-mix(in srgb, var(--acc) 62%, transparent)); }
 .bit { position: absolute; left: 0; top: 0; }
 </style>
@@ -117,7 +148,8 @@ body { font-family: 'Quicksand', sans-serif; color: var(--ink); -webkit-font-smo
 const T = 20;            // 10 bars at 120 BPM
 const BEAT = 0.5;
 const CX = 720, CY = 720;
-const ORANGE = '#F47A2F', VIOLET = '#8B7CF6';
+const ORANGE = '#F47A2F';
+let VIOLET = '#8B7CF6';   // replaced by the Blossom cap the reel picks
 const params = new URLSearchParams(location.search);
 if (params.get('theme') === 'dark') document.documentElement.dataset.theme = 'dark';
 
@@ -176,13 +208,15 @@ const GEO = {
   toggleOn:{ w: 232, h: 128, r: 64,  srf: 'accent' },
   tabs:    { w: 600, h: 124, r: 38,  srf: 'cream' },
   swatch:  { w: 780, h: 132, r: 34,  srf: 'cream' },
-  blossom: { w: 740, h: 740, r: 64,  srf: 'dark' },
+  controls:{ w: 760, h: 470, r: 48,  srf: 'cream', camW: 800, camH: 610, top: -215 },
+  bloomBase:{ w: 760, h: 600, r: 48, srf: 'cream', cam: 'controls', top: -215 },
+  blossom: { w: 740, h: 740, r: 64,  srf: 'cream' },
   bento:   { w: 720, h: 720, r: 48,  srf: 'cream' },
   palette: { w: 700, h: 540, r: 38,  srf: 'cream' },
   palette2:{ w: 700, h: 336, r: 38,  srf: 'cream', cam: 'palette' },
   toast:   { w: 620, h: 136, r: 68,  srf: 'dark' },
 };
-const camScale = (g) => Math.min(2.6, 1060 / Math.max(g.w, g.h * 1.3));
+const camScale = (g) => Math.min(2.6, 1060 / Math.max(g.camW || g.w, (g.camH || g.h) * 1.3));
 
 const SCHEDULE = [
   [0.00, 'plus'],
@@ -195,8 +229,9 @@ const SCHEDULE = [
   [12.0, 'toggle'],
   [12.5, 'toggleOn'],
   [13.0, 'tabs'],
-  [14.0, 'swatch'],
-  [14.5, 'blossom'],
+  [14.0, 'controls'],
+  [14.5, 'bloomBase'],
+  [15.6, 'controls'],
   [16.0, 'bento'],
   [18.0, 'palette'],
   [18.78, 'palette2'],
@@ -228,7 +263,8 @@ const press = track([[0, 1],
 ], SNAPPY);
 /* The floating timer hangs from its top edge and grows downward. */
 const ISL_TOP = -195;
-const anchor = track([[0, 0], [10.0, 1, SNAPPY], [12.0, 0, SNAPPY]]);
+const anchor = track([[0, 0], [10.0, 1, SNAPPY], [12.0, 0, SNAPPY], [14.0, 1, SNAPPY], [16.0, 0, SNAPPY]]);
+const anchorTop = track([[0, ISL_TOP], [13.0, -215, spring(900, 60)], [17.0, ISL_TOP, spring(900, 60)]]);
 const DRAG_SHEET = [5.0, 5.5];
 const DRAG_DY = 230;
 const sheetDragDy = (t) => lerp(0, DRAG_DY, smooth((t - 5.02) / 0.4));
@@ -512,110 +548,162 @@ const cSwatch = el(`
     <div class="key" id="sw-bloom" style="top:0;left:${7 * SW_PITCH}px;width:${SW_SIZE}px;height:${SW_SIZE}px;border-radius:20px;color:var(--acc)">${ICON(I.flower, 36, 1.8)}</div>
   </div>`);
 const swBloom = cSwatch.querySelector('#sw-bloom');
-
-const RINGS = [{ n: 8, r: 118, d: 134, L: 0.84 }, { n: 10, r: 212, d: 138, L: 0.74 }, { n: 12, r: 296, d: 132, L: 0.62 }];
-const PETALS = [];
-RINGS.forEach((ring, ri) => {
-  for (let k = 0; k < ring.n; k++) {
-    const ang = (k / ring.n) * Math.PI * 2 + ri * 0.21;
-    const hue = ((ang * 180) / Math.PI + 360) % 360;
-    PETALS.push({ ri, k, ang, x: Math.cos(ang) * ring.r, y: Math.sin(ang) * ring.r, d: ring.d, hue, color: `oklch(${ring.L} ${(0.15 - ri * 0.01).toFixed(3)} ${hue.toFixed(1)})` });
-  }
-});
-const cBloom = el(`<div style="position:relative;width:0;height:0">
-  ${PETALS.map((p) => `<div class="petal" style="position:absolute;left:${-p.d / 2}px;top:${-p.d / 2}px;width:${p.d}px;height:${p.d}px;border-radius:50%;background:${p.color};box-shadow:inset 0 2px 0 rgb(255 255 255/0.35),inset 0 -4px 8px rgb(0 0 0/0.12),0 5px 12px rgb(0 0 0/0.35);z-index:${3 - p.ri}"></div>`).join('')}
-  <div id="bl-core" style="position:absolute;left:-64px;top:-64px;width:128px;height:128px;border-radius:50%;background:var(--acc);z-index:9;box-shadow:inset 0 2px 0 rgb(255 255 255/0.35),0 6px 16px rgb(0 0 0/0.35);display:flex;align-items:center;justify-content:center;color:#1b1c20">
-    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path id="bl-check" d="M5 12.5l4.5 4.5L19 7.5" pathLength="100" stroke-dasharray="100 100"/></svg>
-  </div>
+const BASE_TOP = -215, SWATCH_Y = BASE_TOP - 74;
+const STAR = '<path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" fill="currentColor" stroke="none"/>';
+const BOLT = '<path d="M13 2.5 5.5 13.5h6L10.5 21.5 18.5 10h-6z" fill="currentColor" stroke="none"/>';
+const MOON = '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="currentColor" stroke="none"/>';
+const CHEV = '<path d="m7 10 5 5 5-5"/>';
+const cCtrl = el(`<div style="position:relative;width:700px;height:420px">
+  ${[['CORE', STAR, 0], ['IMPORTANT', BOLT, 1], ['OPTIONAL', MOON, 0]].map(([l, ic, on], i) => `<div class="key ctl${on ? ' sel' : ''}" style="left:${i * 238}px;top:0;width:224px;height:128px;flex-direction:column;gap:12px;border-radius:32px"><span style="display:flex;${on ? '' : 'color:var(--ink-weak)'}">${ICON(ic, 36, 2)}</span><span class="ctl-label" style="${on ? '' : 'color:var(--ink-weak)'}">${l}</span></div>`).join('')}
+  <div class="key ctl" id="ct-minus" style="left:0;top:158px;width:110px;height:110px;border-radius:30px">${ICON('<path d="M5 12h14"/>', 36, 2.6)}</div>
+  <div id="ct-num" class="mono" style="position:absolute;left:150px;right:150px;top:156px;height:112px;font-size:110px;font-weight:700;letter-spacing:-0.03em"></div>
+  <div class="key ctl" id="ct-plus" style="right:0;top:158px;width:110px;height:110px;border-radius:30px">${ICON(I.plus, 36, 2.6)}</div>
+  <div class="key ctl" style="left:0;top:308px;width:338px;height:94px;justify-content:space-between;padding:0 32px;border-radius:30px"><span class="ctl-label">MINUTES</span>${ICON(CHEV, 28, 2.2)}</div>
+  <div class="key ctl" style="left:362px;top:308px;width:338px;height:94px;justify-content:flex-start;gap:22px;padding:0 32px;border-radius:30px"><span style="width:16px;height:16px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px color-mix(in srgb, var(--acc) 70%, transparent)"></span><span class="ctl-label">EACH DAY</span></div>
 </div>`);
-const petalEls = [...cBloom.querySelectorAll('.petal')];
-const blCore = cBloom.querySelector('#bl-core'), blCheck = cBloom.querySelector('#bl-check');
-const BLOOM = [14.5, 15.5];
-// violet sits in the middle ring, at the hue nearest oklch 290
-const VIOLET_IDX = PETALS.reduce((best, p, i) => (p.ri === 1 && Math.abs(p.hue - 290) < Math.abs(PETALS[best].hue - 290) ? i : best), 8);
-const BLOOM_START = toLocal('blossom', toScreen('swatch', swX(7), 6));
-/* The scrub: in from the key, round the outer ring, and down onto violet. */
-function bloomHand(t) {
-  const u = clamp((t - 14.56) / 0.82);
-  const e = smooth(u);
-  const target = PETALS[VIOLET_IDX];
-  const a0 = Math.atan2(BLOOM_START[1], BLOOM_START[0]);
-  const ang = lerp(a0, target.ang < a0 ? target.ang + Math.PI * 2 : target.ang, e);
-  const rad = lerp(Math.hypot(...BLOOM_START), 212, smooth((u - 0.45) / 0.55));
-  const radIn = Math.min(rad, lerp(Math.hypot(...BLOOM_START), 300, smooth(u / 0.18)));
-  const p = [Math.cos(ang) * radIn, Math.sin(ang) * radIn];
-  const k = smooth((t - 15.3) / 0.18);
-  return [lerp(p[0], target.x, k), lerp(p[1], target.y, k)];
-}
-const nearestPetal = ([x, y]) => {
-  let best = -1, bd = 1e9;
-  PETALS.forEach((p, i) => { const d = Math.hypot(p.x - x, p.y - y); if (d < p.d / 2 && d < bd) { bd = d; best = i; } });
+const ctPlus = cCtrl.querySelector('#ct-plus'), ctNum = cCtrl.querySelector('#ct-num');
+const CT_NUMS = [['30', 14.0], ['35', 14.25]].map(([n, at]) => {
+  const sp = document.createElement('span');
+  sp.style.cssText = 'position:absolute;left:0;right:0;top:0;text-align:center;line-height:112px';
+  sp.textContent = n;
+  ctNum.appendChild(sp);
+  return [sp, at];
+});
+
+/* The Blossom, as the app draws it: thirty caps from @dayflow/blossom-color-picker,
+   laid out by the library and captured from the running app (positions, colours,
+   stacking, split halves), shaded with EffortBloom.module.css's cap recipe. */
+const BLOOM_DATA = {"petals": [[0, -48.5, 70, "rgb(255, 177, 168)", 0.9444444444444444, 303, "none"], [43.27, -17.06, 70, "rgb(148, 205, 255)", 0.9490740740740741, 304, "none"], [26.74, 33.81, 70, "rgb(195, 194, 255)", 0.9305555555555556, 300, "polygon(0% -50%, 50% -50%, 50% 150%, 0% 150%)"], [26.74, 33.81, 70, "rgb(195, 194, 255)", 1.0, 315, "polygon(50% -50%, 100% -50%, 100% 150%, 50% 150%)"], [-26.74, 33.81, 70, "rgb(238, 170, 253)", 0.9351851851851852, 301, "none"], [-43.27, -17.06, 70, "rgb(255, 168, 210)", 0.9398148148148148, 302, "none"], [45.26, -65.29, 70, "rgb(239, 115, 108)", 0.49537037037037035, 206, "none"], [73.23, -26.79, 70, "rgb(255, 179, 128)", 0.5, 207, "none"], [73.23, 20.79, 70, "rgb(237, 193, 100)", 0.5046296296296297, 208, "none"], [45.26, 59.29, 70, "rgb(152, 221, 136)", 0.5092592592592593, 209, "none"], [0, 74, 70, "rgb(108, 224, 195)", 0.4675925925925926, 200, "polygon(0% -50%, 50% -50%, 50% 150%, 0% 150%)"], [0, 74, 70, "rgb(108, 224, 195)", 0.5601851851851852, 220, "polygon(50% -50%, 100% -50%, 100% 150%, 50% 150%)"], [-45.26, 59.29, 70, "rgb(109, 219, 238)", 0.4722222222222222, 201, "none"], [-73.23, 20.79, 70, "rgb(54, 166, 247)", 0.47685185185185186, 202, "none"], [-73.23, -26.79, 70, "rgb(150, 142, 250)", 0.48148148148148145, 203, "none"], [-45.26, -65.29, 70, "rgb(201, 124, 218)", 0.4861111111111111, 204, "none"], [0, -80, 70, "rgb(228, 114, 173)", 0.49074074074074076, 205, "none"], [33.53, -106.19, 70, "rgb(159, 52, 50)", 0.041666666666666664, 108, "none"], [72.6, -83.63, 70, "rgb(230, 128, 45)", 0.046296296296296294, 109, "none"], [99.12, -47.13, 70, "rgb(143, 71, 0)", 0.05092592592592592, 110, "none"], [108.5, -3, 70, "rgb(122, 90, 0)", 0.05555555555555555, 111, "none"], [99.12, 41.13, 70, "rgb(199, 149, 0)", 0.06018518518518518, 112, "none"], [72.6, 77.63, 70, "rgb(38, 110, 18)", 0.06481481481481481, 113, "none"], [33.53, 100.19, 70, "rgb(102, 182, 84)", 0.06944444444444445, 114, "none"], [-12.48, 115.7, 70, "rgb(0, 184, 153)", 0.004629629629629629, 100, "polygon(0% -50%, 50% -50%, 50% 150%, 0% 150%)"], [-12.48, 115.7, 70, "rgb(0, 184, 153)", 0.12037037037037036, 125, "polygon(50% -50%, 100% -50%, 100% 150%, 50% 150%)"], [-54.25, 90.96, 70, "rgb(0, 112, 93)", 0.009259259259259259, 101, "none"], [-87.78, 60.77, 70, "rgb(0, 176, 199)", 0.013888888888888888, 102, "none"], [-106.13, 19.56, 70, "rgb(0, 108, 122)", 0.018518518518518517, 103, "none"], [-106.13, -25.56, 70, "rgb(0, 100, 158)", 0.023148148148148147, 104, "none"], [-87.78, -66.77, 70, "rgb(88, 77, 168)", 0.027777777777777776, 105, "none"], [-54.25, -96.96, 70, "rgb(128, 61, 143)", 0.032407407407407406, 106, "none"], [-11.34, -110.91, 70, "rgb(147, 52, 104)", 0.037037037037037035, 107, "none"]], "grain": "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.4 0 0 0 0.3 0.4 0 0 0 0.3 0.4 0 0 0 0.3 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)'/%3E%3C/svg%3E\")", "core": 70};
+const BK = 2.05;                         // the flower's scale in the block
+document.documentElement.style.setProperty('--grain', BLOOM_DATA.grain);
+const BL = BLOOM_DATA.petals.map(([x, y, w, cap, lift, z, clip]) => ({ x, y, w, cap, lift, z, clip }));
+const rgbOf = (s) => s.match(/\d+/g).slice(0, 3).map(Number);
+const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const nearestCap = (hex) => {
+  const [r, g, b] = hexRgb(hex);
+  let best = 0, bd = 1e9;
+  BL.forEach((p, i) => { const [pr, pg, pb] = rgbOf(p.cap); const d = (pr - r) ** 2 + (pg - g) ** 2 + (pb - b) ** 2; if (d < bd) { bd = d; best = i; } });
   return best;
 };
-const BLOOM_TICKS = [];
-{
-  let prev = -1;
-  for (let t = 14.62; t <= 15.5; t += 0.002) {
-    const i = nearestPetal(bloomHand(t));
-    if (i !== prev && i >= 0) BLOOM_TICKS.push([+t.toFixed(3), i]);
-    prev = i;
-  }
-}
-/* each petal lifts while the finger is on it, on a spring in and out */
-const LIFT = PETALS.map((_, i) => {
-  const wins = [];
-  BLOOM_TICKS.forEach(([t0, j], n) => { if (j === i) wins.push([t0, n + 1 < BLOOM_TICKS.length ? BLOOM_TICKS[n + 1][0] : 15.6]); });
-  return (t) => wins.reduce((v, [a, b]) => v + SNAPPY(t - a) - SNAPPY(t - b), 0);
-});
+const START_CAP = nearestCap(ORANGE);
+const PICK_CAP = nearestCap('#8B7CF6');
+VIOLET = (() => { const [r, g, b] = rgbOf(BL[PICK_CAP].cap); return '#' + [r, g, b].map((n) => n.toString(16).padStart(2, '0')).join(''); })();
+const cBloom = el(`<div id="bl-clip" style="position:relative;width:100%;height:100%"><div style="position:absolute;left:50%;top:50%;width:0;height:0">
+  <div id="bl-host" style="position:absolute;left:0;top:0;width:0;height:0">
+    ${BL.map((p) => `<div class="cap" style="--cap:${p.cap};--lift:${p.lift.toFixed(3)};left:${(p.x - p.w / 2).toFixed(2)}px;top:${(p.y - p.w / 2).toFixed(2)}px;width:${p.w}px;height:${p.w}px;z-index:${p.z};clip-path:${p.clip}"></div>`).join('')}
+    <div id="bl-core" class="cap" style="--lift:1;left:-35px;top:-35px;width:70px;height:70px;z-index:900;display:flex;align-items:center;justify-content:center;color:#1b1c20">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.6 4.5L19 7.5"/></svg>
+    </div>
+  </div>
+  <div id="bl-back" class="key" style="left:-338px;top:212px;width:84px;height:66px;border-radius:33px;color:var(--ink)">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>
+  </div>
+  <div id="bl-port" style="position:absolute;left:290px;top:226px;width:40px;height:40px;border-radius:50%;background:#2c2c30;box-shadow:inset 0 3px 5px rgb(0 0 0/0.6),0 1px 0 rgb(255 255 255/0.5)"></div>
+</div></div>`);
+const blHost = cBloom.querySelector('#bl-host'), blCore = cBloom.querySelector('#bl-core');
+const blBack = cBloom.querySelector('#bl-back'), blPort = cBloom.querySelector('#bl-port');
+const capEls = [...blHost.querySelectorAll('.cap:not(#bl-core)')];
+const OPEN_AT = 14.5, GRAB_AT = 14.72, BLOOM_END = 15.5;
+const BLOOM = [GRAB_AT, BLOOM_END];
 
-/* ── stats bento ── */
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const X = (u) => ((ax * u + bx) * u + cx) * u, Y = (u) => ((ay * u + by) * u + cy) * u;
+  return (x) => {
+    x = clamp(x);
+    let lo = 0, hi = 1, u = x;
+    for (let i = 0; i < 30; i++) { u = (lo + hi) / 2; if (X(u) < x) lo = u; else hi = u; }
+    return Y(u);
+  };
+}
+const SEAT = bezier(0.2, 0.9, 0.24, 1);    // the app's hostIn / petalIn / coreIn curve
+const LEAVE = bezier(0.4, 0, 1, 1);        // hostOut / coreOut
+const FOOT = bezier(0.2, 0, 0, 1);
+
+/* The drag: from the key, round the outer caps, in onto violet. */
+const outer = BL.map((p, i) => ({ i, a: Math.atan2(p.y, p.x), r: Math.hypot(p.x, p.y), lift: p.lift })).filter((p) => p.r > 95);
+const pick = BL[PICK_CAP];
+const aStart = Math.atan2(40, 120), aEnd = Math.atan2(pick.y, pick.x);
+const WAY = [[120, 40]];
+for (let k = 1; k <= 5; k++) {
+  const a = aStart + ((((aEnd - aStart) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) * (k / 6);
+  WAY.push([Math.cos(a) * 118, Math.sin(a) * 118]);
+}
+WAY.push([pick.x, pick.y]);
+function catmull(pts, u) {
+  const n = pts.length - 1, f = clamp(u) * n, i = Math.min(n - 1, Math.floor(f)), s = f - i;
+  const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(n, i + 2)];
+  const c = (a, b, c2, d) => 0.5 * (2 * b + (-a + c2) * s + (2 * a - 5 * b + 4 * c2 - d) * s * s + (-a + 3 * b - 3 * c2 + d) * s * s * s);
+  return [c(p0[0], p1[0], p2[0], p3[0]), c(p0[1], p1[1], p2[1], p3[1])];
+}
+const bloomHand = (t) => { const [x, y] = catmull(WAY, smooth((t - GRAB_AT) / 0.7)); return [x * BK, y * BK]; };
+/* the topmost cap under the finger, honouring split halves */
+function capAt([X, Y]) {
+  const [x, y] = [X / BK, Y / BK];
+  let best = -1, bz = -1;
+  BL.forEach((p, i) => {
+    const dx = x - p.x, dy = y - p.y;
+    if (dx * dx + dy * dy > (p.w / 2) ** 2) return;
+    if (p.clip.startsWith('polygon(0%') && dx > 0) return;
+    if (p.clip.startsWith('polygon(50%') && dx < 0) return;
+    if (p.z > bz) { bz = p.z; best = i; }
+  });
+  return best;
+}
+/* what the draft colour is, and when it changed */
+const DRAFT = [[OPEN_AT - 1, START_CAP]];
+for (let t = GRAB_AT; t <= BLOOM_END; t += 0.002) {
+  const i = capAt(bloomHand(t));
+  if (i >= 0 && BL[i].cap !== BL[DRAFT[DRAFT.length - 1][1]].cap) DRAFT.push([+t.toFixed(3), i]);
+}
+const draftAt = (t) => { let k = 0; for (let j = 0; j < DRAFT.length; j++) if (t >= DRAFT[j][0]) k = j; return k; };
+const BLOOM_TICKS = DRAFT.slice(1);
+
+/* ── stats bento: the app's shared-layout morph ── */
 const TILE = 326, TGAP = 20;
 const tileRect = (i) => { const c = i % 2, r = Math.floor(i / 2); const x = -336 + c * (TILE + TGAP), y = -336 + r * (TILE + TGAP); return [x, y, x + TILE, y + TILE]; };
 const FULL = [-336, -336, 336, 336];
+const ARROW = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M9 6.5v11l7.5-5.5z"/></svg>';
 const TILES = [
-  { k: 'FOLLOW-THROUGH', big: '71%', small: '158 of 222 met', bar: 0.71 },
-  { k: 'RHYTHM', big: '6:45', small: 'typical start', spark: true },
-  { k: 'EFFORTS', big: '11', small: 'on the go', bar: 1 },
-  { k: 'STREAK', big: '84d', small: 'longest 269', steps: true },
+  { k: 'Follow-through', big: '71%', small: '158 of 222…', rail: 0.71 },
+  { k: 'Rhythm', big: '6:45', small: 'typical start', rail: 0.28 },
+  { k: 'Efforts', big: '100%', small: 'Highest completion', rail: 1 },
+  { k: 'Mood & patterns', lead: 'Understand your mood and patterns', plus: true },
 ];
 const cBento = el(`<div style="position:relative;width:0;height:0">
-  ${TILES.map((d, i) => `<div class="tile cell" style="position:absolute;border-radius:30px;overflow:hidden">
-      <div class="rest" style="position:absolute;left:28px;top:28px;width:270px">
-        <div class="kicker" style="font-size:19px;color:var(--ink-weak)">${d.k}</div>
-        <div class="fredoka" style="margin-top:22px;font-size:76px;font-weight:600;line-height:1;letter-spacing:-0.02em">${d.big}</div>
-        <div style="margin-top:14px;font-size:24px;font-weight:600;color:var(--ink-weak)">${d.small}</div>
-        ${d.bar ? `<div style="margin-top:34px;height:10px;border-radius:5px;background:var(--track)"><div style="width:${d.bar * 100}%;height:100%;border-radius:5px;background:var(--acc)"></div></div>` : ''}
-        ${d.spark ? `<svg style="margin-top:24px" width="270" height="44" viewBox="0 0 270 44" fill="none" stroke="var(--acc)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 30 32 26 62 32 92 18 122 22 152 12 182 20 212 8 242 16 268 10"/></svg>` : ''}
-        ${d.steps ? `<div style="margin-top:26px;display:flex;align-items:flex-end;gap:6px;height:36px">${Array.from({ length: 11 }, (_, j) => `<div style="flex:1;height:${14 + (j % 3) * 10}px;border-radius:4px;background:var(--acc);opacity:${(0.35 + j * 0.065).toFixed(2)}"></div>`).join('')}</div>` : ''}
+  ${TILES.map((d) => `<div class="tile" style="position:absolute;border-radius:30px;overflow:hidden">
+      <div class="rest" style="position:absolute;left:30px;top:30px;width:266px;height:266px">
+        <div class="mono" style="display:flex;justify-content:space-between;align-items:center;font-size:23px;color:var(--ink-weak)">${d.k}<span style="color:var(--ink)">${ARROW}</span></div>
+        ${d.big ? `<div class="fredoka" style="margin-top:24px;font-size:70px;font-weight:600;line-height:1;letter-spacing:-0.02em">${d.big}</div>
+        <div style="margin-top:16px;font-size:25px;font-weight:600;color:var(--ink-weak);white-space:nowrap">${d.small}</div>
+        <div style="margin-top:28px;height:10px;border-radius:5px;background:var(--track)"><div style="width:${d.rail * 100}%;height:100%;border-radius:5px;background:var(--acc)"></div></div>` : ''}
+        ${d.lead ? `<div style="margin-top:22px;font-size:29px;font-weight:600;line-height:1.3">${d.lead}</div>
+        <div class="mono" style="position:absolute;left:0;bottom:0;padding:8px 18px;border-radius:999px;background:var(--acc);color:#fff;font-size:20px;font-weight:700;letter-spacing:0.08em">PLUS</div>` : ''}
       </div>
     </div>`).join('')}
   <div id="bx" style="position:absolute;left:-336px;top:-336px;width:672px;height:672px;z-index:3">
-    <div class="fredoka abs" style="left:36px;top:30px;font-size:54px;font-weight:600;letter-spacing:-0.01em">Follow-through</div>
-    <div class="key" id="bx-close" style="right:30px;top:26px;width:76px;height:76px;border-radius:22px;color:var(--ink-weak)">${ICON(I.cross, 30, 2)}</div>
-    <div class="fredoka abs" style="left:36px;top:136px;font-size:96px;font-weight:600;line-height:1;letter-spacing:-0.02em">71%</div>
-    <div class="abs" style="left:38px;top:246px;font-size:27px;font-weight:600;color:var(--ink-weak)">158 of 222 commitments met</div>
-    <svg class="abs" style="left:36px;top:320px;overflow:visible" width="600" height="300" viewBox="0 0 600 300" fill="none">
-      <path d="M0 290H600" stroke="var(--track)" stroke-width="2"/>
-      <path id="bx-area" style="fill:color-mix(in oklab, var(--acc) 16%, transparent)"/>
-      <path id="bx-line" stroke="var(--acc)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100 100"/>
-      <g id="bx-dots"></g>
-    </svg>
-    <div id="bx-tip" class="mono abs" style="white-space:nowrap;padding:12px 18px;border-radius:14px;background:var(--inv);color:var(--inv-ink);font-size:23px;box-shadow:0 10px 24px rgb(0 0 0/0.2)">Thu · 82%</div>
+    <div id="bx-head" class="abs" style="left:0;right:0;top:0;height:104px;border-radius:30px 30px 0 0;background:var(--cream);box-shadow:0 1.5px 0 var(--cream-edge)">
+      <div class="fredoka abs" style="left:34px;top:26px;font-size:46px;font-weight:600;letter-spacing:-0.01em">Follow-through</div>
+      <div class="key" id="bx-close" style="right:26px;top:20px;width:64px;height:64px;border-radius:20px;color:var(--ink-weak)">${ICON(I.cross, 28, 2.2)}</div>
+    </div>
+    <div class="fredoka abs" style="left:34px;top:136px;font-size:92px;font-weight:600;line-height:1;letter-spacing:-0.02em">71%</div>
+    <div class="abs" style="left:36px;top:246px;font-size:28px;font-weight:600;color:var(--ink-weak)">158 of 222 commitments met</div>
+    <div class="abs" style="left:36px;right:36px;top:314px;height:12px;border-radius:6px;background:var(--track)"><div id="bx-rail" style="height:100%;border-radius:6px;background:var(--acc)"></div></div>
+    <div class="key" id="bx-pill" style="left:36px;top:362px;height:74px;padding:0 26px;border-radius:24px;font-size:28px;font-weight:600">Daily completion rate <span style="display:flex;color:var(--ink)">${ARROW}</span></div>
+    ${['Daily record', 'Month comparison', 'Records'].map((l, i) => `<div class="bx-row abs" style="left:24px;right:24px;top:${468 + i * 64}px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:28px;font-weight:600">${l}<span style="display:flex">${ARROW}</span></div>`).join('')}
   </div>
 </div>`);
 const tiles = [...cBento.querySelectorAll('.tile')];
 const tileRest = tiles.map((n) => n.querySelector('.rest'));
-const bx = cBento.querySelector('#bx'), bxLine = cBento.querySelector('#bx-line'), bxArea = cBento.querySelector('#bx-area'), bxDots = cBento.querySelector('#bx-dots'), bxTip = cBento.querySelector('#bx-tip');
-const bxClose = cBento.querySelector('#bx-close');
-const CHART = [0.42, 0.55, 0.5, 0.64, 0.6, 0.72, 0.68, 0.82, 0.7, 0.76, 0.74, 0.71];
-const chX = (i) => 10 + i * (580 / (CHART.length - 1)), chY = (v) => 290 - v * 250;
-bxLine.setAttribute('d', CHART.map((v, i) => `${i ? 'L' : 'M'}${chX(i)} ${chY(v)}`).join(' '));
-bxArea.setAttribute('d', `M${chX(0)} 290 ` + CHART.map((v, i) => `L${chX(i)} ${chY(v)}`).join(' ') + ` L${chX(CHART.length - 1)} 290Z`);
-bxDots.innerHTML = CHART.map((v, i) => `<circle cx="${chX(i)}" cy="${chY(v)}" r="8" fill="var(--cream)" stroke="var(--acc)" stroke-width="4"/>`).join('');
-const dots = [...bxDots.children];
-const TIP_I = 7;
-const tileEdges = [0, 1, 2, 3].map((k) => track([[0, tileRect(0)[k]], [16.5, FULL[k], spring(420, 38)], [17.5, tileRect(0)[k], SNAPPY]]));
-const expandP = track([[0, 0], [16.5, 1, SMOOTH], [17.5, 0, SNAPPY]]);
+const bx = cBento.querySelector('#bx'), bxClose = cBento.querySelector('#bx-close'), bxRail = cBento.querySelector('#bx-rail');
+const bxParts = [cBento.querySelector('#bx-head'), ...bx.children].filter((n, i, a) => a.indexOf(n) === i && n.id !== 'bx-head');
+const bxRows = [...cBento.querySelectorAll('.bx-row')];
+const EXPAND = [16.5, 17.5];
+/* Framer's layout springs from BentoStats: open duration 0.4 / bounce 0.2, close 0.28 / bounce 0. */
+const SECTION_OPEN = spring(247, 25.1), SECTION_CLOSE = spring(503, 44.9);
+const tileEdges = [0, 1, 2, 3].map((k) => track([[0, tileRect(0)[k]], [EXPAND[0], FULL[k], SECTION_OPEN], [EXPAND[1], tileRect(0)[k], SECTION_CLOSE]]));
+const OUT_CUBIC = bezier(0.33, 1, 0.68, 1);
 
 /* ── ⌘K ── */
 const CMDS = [['Log time to Reading', I.book, 1], ['Log a glass of Water', I.drop, 1], ['Start a focus timer', I.clock, 0], ['Open Stats', I.chart, 0], ['New effort', I.plus, 0]];
@@ -646,6 +734,9 @@ const cToast = el(`<div style="position:relative;width:560px;height:100px;displa
   <span style="font-size:28px;font-weight:600;color:rgb(240 238 233/0.55)">Undo</span>
 </div>`);
 
+/* Stamps and the burst sit above whatever they were struck on. */
+for (const n of [cStamp1, cStamp2, burstLayer]) contents.appendChild(n);
+
 /* ─── The cursor ─────────────────────────────────────────────────────────── */
 const REST = [1040, 1100];
 const CUR = [
@@ -671,26 +762,28 @@ const CUR = [
   [12.05, ...toScreen('toggle', -40, 10)],
   [12.62, ...toScreen('tabs', -100, 44)],
   [13.05, ...toScreen('tabs', 150, 12)],
-  [13.62, ...toScreen('swatch', 200, 90)],
-  [14.05, ...toScreen('swatch', swX(7), 6)],
-  [14.50, ...toScreen('blossom', PETALS[VIOLET_IDX].x, PETALS[VIOLET_IDX].y)],
-  [15.60, ...toScreen('bento', 120, 150)],
+  [13.62, ...toScreen('controls', 150, 330)],
+  [13.98, ...toScreen('controls', 294, BASE_TOP + 235 - 210 + 206)],
+  [14.32, ...toScreen('controls', swX(7), SWATCH_Y + 4)],
+  [14.56, ...toScreen('controls', WAY[0][0] * BK, WAY[0][1] * BK + (BASE_TOP + 300 + 34))],
+  [GRAB_AT, ...toScreen('controls', pick.x * BK, pick.y * BK + (BASE_TOP + 300 + 34))],   // held: the hand's own path takes over
+  [15.62, ...toScreen('controls', swX(7) + 60, SWATCH_Y + 120)],
   [16.05, ...toScreen('bento', -170, -120)],
   [16.62, ...toScreen('bento', 250, 60)],
-  [16.95, ...toScreen('bento', -336 + 36 + chX(TIP_I), -336 + 320 + chY(CHART[TIP_I]) + 6)],
-  [17.2, ...toScreen('bento', 336 - 30 - 38, -336 + 26 + 38)],
+  [16.92, ...toScreen('bento', 120, 162)],
+  [17.2, ...toScreen('bento', 278, -284)],
   [17.62, ...toScreen('palette', 190, 260)],
   [19.1, ...toScreen('toast', 150, 120)],
   [19.3, ...REST],
 ];
 const curX = track(CUR.map(([t, x]) => [t, x]), HAND);
 const curY = track(CUR.map(([t, , y]) => [t, y]), HAND);
-const CLICKS = [[0.50, 0.58], [2.0, 2.5], [2.96, 3.04], [3.46, 3.54], [3.96, 4.04], [4.46, 4.54], [5.0, 5.5], [7.96, 8.04], [8.5, 9.5], [10.46, 10.54], [10.98, 11.04], [11.23, 11.29], [11.48, 11.54], [12.46, 12.54], [13.46, 13.54], [14.5, 15.5], [16.46, 16.54], [17.46, 17.54]];
+const CLICKS = [[0.50, 0.58], [2.0, 2.5], [2.96, 3.04], [3.46, 3.54], [3.96, 4.04], [4.46, 4.54], [5.0, 5.5], [7.96, 8.04], [8.5, 9.5], [10.46, 10.54], [10.98, 11.04], [11.23, 11.29], [11.48, 11.54], [12.46, 12.54], [13.46, 13.54], [14.21, 14.29], [14.46, 14.54], [GRAB_AT, BLOOM_END], [16.46, 16.54], [17.46, 17.54]];
 const curPress = track([[0, 0], ...CLICKS.flatMap(([a, b]) => [[a, 1], [b, 0]])], SNAPPY);
 function cursorAt(t) {
   if (t >= DRAG_SHEET[0] && t < DRAG_SHEET[1]) return toScreen('sheet', 0, SHEET_GRAB_Y + sheetDragDy(t));
   if (t >= SCRUB[0] && t < SCRUB[1]) return toScreen('timer', scrubHandX(t), KNOB_Y);
-  if (t >= BLOOM[0] && t < BLOOM[1]) return toScreen('blossom', ...bloomHand(t));
+  if (t >= BLOOM[0] && t < BLOOM[1]) { const [x, y] = bloomHand(t); return toScreen('controls', x, y + (BASE_TOP + 300 + 34)); }
   return [curX(t), curY(t)];
 }
 
@@ -715,9 +808,10 @@ function seek(tIn) {
   shape.style.height = `${h.toFixed(2)}px`;
   shape.style.left = `${(-w / 2).toFixed(2)}px`;
   const an = clamp(anchor(t));
-  const shapeTop = lerp(-h / 2, ISL_TOP, an) + sy;
+  const shapeTop = lerp(-h / 2, anchorTop(t), an) + sy;
   shape.style.top = `${shapeTop.toFixed(2)}px`;
-  filament.style.opacity = an.toFixed(3);
+  filament.style.opacity = (t >= 9.8 && t < 12.4 ? an : 0).toFixed(3);
+  shape.style.setProperty('--wall', `${(4 + (t >= 13.8 && t < 16.3 ? 18 * an : 0)).toFixed(2)}px`);
   shape.style.borderRadius = `${r.toFixed(2)}px`;
   shape.style.transform = `scale(${p.toFixed(4)})`;
   for (const k of SRF) S_EL[k].style.opacity = clamp(srfW[k](t)).toFixed(4);
@@ -851,49 +945,84 @@ function seek(tIn) {
   tabW.style.color = `color-mix(in oklab, var(--ink), var(--ink-faint) ${(on * 100).toFixed(1)}%)`;
   tabP.style.color = `color-mix(in oklab, var(--ink-faint), var(--ink) ${(on * 100).toFixed(1)}%)`;
 
-  /* bar 7: swatch row → Blossom */
-  place(cSwatch, vis(t, 14.0, 14.52, 0.1));
-  keyPress(swBloom, pressAt(t, 14.5, 14.6));
-  const bv = vis(t, 14.5, 16.0, 0);
-  place(cBloom, { o: bv.o, blur: since(t, 16.0) > 0 ? bv.blur : 0, s: 1 });
-  PETALS.forEach((pt, i) => {
-    const open = SNAPPY(since(t, 14.5 + pt.ri * 0.06 + pt.k * 0.008)) * (1 - SNAPPY(since(t, 15.6 + (2 - pt.ri) * 0.05)));
-    const lift = clamp(LIFT[i](t), 0, 1.1);
-    petalEls[i].style.transform = `translate(${(pt.x * open).toFixed(2)}px, ${(pt.y * open).toFixed(2)}px) scale(${(0.35 + 0.65 * open + 0.16 * lift).toFixed(4)})`;
-    petalEls[i].style.zIndex = lift > 0.05 ? 6 : 3 - pt.ri;
-    petalEls[i].style.opacity = clamp(open * 3).toFixed(3);
+  /* bar 7: swatch row → Blossom → back to the row, wearing the pick */
+  place(cSwatch, vis(t, 14.0, 16.0, 0.1), 0, SWATCH_Y);
+  const baseMid = shapeTop + h / 2;
+  const ctrlV = visAny(t, [[14.0, 14.5, 0.12], [15.62, 16.0, 0.06]]);
+  place(cCtrl, ctrlV, 0, baseMid);
+  keyPress(ctPlus, pressAt(t, 14.21, 14.29));
+  CT_NUMS.forEach(([n, at], i) => {
+    const next = CT_NUMS[i + 1] ? CT_NUMS[i + 1][1] : 16.2;
+    rollIn(n, vis(t, at, next, i === 0 ? 0.12 : 0.02), at, t, 18);
   });
-  blCore.style.transform = `scale(${(0.6 + 0.4 * SNAPPY(since(t, 14.52)) - 0.2 * SNAPPY(since(t, 15.7))).toFixed(4)})`;
-  blCheck.setAttribute('stroke-dashoffset', (100 * (1 - easeOut((t - 15.52) / 0.22))).toFixed(2));
+  keyPress(swBloom, pressAt(t, 14.46, 14.54));
+  const picked = t >= 15.5 && t < 16.3;
+  swBloom.style.background = picked ? 'var(--acc)' : '';
+  swBloom.style.color = picked ? '#fff' : '';
+  const bo = SEAT((t - OPEN_AT) / 0.3);
+  const out = since(t, BLOOM_END) > 0 ? LEAVE(since(t, BLOOM_END) / 0.16) : 0;
+  const shownB = inWin(t, OPEN_AT, BLOOM_END + 0.2);
+  cBloom.style.width = `${w.toFixed(2)}px`;
+  cBloom.style.height = `${h.toFixed(2)}px`;
+  place(cBloom, { o: shownB ? 1 - out : 0, blur: 0, s: 1 }, 0, baseMid + 34);
+  blHost.style.transform = `scale(${(BK * (0.86 + 0.14 * bo) * (1 - 0.26 * out)).toFixed(4)})`;
+  const dk = draftAt(t), onCap = BL[DRAFT[dk][1]].cap;
+  const dragging = t >= GRAB_AT && t < BLOOM_END;
+  capEls.forEach((n, i) => {
+    const pt = BL[i];
+    const u = (t - OPEN_AT - (1 - pt.lift) * 0.12) / 0.15;
+    const on = pt.cap === onCap;          // split halves move together
+    const sc = u <= 0 ? 0.2 : 0.2 + ((on ? 1.1 : 1) - 0.2) * SEAT(u);
+    n.style.scale = sc.toFixed(4);
+    n.style.opacity = clamp(u / 0.3).toFixed(3);
+    n.classList.toggle('on', on);
+    n.style.filter = on && dragging ? 'brightness(1.1)' : 'none';
+  });
+  const prevCap = dk > 0 ? BL[DRAFT[dk - 1][1]].cap : onCap;
+  blCore.style.setProperty('--cap', `color-mix(in srgb, ${prevCap}, ${onCap} ${(smooth((t - DRAFT[dk][0]) / 0.12) * 100).toFixed(1)}%)`);
+  const cu = SEAT((t - OPEN_AT - 0.04) / 0.26);
+  blCore.style.scale = ((0.62 + 0.38 * cu) * (1 - 0.34 * out)).toFixed(4);
+  blCore.style.opacity = (clamp(cu) * (1 - out)).toFixed(3);
+  const fu = FOOT((t - OPEN_AT - 0.2) / 0.24);
+  blBack.style.opacity = (t >= OPEN_AT + 0.2 ? fu * (1 - out) : 0).toFixed(3);
+  blBack.style.transform = `translateY(${((1 - fu) * 6).toFixed(2)}px)`;
+  const pu = easeOut((t - OPEN_AT - 0.21) / 0.2);
+  blPort.style.opacity = (t >= OPEN_AT + 0.21 ? pu * (1 - out) : 0).toFixed(3);
+  blPort.style.scale = (0.5 + 0.5 * pu).toFixed(3);
 
-  /* bar 8: bento — expand, draw, collapse */
+  /* bar 8: bento — the tile becomes the section; the others step back */
   place(cBento, vis(t, 16.0, 18.0, 0.12));
-  const ep = clamp(expandP(t));
+  const isOpenB = t >= EXPAND[0] && t < EXPAND[1];
+  const sOpen = since(t, EXPAND[0]), sClose = since(t, EXPAND[1]);
+  const sib = isOpenB ? OUT_CUBIC(sOpen / 0.18) : (sClose >= 0 && sClose < 0.3 ? 1 - OUT_CUBIC(sClose / 0.18) : 0);
+  const rect0 = tileEdges.map((f) => f(t));
   tiles.forEach((n, i) => {
-    const [x0, y0, x1, y1] = i === 0 ? tileEdges.map((f) => f(t)) : tileRect(i);
+    const [x0, y0, x1, y1] = i === 0 ? rect0 : tileRect(i);
     n.style.left = `${x0.toFixed(2)}px`; n.style.top = `${y0.toFixed(2)}px`;
     n.style.width = `${(x1 - x0).toFixed(2)}px`; n.style.height = `${(y1 - y0).toFixed(2)}px`;
-    n.style.transform = i === 0 ? 'none' : `scale(${(1 - 0.08 * ep).toFixed(4)})`;
-    n.style.opacity = i === 0 ? 1 : (1 - ep).toFixed(3);
+    n.style.opacity = i === 0 ? 1 : (1 - sib).toFixed(3);
     n.style.zIndex = i === 0 ? 2 : 1;
-    fade(tileRest[i], i === 0 ? { o: 1 - smooth(ep * 3), blur: smooth(ep * 3) * 8 } : { o: 1, blur: 0 });
+    if (i === 0) keyPress(n, pressAt(t, 16.46, 16.54));
   });
-  const xv = inWin(t, 16.5, 17.62) ? smooth((since(t, 16.5) - 0.12) / 0.16) * (1 - smooth(since(t, 17.46) / 0.1)) : 0;
-  fade(bx, { o: xv, blur: (1 - xv) * 8 });
-  bx.style.visibility = xv < 0.002 ? 'hidden' : 'visible';
+  let restO = 1, exO = 0;
+  // Framer's shared-layout crossfade: both states are on screen through the morph.
+  if (isOpenB) { restO = 1 - smooth(sOpen / 0.16); exO = smooth((sOpen - 0.02) / 0.16); }
+  else if (sClose >= 0 && sClose < 0.5) { exO = 1 - smooth(sClose / 0.12); restO = smooth(sClose / 0.14); }
+  fade(tileRest[0], { o: restO, blur: (1 - restO) * 6 });
+  bx.style.left = `${rect0[0].toFixed(2)}px`; bx.style.top = `${rect0[1].toFixed(2)}px`;
+  bx.style.width = `${(rect0[2] - rect0[0]).toFixed(2)}px`; bx.style.height = `${(rect0[3] - rect0[1]).toFixed(2)}px`;
+  bx.style.overflow = 'hidden'; bx.style.borderRadius = '30px';
+  fade(bx, { o: exO, blur: (1 - exO) * 6 });
+  bx.style.visibility = exO < 0.002 ? 'hidden' : 'visible';
+  bxRail.style.width = `${(71 * (isOpenB || sClose < 0.2 ? SEAT((sOpen - 0.16) / 0.45) : 0)).toFixed(2)}%`;
+  bxRows.forEach((r, i) => {
+    const a = isOpenB ? smooth((sOpen - 0.2 - i * 0.05) / 0.18) : 1;
+    r.style.opacity = a.toFixed(3);
+    r.style.transform = `translateY(${((1 - a) * 10).toFixed(2)}px)`;
+    const hover = i === 0 && t >= 17.0 && t < 17.3 ? smooth((t - 17.0) / 0.08) * (1 - smooth((t - 17.22) / 0.08)) : 0;
+    r.style.background = `color-mix(in oklab, var(--ink) ${(hover * 6).toFixed(2)}%, transparent)`;
+  });
   keyPress(bxClose, pressAt(t, 17.46, 17.54));
-  bxLine.setAttribute('stroke-dashoffset', (100 * (1 - smooth((t - 16.92) / 0.5))).toFixed(2));
-  bxArea.style.opacity = smooth((t - 17.2) / 0.2).toFixed(3);
-  dots.forEach((dt, i) => {
-    const a = SNAPPY(since(t, 16.92 + (i / (CHART.length - 1)) * 0.5));
-    dt.style.opacity = t > 16.9 && t < 17.7 ? clamp(a).toFixed(3) : 0;
-    dt.setAttribute('r', (8 * clamp(a, 0, 1.2) * (i === TIP_I ? 1 + 0.4 * SNAPPY(since(t, 17.06)) : 1)).toFixed(2));
-  });
-  const tv = vis(t, 17.08, 17.46, 0);
-  fade(bxTip, tv);
-  bxTip.style.left = `${36 + chX(TIP_I)}px`;
-  bxTip.style.top = `${320 + chY(CHART[TIP_I]) - 26}px`;
-  bxTip.style.transform = `translate(-50%, -100%) translateY(${((1 - tv.o) * 8).toFixed(2)}px)`;
 
   /* bar 9: ⌘K — type, filter, enter → toast → plus */
   place(cPal, vis(t, 18.0, 19.0, 0.12));
@@ -928,7 +1057,6 @@ window.seek = seek;
 
 /* ─── Sound: every cue on the frame of its contact ────────────────────────── */
 const PENT = (n) => 523.25 * Math.pow(2, ([0, 2, 4, 7, 9][((n % 5) + 5) % 5] + 12 * Math.floor(n / 5)) / 12);
-const petalPitch = (i) => PENT(Math.round((PETALS[i].hue / 360) * 9) + (2 - PETALS[i].ri) * 2 - 2);
 window.CUES = [
   [0.50, 'click'],
   [1.04, 'commit'],
@@ -956,19 +1084,21 @@ window.CUES = [
   [13.0, 'tick', { volume: 0.7 }],
   [13.46, 'navigate', { direction: 1 }],
   [14.0, 'tick', { volume: 0.7 }],
-  [14.5, 'bloomPress', { frequency: PENT(4) }],
-  ...BLOOM_TICKS.map(([t, i]) => [t, 'bloomTick', { frequency: petalPitch(i) }]),
-  [15.5, 'bloomCommit', { frequency: petalPitch(VIOLET_IDX) }],
+  [14.21, 'tick'],
+  [14.46, 'click'],
+  [GRAB_AT, 'bloomPress', { cap: BL[DRAFT[0][1]].cap }],
+  ...BLOOM_TICKS.map(([t, i]) => [t, 'bloomTick', { cap: BL[i].cap }]),
+  [BLOOM_END, 'bloomCommit', { cap: BL[PICK_CAP].cap }],
+  [15.6, 'tick', { volume: 0.6 }],
   [16.0, 'tick', { volume: 0.7 }],
-  [16.46, 'sheetOpen'],
-  [17.08, 'tick', { volume: 0.6 }],
-  [17.46, 'sheetClose'],
+  [16.46, 'click'],
+  [17.46, 'back'],
   [18.0, 'tick', { volume: 0.7 }],
   ...TYPE_AT.map((a) => [a, 'type']),
   [19.0, 'commit'],
   [19.5, 'back'],
 ];
-window.REEL = { T, BLOOM_TICKS, VIOLET_IDX };
+window.REEL = { T, BLOOM_TICKS, PICK_CAP };
 
 /* Offline render through the app's own audio engine. */
 window.renderAudio = async function (cues, seconds, sampleRate = 48000) {
@@ -992,7 +1122,9 @@ window.renderAudio = async function (cues, seconds, sampleRate = 48000) {
   for (const [t, name, opts] of cues) {
     now = t;
     Date.now = () => 1e9 + t * 1000;
-    window.EK.playRecipe(name, opts || {});
+    const o = { ...(opts || {}) };
+    if (o.cap) { const hex = '#' + o.cap.match(/\d+/g).slice(0, 3).map((n) => Number(n).toString(16).padStart(2, '0')).join(''); o.frequency = window.EK.bloomPitch(hex); delete o.cap; }
+    window.EK.playRecipe(name, o);
   }
   Date.now = realNow; window.setTimeout = realTimeout;
   const buf = await off.startRendering();

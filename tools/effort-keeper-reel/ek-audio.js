@@ -668,6 +668,230 @@
     return true;
   }
 
+  // ../../../../../../home/user/efforttracker/src/lib/oklch.ts
+  var toLinear = (channel) => channel <= 0.04045 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+  var toGamma = (channel) => channel <= 31308e-7 ? 12.92 * channel : 1.055 * Math.pow(channel, 1 / 2.4) - 0.055;
+  var clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+  function hexToRgb(hex) {
+    const value = hex.replace("#", "");
+    const full = value.length === 3 ? value.split("").map((c) => c + c).join("") : value;
+    return [
+      parseInt(full.slice(0, 2), 16),
+      parseInt(full.slice(2, 4), 16),
+      parseInt(full.slice(4, 6), 16)
+    ];
+  }
+  function rgbToHex([r, g, b]) {
+    return `#${[r, g, b].map((c) => Math.round(clamp(c, 0, 255)).toString(16).padStart(2, "0")).join("")}`;
+  }
+  function rgbToOklch([r, g, b]) {
+    const lr = toLinear(r / 255);
+    const lg = toLinear(g / 255);
+    const lb = toLinear(b / 255);
+    const l = Math.cbrt(0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb);
+    const m = Math.cbrt(0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb);
+    const s = Math.cbrt(0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb);
+    const okL = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
+    const okA = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+    const okB = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+    const hue = Math.atan2(okB, okA) * 180 / Math.PI;
+    return { l: okL, c: Math.hypot(okA, okB), h: hue < 0 ? hue + 360 : hue };
+  }
+  function oklchToLinearRgb({ l: okL, c, h }) {
+    const rad = h * Math.PI / 180;
+    const okA = c * Math.cos(rad);
+    const okB = c * Math.sin(rad);
+    const l = (okL + 0.3963377774 * okA + 0.2158037573 * okB) ** 3;
+    const m = (okL - 0.1055613458 * okA - 0.0638541728 * okB) ** 3;
+    const s = (okL - 0.0894841775 * okA - 1.291485548 * okB) ** 3;
+    return [
+      4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+      -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+      -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s
+    ];
+  }
+  var EPSILON = 1e-4;
+  var inGamut = (rgb) => rgb.every((channel) => channel >= -EPSILON && channel <= 1 + EPSILON);
+  function oklchToRgb(colour) {
+    let chroma = colour.c;
+    if (!inGamut(oklchToLinearRgb(colour))) {
+      let low = 0;
+      let high = colour.c;
+      for (let i = 0; i < 24; i += 1) {
+        const mid = (low + high) / 2;
+        if (inGamut(oklchToLinearRgb({ ...colour, c: mid }))) low = mid;
+        else high = mid;
+      }
+      chroma = low;
+    }
+    const linear = oklchToLinearRgb({ ...colour, c: chroma });
+    return {
+      rgb: linear.map((channel) => Math.round(toGamma(clamp(channel, 0, 1)) * 255)),
+      chroma
+    };
+  }
+  var oklchToHex = (colour) => rgbToHex(oklchToRgb(colour).rgb);
+  function apcaLuminance([r, g, b]) {
+    const channel = (c) => Math.pow(clamp(c, 0, 255) / 255, 2.4);
+    return 0.2126729 * channel(r) + 0.7151522 * channel(g) + 0.072175 * channel(b);
+  }
+  function apcaContrast(text, background) {
+    const BLACK_THRESHOLD = 0.022;
+    const BLACK_CLAMP = 1.414;
+    const DELTA_Y_MIN = 5e-4;
+    const LOW_CLIP = 0.1;
+    const LOW_OFFSET = 0.027;
+    const soft = (y) => y > BLACK_THRESHOLD ? y : y + Math.pow(BLACK_THRESHOLD - y, BLACK_CLAMP);
+    const textY = soft(apcaLuminance(text));
+    const bgY = soft(apcaLuminance(background));
+    if (Math.abs(bgY - textY) < DELTA_Y_MIN) return 0;
+    let contrast;
+    if (bgY > textY) {
+      const sapc = (Math.pow(bgY, 0.56) - Math.pow(textY, 0.57)) * 1.14;
+      contrast = sapc < LOW_CLIP ? 0 : sapc - LOW_OFFSET;
+    } else {
+      const sapc = (Math.pow(bgY, 0.65) - Math.pow(textY, 0.62)) * 1.14;
+      contrast = sapc > -LOW_CLIP ? 0 : sapc + LOW_OFFSET;
+    }
+    return Math.abs(contrast * 100);
+  }
+  function maxLightnessFor(text, chroma, hue, target) {
+    let low = 0.15;
+    let high = 0.98;
+    for (let i = 0; i < 24; i += 1) {
+      const mid = (low + high) / 2;
+      if (apcaContrast(text, oklchToRgb({ l: mid, c: chroma, h: hue }).rgb) >= target) low = mid;
+      else high = mid;
+    }
+    return low;
+  }
+  function minLightnessFor(text, chroma, hue, target) {
+    let low = 0.02;
+    let high = 0.99;
+    for (let i = 0; i < 24; i += 1) {
+      const mid = (low + high) / 2;
+      if (apcaContrast(text, oklchToRgb({ l: mid, c: chroma, h: hue }).rgb) >= target) high = mid;
+      else low = mid;
+    }
+    return high;
+  }
+
+  // ../../../../../../home/user/efforttracker/src/utils/taskColors.ts
+  var TASK_COLOR_INK = "#0d0d10";
+  var TASK_COLORS = [
+    { value: "#ef736c", label: "Coral", gradient: ["#ff8c84", "#cb5550"] },
+    { value: "#e6802d", label: "Orange", gradient: ["#fb984f", "#c36200"] },
+    { value: "#c89600", label: "Amber", gradient: ["#ddac38", "#a77700"] },
+    { value: "#65b553", label: "Green", gradient: ["#7fcb6e", "#489536"] },
+    { value: "#00b99a", label: "Teal", gradient: ["#40cfb0", "#00997c"] },
+    { value: "#00b3c9", label: "Cyan", gradient: ["#3ec8de", "#0093a8"] },
+    { value: "#35a6f7", label: "Blue", gradient: ["#57bcff", "#0086d4"] },
+    { value: "#968efa", label: "Violet", gradient: ["#aba5ff", "#796fd6"] },
+    { value: "#c87cda", label: "Magenta", gradient: ["#dd94ee", "#a75eb8"] },
+    { value: "#e472ac", label: "Pink", gradient: ["#f98bc1", "#c0548d"] },
+    // the default sits after the hues: it is the absence of a choice,
+    // and putting it first made the palette open on the same cap twice
+    { value: "default", label: "Default", gradient: ["#ff9455", "#c25715"] }
+  ];
+  var TASK_SHADES = ["light", "mid", "deep"];
+  var TASK_COLOR_ICON_LC = 60;
+  var INK_RGB = hexToRgb(TASK_COLOR_INK);
+  var WHITE_RGB = [255, 255, 255];
+  var LIGHT_LIFT = 0.13;
+  var LIGHT_CHROMA = 0.86;
+  var DEEP_DROP = 0.22;
+  var DEEP_CHROMA = 0.92;
+  var TASK_BLOOM = TASK_COLORS.filter(
+    (colour) => colour.value !== "default"
+  ).map((colour) => {
+    const base = rgbToOklch(hexToRgb(colour.value));
+    const lightChroma = base.c * LIGHT_CHROMA;
+    const lightL = Math.max(
+      base.l + LIGHT_LIFT,
+      minLightnessFor(INK_RGB, lightChroma, base.h, TASK_COLOR_ICON_LC)
+    );
+    const deepChroma = base.c * DEEP_CHROMA;
+    const deepL = Math.min(
+      base.l - DEEP_DROP,
+      maxLightnessFor(WHITE_RGB, deepChroma, base.h, TASK_COLOR_ICON_LC)
+    );
+    return {
+      label: colour.label,
+      hue: base.h,
+      shades: {
+        light: oklchToHex({ l: lightL, c: lightChroma, h: base.h }),
+        mid: colour.value,
+        deep: oklchToHex({ l: deepL, c: deepChroma, h: base.h })
+      }
+    };
+  });
+  function findBloomChoice(hex) {
+    for (let hue = 0; hue < TASK_BLOOM.length; hue += 1) {
+      for (const shade of TASK_SHADES) {
+        if (TASK_BLOOM[hue].shades[shade] === hex) return { hue, shade };
+      }
+    }
+    return void 0;
+  }
+  function nearestBloomChoice(hex) {
+    const exact = findBloomChoice(hex);
+    if (exact) return exact;
+    const target = rgbToOklch(hexToRgb(hex));
+    let hue = 0;
+    let bestAngle = Infinity;
+    TASK_BLOOM.forEach((entry, index) => {
+      const raw = Math.abs(entry.hue - target.h) % 360;
+      const angle = raw > 180 ? 360 - raw : raw;
+      if (angle < bestAngle) {
+        bestAngle = angle;
+        hue = index;
+      }
+    });
+    let shade = "mid";
+    let bestDelta = Infinity;
+    for (const step of TASK_SHADES) {
+      const delta = Math.abs(rgbToOklch(hexToRgb(TASK_BLOOM[hue].shades[step])).l - target.l);
+      if (delta < bestDelta) {
+        bestDelta = delta;
+        shade = step;
+      }
+    }
+    return { hue, shade };
+  }
+
+  // ../../../../../../home/user/efforttracker/src/utils/bloomSound.ts
+  var BLOOM_SCALE = [
+    523.25,
+    // C5
+    587.33,
+    // D5
+    659.25,
+    // E5
+    783.99,
+    // G5
+    880,
+    // A5
+    1046.5,
+    // C6
+    1174.66,
+    // D6
+    1318.51,
+    // E6
+    1567.98,
+    // G6
+    1760
+    // A6
+  ];
+  var SHADE_INTERVAL = {
+    deep: 0.75,
+    mid: 1,
+    light: 1.25
+  };
+  function bloomPitch(hex) {
+    const { hue, shade } = nearestBloomChoice(hex);
+    return BLOOM_SCALE[hue] * SHADE_INTERVAL[shade];
+  }
+
   // entry.ts
-  window.EK = { playRecipe, degree };
+  window.EK = { playRecipe, degree, bloomPitch };
 })();
