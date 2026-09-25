@@ -4,6 +4,7 @@ import { blogPosts } from "./blog/_data/posts";
 import { education, experience, links } from "./_data/resume";
 import site from "@/components/site/site.module.css";
 import list from "@/components/site/list.module.css";
+import { ProjectReel } from "@/components/site/project-reel";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -35,6 +36,32 @@ export default function Home() {
             );
           })}
         </ul>
+      </section>
+
+      <section className={styles.section} aria-labelledby="building">
+        <h2 id="building" className={list.heading}>
+          Building
+        </h2>
+        <figure className={styles.project}>
+          <ProjectReel
+            src={{
+              light: "/work/effort-keeper/reel-light.mp4",
+              dark: "/work/effort-keeper/reel-dark.mp4",
+            }}
+            label="Effort Keeper: creating a Reading effort, logging 30 minutes, the blob celebrating, the 28-day record filling in, and the day closing."
+          />
+          <figcaption className={styles.projectCaption}>
+            <span className={styles.projectName}>
+              Effort Keeper
+              <span className={list.secondary}>In development</span>
+            </span>
+            <p>
+              A quota tracker for intentional effort. Log time, see what’s
+              left, and close the day. Each effort has a blob that grows while
+              you keep at it.
+            </p>
+          </figcaption>
+        </figure>
       </section>
 
       <section className={styles.section} aria-labelledby="experience">

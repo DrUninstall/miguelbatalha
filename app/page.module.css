@@ -42,6 +42,28 @@
   margin-top: 64px;
 }
 
+/* Building */
+
+.project {
+  margin: 0;
+}
+
+.projectCaption {
+  margin-top: 14px;
+  padding-inline: 10px;
+  font: var(--type-small);
+  color: rgb(var(--text-weak));
+}
+
+.projectName {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  margin-bottom: 2px;
+  font: var(--type-row);
+  color: rgb(var(--text-strong));
+}
+
 /* Experience: native <details>, animated where the browser can interpolate to auto. */
 
 .job > summary {
