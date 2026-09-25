@@ -1,27 +1,22 @@
 .container {
+  position: relative; /* offsetParent for the shapes' cached centres */
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 320px;
   overflow: hidden;
-  padding: 32px;
+  /* Horizontal finger drags drive the demo; vertical swipes still scroll the page
+     (the browser then fires pointercancel and the grid returns to rest). */
+  touch-action: pan-y;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(20, 1fr);
-  gap: min(20px, 3.5vw);
 }
 
-/*
- * S-Tier animation: transform + opacity are compositor properties.
- * will-change justified here: many shapes animate continuously on mouse move.
- * Layer size is small (4x24px each), so GPU memory is acceptable.
- */
 .shape {
   width: 4px;
   height: 24px;
   border-radius: 9999px;
   background: rgb(var(--text-strong));
-  will-change: transform, opacity;
 }

@@ -1,6 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import styles from "./coin-flip.module.css";
 
-function CoinIcon() {
+/* Heads: a gold disc with a $ cut out of it (evenodd), a darker square behind shows through the cut. */
+function HeadsFace() {
   return (
     <svg viewBox="0 0 718 718" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M170 119H548V599H170V119Z" fill="#F8A400" />
@@ -14,24 +18,61 @@ function CoinIcon() {
   );
 }
 
+/* Tails: the same gold disc with a star. */
+function TailsFace() {
+  return (
+    <svg viewBox="0 0 718 718" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="359" cy="359" r="359" fill="#FFCD6C" />
+      <circle cx="359" cy="359" r="300" stroke="#F8A400" strokeWidth="24" />
+      <path
+        d="M359 165L410.7 303.8L558.7 310.1L442.7 402.2L482.4 544.9L359 463L235.6 544.9L275.3 402.2L159.3 310.1L307.3 303.8Z"
+        fill="#F8A400"
+      />
+    </svg>
+  );
+}
+
+/* Discs stacked between the two faces (px along Z) that read as the coin's thickness mid-flip. */
+const EDGE_LAYERS = [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5];
+
 export function CoinFlip() {
+  // Count flips instead of toggling a boolean, so the coin always turns the
+  // same way (0 -> 180 -> 360...) rather than unwinding on every other click.
+  const [flips, setFlips] = useState(0);
+  const face = flips % 2 === 0 ? "Heads" : "Tails";
+
   return (
     <div className={styles.container}>
-      {/* Coin edge */}
-      <div className={styles.wrapper}>
-        <div className={styles.coinSide} />
-      </div>
-      {/* Coin faces */}
-      <div className={styles.wrapper}>
-        <div className={`${styles.coin} ${styles.outer} ${styles.front}`}>
-          <CoinIcon />
-        </div>
-        <div className={`${styles.coin} ${styles.inner} ${styles.front}`} />
-        <div className={`${styles.coin} ${styles.outer} ${styles.back}`}>
-          <CoinIcon />
-        </div>
-        <div className={`${styles.coin} ${styles.inner} ${styles.back}`} />
-      </div>
+      <button
+        type="button"
+        className={styles.button}
+        onClick={() => setFlips((n) => n + 1)}
+        aria-label="Flip coin"
+      >
+        <span className={styles.scene}>
+          <span
+            className={styles.coin}
+            style={{ "--rotation": `${flips * 180}deg` } as React.CSSProperties}
+          >
+            {EDGE_LAYERS.map((z) => (
+              <span
+                key={z}
+                className={styles.edge}
+                style={{ "--z": `${z}px` } as React.CSSProperties}
+              />
+            ))}
+            <span className={`${styles.face} ${styles.heads}`}>
+              <HeadsFace />
+            </span>
+            <span className={`${styles.face} ${styles.tails}`}>
+              <TailsFace />
+            </span>
+          </span>
+        </span>
+      </button>
+      <p className={styles.caption} aria-live="polite">
+        {face}
+      </p>
     </div>
   );
 }

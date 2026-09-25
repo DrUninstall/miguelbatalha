@@ -3,6 +3,7 @@
   flex-direction: column;
   align-items: center;
   gap: 32px;
+  max-width: 100%;
 }
 
 .pillWrapper {
@@ -10,10 +11,12 @@
   justify-content: center;
   min-height: 60px;
   align-items: center;
+  max-width: 100%;
 }
 
+/* Dark in both themes, like a hardware notch. */
 .pill {
-  background: rgb(var(--grey-solid-900));
+  background: rgb(var(--grey-solid-1000));
   min-width: 40px;
   min-height: 36px;
   display: flex;
@@ -22,15 +25,23 @@
   overflow: hidden;
 }
 
-:global([data-theme="light"]) .pill {
-  background: rgb(var(--grey-solid-1000));
+/* On the dark page the black pill gets a hairline ring to separate it
+   from the raised demo surface. */
+:global(.dark) .pill {
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.14);
 }
 
 .pillInner {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 6px 8px;
+}
+
+.content {
+  display: flex;
+  align-items: center;
 }
 
 .idleDot {
@@ -38,10 +49,6 @@
   height: 24px;
   border-radius: 50%;
   background: rgb(var(--grey-solid-800));
-}
-
-:global([data-theme="light"]) .idleDot {
-  background: rgb(var(--grey-solid-850));
 }
 
 .expandedContent {
@@ -61,10 +68,6 @@
 .contentLabel {
   font-size: 14px;
   font-weight: 500;
-  color: rgb(var(--grey-dark-1000));
-}
-
-:global([data-theme="light"]) .contentLabel {
   color: rgb(255 255 255);
 }
 
@@ -87,6 +90,19 @@
   transition: opacity 0.15s;
 }
 
+/* The pill clips overflow: keep the focus ring tight so it stays inside. */
+.callButton:focus-visible {
+  outline-offset: 1px;
+}
+
+.accept {
+  background: rgb(var(--green-light-1000));
+}
+
+.decline {
+  background: rgb(var(--red-light-1000));
+}
+
 .callButton:hover {
   opacity: 0.85;
 }
@@ -101,9 +117,11 @@
 
 .musicBar {
   width: 3px;
-  background: rgb(var(--brand-light-1000));
+  height: 100%;
+  background: rgb(var(--brand-dark-1000));
   border-radius: 2px;
-  min-height: 4px;
+  transform-origin: bottom;
+  transform: scaleY(0.2);
 }
 
 .controls {
@@ -123,7 +141,10 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition:
+    background-color 0.15s,
+    box-shadow 0.15s,
+    color 0.15s;
 }
 
 .controlButton:hover {

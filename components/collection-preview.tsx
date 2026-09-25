@@ -1,23 +1,34 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import {
   motion,
   AnimatePresence,
   MotionConfig,
   useMotionValue,
+  useReducedMotion,
   useTransform,
   useSpring,
-  MotionValue,
+  type MotionValue,
 } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { Minimize2 } from "lucide-react";
 import styles from "./collection-preview.module.css";
 
-// Animation constants
+// Dock magnification
 const SCALE = 1.5;
 const DISTANCE = 100;
 const NUDGE = 24;
-const SPRING_CONFIG = { mass: 0.1, stiffness: 300, damping: 20 };
+const DOCK_SPRING = { mass: 0.1, stiffness: 300, damping: 20 };
+
+// Stack ⇄ dock morph (also the default for everything in this demo)
+const MORPH_SPRING = { type: "spring" as const, duration: 0.5, bounce: 0 };
+// Fan-out on hover/focus; `layout` keeps the morph spring for layoutId moves.
+const FAN_TRANSITION = {
+  type: "spring" as const,
+  stiffness: 300,
+  damping: 25,
+  layout: MORPH_SPRING,
+};
 
 // Gradient placeholders for collection items
 const COLLECTION_COLORS = [
@@ -27,10 +38,9 @@ const COLLECTION_COLORS = [
   "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
 ];
 
-// Avatar gradient
 const AVATAR_GRADIENT = "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)";
 
-// Variants for collapsed state hover animation
+// Collapsed stack: rest pose and fanned-out pose per card
 const imageVariants = [
   {
     hover: { rotate: -24, x: -32, y: -20, zIndex: 3 },
@@ -50,89 +60,108 @@ const imageVariants = [
   },
 ];
 
-// Shared image component
-function CollectionImage({
-  gradient,
-  size,
-  isExpanded,
-  mouseLeft,
-}: {
-  gradient: string;
-  size: number;
-  isExpanded: boolean;
-  mouseLeft?: MotionValue<number>;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
+function Thumbnail({ gradient }: { gradient: string }) {
+  return (
+    <>
+      <div className={styles.image} style={{ background: gradient }} />
+      <div className={styles.insetBorder} />
+    </>
+  );
+}
 
-  // Calculate distance from mouse to image center
+// One magnifying item in the expanded dock
+function DockItem({
+  index,
+  gradient,
+  pointerX,
+  containerRef,
+}: {
+  index: number;
+  gradient: string;
+  pointerX: MotionValue<number>;
+  containerRef: RefObject<HTMLDivElement | null>;
+}) {
+  // The slot carries the layoutId; the inner element carries the dock
+  // transforms. Measuring the slot means the dock's own scale/x never feed
+  // back into the distance it is computed from.
+  const slotRef = useRef<HTMLDivElement>(null);
+
+  // Horizontal distance from pointer to this item's centre, both measured
+  // relative to the dock container's left edge.
   const distance = useTransform(() => {
-    if (!isExpanded || !mouseLeft) return -Infinity;
-    const bounds = ref.current
-      ? { x: ref.current.offsetLeft, width: ref.current.offsetWidth }
-      : { x: 0, width: 0 };
-    return (mouseLeft.get() ?? 0) - bounds.x - bounds.width / 2;
+    const pointer = pointerX.get();
+    const slot = slotRef.current;
+    const container = containerRef.current;
+    if (pointer === -Infinity || !slot || !container) return -Infinity;
+    const slotRect = slot.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const center = slotRect.left - containerRect.left + slotRect.width / 2;
+    return pointer - center;
   });
 
-  // Scale based on proximity
   const scale = useTransform(distance, [-DISTANCE, 0, DISTANCE], [1, SCALE, 1]);
 
-  // Offset calculation for push effect
+  // Push neighbours away from the magnified item
   const x = useTransform(() => {
-    const currentDistance = distance.get();
-    const currentScale = scale.get();
-
-    if (currentDistance === -Infinity) return 0;
-    if (currentDistance < -DISTANCE || currentDistance > DISTANCE) {
-      return Math.sign(currentDistance) * -1 * NUDGE;
-    }
-    return (-currentDistance / DISTANCE) * NUDGE * currentScale;
+    const d = distance.get();
+    if (d === -Infinity) return 0;
+    if (d < -DISTANCE || d > DISTANCE) return Math.sign(d) * -1 * NUDGE;
+    return (-d / DISTANCE) * NUDGE * scale.get();
   });
 
-  const scaleSpring = useSpring(scale, SPRING_CONFIG);
-  const xSpring = useSpring(x, SPRING_CONFIG);
+  const scaleSpring = useSpring(scale, DOCK_SPRING);
+  const xSpring = useSpring(x, DOCK_SPRING);
 
   return (
-    <motion.div
-      ref={ref}
-      className={styles.imageWrapper}
-      style={{
-        width: size,
-        height: size,
-        ...(isExpanded && { x: xSpring, scale: scaleSpring }),
-      }}
-    >
-      <div
-        className={styles.image}
-        style={{ background: gradient }}
-      />
-      <div className={styles.insetBorder} />
+    <motion.div ref={slotRef} layoutId={`image-${index}`}>
+      <motion.div
+        className={`${styles.imageWrapper} ${styles.dockImage}`}
+        style={{ x: xSpring, scale: scaleSpring }}
+      >
+        <Thumbnail gradient={gradient} />
+      </motion.div>
     </motion.div>
   );
 }
 
-// Collapsed state component
 function CollapsedState({
-  setIsExpanded,
+  onExpand,
+  focusOnMount,
 }: {
-  setIsExpanded: (value: boolean) => void;
+  onExpand: () => void;
+  focusOnMount: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const fanned = isHovered || isFocused;
+
+  // Returning from the dock: the Collapse button just unmounted, so put
+  // focus back on the control that re-opens it.
+  useEffect(() => {
+    if (focusOnMount) buttonRef.current?.focus({ preventScroll: true });
+  }, [focusOnMount]);
 
   return (
-    <motion.div className={styles.collapsedWrapper}>
+    <div className={styles.collapsedWrapper}>
       <button
+        ref={buttonRef}
+        type="button"
         className={styles.stackContainer}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onClick={() => setIsExpanded(true)}
-        aria-label="Expand collection preview"
+        // Mouse/pen only: a touch tap goes straight to expand.
+        onPointerEnter={(e) => e.pointerType !== "touch" && setIsHovered(true)}
+        onPointerLeave={() => setIsHovered(false)}
+        // Keyboard focus fans the stack the same way hover does.
+        onFocus={(e) => setIsFocused(e.currentTarget.matches(":focus-visible"))}
+        onBlur={() => setIsFocused(false)}
+        onClick={onExpand}
+        aria-label={`Show all ${COLLECTION_COLORS.length} items`}
       >
-        {/* Collection avatar */}
         <motion.div
           layoutId="collection-avatar"
           className={styles.avatarWrapper}
           initial={false}
-          animate={isHovered ? { y: -4 } : { y: 0 }}
+          animate={fanned ? { y: -4 } : { y: 0 }}
         >
           <div
             className={styles.avatar}
@@ -141,7 +170,6 @@ function CollapsedState({
           <div className={styles.insetBorder} />
         </motion.div>
 
-        {/* Stacked images */}
         {COLLECTION_COLORS.map((gradient, index) => (
           <motion.div
             key={index}
@@ -149,19 +177,16 @@ function CollapsedState({
             className={styles.stackedImage}
             variants={imageVariants[index]}
             initial="rest"
-            animate={isHovered ? "hover" : "rest"}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            animate={fanned ? "hover" : "rest"}
+            transition={FAN_TRANSITION}
           >
-            <CollectionImage
-              gradient={gradient}
-              size={64}
-              isExpanded={false}
-            />
+            <div className={`${styles.imageWrapper} ${styles.stackImage}`}>
+              <Thumbnail gradient={gradient} />
+            </div>
           </motion.div>
         ))}
       </button>
 
-      {/* Collection info */}
       <div className={styles.collectionInfo}>
         <motion.p layoutId="collection-name" className={styles.collectionName}>
           Gradients
@@ -170,41 +195,32 @@ function CollapsedState({
           {COLLECTION_COLORS.length} items
         </motion.p>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-// Expanded state component
-function ExpandedState({
-  setIsExpanded,
-}: {
-  setIsExpanded: (value: boolean) => void;
-}) {
-  const mouseLeft = useMotionValue(-Infinity);
+function ExpandedState({ onCollapse }: { onCollapse: () => void }) {
+  const pointerX = useMotionValue(-Infinity);
   const containerRef = useRef<HTMLDivElement>(null);
+  const collapseRef = useRef<HTMLButtonElement>(null);
+  const reduceMotion = useReducedMotion();
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      mouseLeft.set(e.clientX - rect.left);
-    }
+  // Only ever mounted by a user action, so it's safe to take focus: the
+  // stack button that was focused has just unmounted.
+  useEffect(() => {
+    collapseRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+    pointerX.set(e.clientX - container.getBoundingClientRect().left);
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const touch = e.touches[0];
-      mouseLeft.set(touch.clientX - rect.left);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    mouseLeft.set(-Infinity);
-  };
+  const resetPointer = () => pointerX.set(-Infinity);
 
   return (
-    <motion.div className={styles.expandedWrapper}>
-      {/* Avatar and info */}
+    <div className={styles.expandedWrapper}>
       <div className={styles.expandedHeader}>
         <motion.div
           layoutId="collection-avatar"
@@ -226,59 +242,72 @@ function ExpandedState({
         </div>
       </div>
 
-      {/* Expanded images with dock effect */}
-      <motion.div
+      {/* Decorative thumbnails; the header above already names the collection. */}
+      <div
         ref={containerRef}
+        aria-hidden="true"
         className={styles.expandedContainer}
-        onMouseMove={handleMouseMove}
-        onTouchMove={handleTouchMove}
-        onMouseLeave={handleMouseLeave}
-        onTouchEnd={handleMouseLeave}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={resetPointer}
+        onPointerUp={(e) => e.pointerType === "touch" && resetPointer()}
+        onPointerCancel={resetPointer}
       >
         {COLLECTION_COLORS.map((gradient, index) => (
-          <motion.div key={index} layoutId={`image-${index}`}>
-            <CollectionImage
-              gradient={gradient}
-              size={72}
-              isExpanded={true}
-              mouseLeft={mouseLeft}
-            />
-          </motion.div>
+          <DockItem
+            key={index}
+            index={index}
+            gradient={gradient}
+            pointerX={pointerX}
+            containerRef={containerRef}
+          />
         ))}
-      </motion.div>
+      </div>
 
-      {/* View All button */}
       <motion.button
-        className={styles.viewAllButton}
+        ref={collapseRef}
+        type="button"
+        className={styles.collapseButton}
         whileTap={{ scale: 0.95 }}
-        initial={{ scale: 0.5, opacity: 0, filter: "blur(4px)" }}
+        initial={reduceMotion ? false : { scale: 0.5, opacity: 0, filter: "blur(4px)" }}
         animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-        exit={{ scale: 0.75, opacity: 0, filter: "blur(4px)" }}
-        onClick={() => setIsExpanded(false)}
-        aria-label="Collapse preview"
+        exit={
+          reduceMotion
+            ? { opacity: 0, transition: { duration: 0 } }
+            : { scale: 0.75, opacity: 0, filter: "blur(4px)" }
+        }
+        onClick={onCollapse}
       >
-        View All
-        <ArrowRight size={16} />
+        Collapse
+        <Minimize2 size={16} aria-hidden="true" />
       </motion.button>
-    </motion.div>
+    </div>
   );
 }
 
-// Main component
 export function CollectionPreview() {
   const [isExpanded, setIsExpanded] = useState(false);
+  // False until the first toggle, so the page load never steals focus.
+  const [hasToggled, setHasToggled] = useState(false);
+
+  const setExpanded = (value: boolean) => {
+    setHasToggled(true);
+    setIsExpanded(value);
+  };
 
   return (
-    <MotionConfig transition={{ type: "spring", duration: 0.5, bounce: 0 }}>
+    <MotionConfig transition={MORPH_SPRING}>
       <div className={styles.container}>
         <AnimatePresence mode="popLayout" initial={false}>
           {!isExpanded ? (
             <motion.div key="collapsed">
-              <CollapsedState setIsExpanded={setIsExpanded} />
+              <CollapsedState
+                onExpand={() => setExpanded(true)}
+                focusOnMount={hasToggled}
+              />
             </motion.div>
           ) : (
             <motion.div key="expanded">
-              <ExpandedState setIsExpanded={setIsExpanded} />
+              <ExpandedState onCollapse={() => setExpanded(false)} />
             </motion.div>
           )}
         </AnimatePresence>

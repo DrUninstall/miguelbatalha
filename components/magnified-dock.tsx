@@ -1,14 +1,15 @@
 "use client";
 
-import { useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import {
   motion,
   useMotionValue,
+  useReducedMotion,
   useSpring,
   useTransform,
   animate,
-  MotionValue,
+  type MotionValue,
 } from "framer-motion";
 import {
   Globe,
@@ -19,17 +20,20 @@ import {
   Calendar,
   Music,
   Settings,
-  LucideIcon,
+  type LucideIcon,
 } from "lucide-react";
 import styles from "./magnified-dock.module.css";
 
-// Animation constants
-const SCALE = 2.25;
-const DISTANCE = 110;
-const NUDGE = 40;
+// Base geometry at full size (px). Everything is multiplied by `unit`,
+// which shrinks below 1 when the stage is too narrow for the full dock.
+const ICON = 40;
+const GAP = 12;
+const PAD = 8; // dock padding-left/right
+const NUDGE = 40; // max sideways push for neighbours
+const DISTANCE = 110; // radius of the magnification bell
+const SCALE = 2.25; // peak scale under the pointer
 const SPRING = { mass: 0.1, stiffness: 170, damping: 12 };
 
-// App icons configuration
 const APPS: { name: string; icon: LucideIcon; color: string }[] = [
   { name: "Safari", icon: Globe, color: "#007AFF" },
   { name: "Mail", icon: Mail, color: "#5856D6" },
@@ -41,34 +45,49 @@ const APPS: { name: string; icon: LucideIcon; color: string }[] = [
   { name: "Settings", icon: Settings, color: "#8E8E93" },
 ];
 
+// Full width the dock needs at unit = 1: the icons, their gaps, padding,
+// plus room for the outermost icons to be nudged outward on both sides.
+const FULL_WIDTH = APPS.length * ICON + (APPS.length - 1) * GAP + 2 * PAD + 2 * NUDGE;
+
+// Raised-cosine (Hann) bell: 1 at d = 0, falls smoothly to 0 at |d| = radius,
+// with zero slope at both ends so there is no visible "edge" to the effect.
+function bell(d: number, radius: number) {
+  if (!Number.isFinite(d) || Math.abs(d) >= radius) return 0;
+  return (1 + Math.cos((Math.PI * d) / radius)) / 2;
+}
+
 function DockIcon({
   app,
-  mouseLeft,
+  index,
+  unit,
+  pointerX,
+  reduceMotion,
 }: {
-  app: { name: string; icon: LucideIcon; color: string };
-  mouseLeft: MotionValue<number>;
+  app: (typeof APPS)[number];
+  index: number;
+  unit: number;
+  pointerX: MotionValue<number>;
+  reduceMotion: boolean;
 }) {
-  const ref = useRef<HTMLButtonElement>(null);
+  // Icon centre from the (untransformed) layout, so no DOM reads are needed.
+  const centre = PAD * unit + index * (ICON + GAP) * unit + (ICON * unit) / 2;
+  const radius = DISTANCE * unit;
+  const nudge = NUDGE * unit;
 
-  // Calculate distance from mouse to icon center
-  const distance = useTransform(() => {
-    const bounds = ref.current
-      ? { x: ref.current.offsetLeft, width: ref.current.offsetWidth }
-      : { x: 0, width: 0 };
-    return mouseLeft.get() - bounds.x - bounds.width / 2;
-  });
+  // Signed distance from pointer to icon centre is pointerX - centre
+  // (NaN while the dock is idle, which bell() maps to 0).
+  const scale = useTransform(
+    () => 1 + (SCALE - 1) * bell(pointerX.get() - centre, radius)
+  );
 
-  // Scale based on proximity
-  const scale = useTransform(distance, [-DISTANCE, 0, DISTANCE], [1, SCALE, 1]);
-
-  // Offset calculation for push effect
+  // Push away from the pointer: proportional to distance (times the icon's
+  // current scale) inside the bell, a constant full nudge outside it, and
+  // nothing while idle.
   const x = useTransform(() => {
-    const d = distance.get();
-    if (d === -Infinity) return 0;
-    if (d < -DISTANCE || d > DISTANCE) {
-      return Math.sign(d) * -1 * NUDGE;
-    }
-    return (-d / DISTANCE) * NUDGE * scale.get();
+    const d = pointerX.get() - centre;
+    if (!Number.isFinite(d)) return 0;
+    if (Math.abs(d) >= radius) return -Math.sign(d) * nudge;
+    return (-d / radius) * nudge * (1 + (SCALE - 1) * bell(d, radius));
   });
 
   const scaleSpring = useSpring(scale, SPRING);
@@ -76,8 +95,8 @@ function DockIcon({
   const y = useMotionValue(0);
 
   const handleClick = () => {
-    // Bounce animation on click
-    animate(y, [0, -40, 0], {
+    if (reduceMotion) return;
+    animate(y, [0, -40 * unit, 0], {
       repeat: 2,
       ease: [
         [0, 0, 0.2, 1],
@@ -87,31 +106,30 @@ function DockIcon({
     });
   };
 
+  // Keyboard focus magnifies as if the pointer were over this icon's centre.
+  // Pointer-initiated focus (a click) is ignored so the dock doesn't jump.
+  const handleFocus = (e: React.FocusEvent<HTMLButtonElement>) => {
+    if (e.currentTarget.matches(":focus-visible")) pointerX.set(centre);
+  };
+
   const Icon = app.icon;
 
   return (
-    <Tooltip.Root delayDuration={0}>
+    <Tooltip.Root>
       <Tooltip.Trigger asChild>
         <motion.button
-          ref={ref}
+          type="button"
           className={styles.appIcon}
-          style={{
-            x: xSpring,
-            scale: scaleSpring,
-            y,
-            backgroundColor: app.color,
-          }}
+          style={{ x: xSpring, scale: scaleSpring, y, backgroundColor: app.color }}
           onClick={handleClick}
+          onFocus={handleFocus}
           aria-label={app.name}
         >
-          <Icon size={20} color="white" strokeWidth={2} />
+          <Icon size={Math.round(20 * unit)} color="white" strokeWidth={2} aria-hidden />
         </motion.button>
       </Tooltip.Trigger>
       <Tooltip.Portal>
-        <Tooltip.Content
-          className={styles.tooltip}
-          sideOffset={10}
-        >
+        <Tooltip.Content className={styles.tooltip} sideOffset={10}>
           {app.name}
           <Tooltip.Arrow className={styles.tooltipArrow} />
         </Tooltip.Content>
@@ -121,47 +139,106 @@ function DockIcon({
 }
 
 export function MagnifiedDock() {
-  const mouseLeft = useMotionValue(-Infinity);
-  const mouseRight = useMotionValue(-Infinity);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion() ?? false;
+  const [unit, setUnit] = useState(1);
+  const pointerX = useMotionValue(NaN); // pointer x relative to the dock, NaN = idle
 
-  // Dynamic background expansion
-  const left = useTransform(mouseLeft, [0, 40], [0, -40]);
-  const right = useTransform(mouseRight, [0, 40], [0, -40]);
-  const leftSpring = useSpring(left, SPRING);
-  const rightSpring = useSpring(right, SPRING);
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setUnit(Math.min(1, entry.contentRect.width / FULL_WIDTH));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { left, right } = e.currentTarget.getBoundingClientRect();
-    const offsetLeft = e.clientX - left;
-    const offsetRight = right - e.clientX;
-    mouseLeft.set(offsetLeft);
-    mouseRight.set(offsetRight);
+  const dockWidth = (APPS.length * ICON + (APPS.length - 1) * GAP + 2 * PAD) * unit;
+  const nudge = NUDGE * unit;
+
+  // The background grows on each side by up to `nudge` so the pushed-out end
+  // icons stay on it. The left side only grows once the pointer is `nudge` px
+  // in from the left edge (and vice versa), so an end icon under the pointer
+  // (which is not pushed) doesn't get a gap beside it.
+  const growLeft = useSpring(
+    useTransform(() => {
+      const p = pointerX.get();
+      return Number.isFinite(p) ? Math.min(Math.max(p, 0), nudge) : 0;
+    }),
+    SPRING
+  );
+  const growRight = useSpring(
+    useTransform(() => {
+      const p = pointerX.get();
+      return Number.isFinite(p) ? Math.min(Math.max(dockWidth - p, 0), nudge) : 0;
+    }),
+    SPRING
+  );
+  // Expressed as a transform instead of animating left/right: scaleX from the
+  // centre, then shift by half the imbalance between the two sides.
+  const bgScaleX = useTransform(
+    () => (dockWidth + growLeft.get() + growRight.get()) / dockWidth
+  );
+  const bgX = useTransform(() => (growRight.get() - growLeft.get()) / 2);
+
+  const setFromPointer = (e: React.PointerEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    pointerX.set(e.clientX - rect.left);
   };
 
-  const handleMouseLeave = () => {
-    mouseLeft.set(-Infinity);
-    mouseRight.set(-Infinity);
+  const reset = () => pointerX.set(NaN);
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Mouse magnifies on hover; touch/pen only while pressed. Touch pointers
+    // are implicitly captured by the icon they started on, so a finger that
+    // slides along (or past) the dock keeps reporting moves here.
+    if (e.pointerType !== "mouse" && e.buttons === 0) return;
+    setFromPointer(e);
+  };
+
+  const handlePointerEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") reset();
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLDivElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) reset();
   };
 
   return (
     <Tooltip.Provider delayDuration={0}>
-      <div className={styles.container}>
-        <motion.div
+      <div ref={containerRef} className={styles.container}>
+        <div
           className={styles.dock}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
+          style={
+            {
+              "--icon-size": `${ICON * unit}px`,
+              "--icon-gap": `${GAP * unit}px`,
+              "--dock-pad": `${PAD * unit}px`,
+            } as React.CSSProperties
+          }
+          onPointerDown={setFromPointer}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerEnd}
+          onPointerCancel={reset}
+          onPointerLeave={reset}
+          onBlur={handleBlur}
         >
-          {/* Dynamic background */}
           <motion.div
             className={styles.dockBackground}
-            style={{ left: leftSpring, right: rightSpring }}
+            style={{ scaleX: bgScaleX, x: bgX }}
           />
-
-          {/* App icons */}
-          {APPS.map((app) => (
-            <DockIcon key={app.name} app={app} mouseLeft={mouseLeft} />
+          {APPS.map((app, i) => (
+            <DockIcon
+              key={app.name}
+              app={app}
+              index={i}
+              unit={unit}
+              pointerX={pointerX}
+              reduceMotion={reduceMotion}
+            />
           ))}
-        </motion.div>
+        </div>
       </div>
     </Tooltip.Provider>
   );

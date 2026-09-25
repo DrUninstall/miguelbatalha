@@ -7,10 +7,12 @@
 .dock {
   display: flex;
   align-items: end;
-  gap: 12px;
-  padding: 8px 8px 12px;
+  gap: var(--icon-gap, 12px);
+  padding: var(--dock-pad, 8px) var(--dock-pad, 8px) calc(var(--dock-pad, 8px) * 1.5);
   position: relative;
-  height: 64px;
+  isolation: isolate; /* keep the z-index: -1 background inside the dock */
+  /* Horizontal finger drags magnify; vertical swipes still scroll the page. */
+  touch-action: pan-y;
 }
 
 .dockBackground {
@@ -20,12 +22,14 @@
   border-radius: 16px;
   box-shadow: var(--stroke-weak);
   z-index: -1;
+  transform-origin: center;
 }
 
 .appIcon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  flex-shrink: 0;
+  width: var(--icon-size, 40px);
+  height: var(--icon-size, 40px);
+  border-radius: calc(var(--icon-size, 40px) * 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,9 +76,5 @@
 @media (max-width: 479px) {
   .container {
     padding-inline: 0;
-  }
-
-  .dock {
-    gap: 8px;
   }
 }

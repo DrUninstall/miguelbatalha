@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect, type KeyboardEvent } from "react";
 import {
   motion,
   useMotionValue,
   useTransform,
+  useReducedMotion,
   animate,
+  type MotionValue,
   type PanInfo,
 } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useMeasure } from "@/lib/use-measure";
 import styles from "./swipe-carousel.module.css";
 
 interface CarouselCard {
@@ -45,9 +48,56 @@ const defaultCards: CarouselCard[] = [
   },
 ];
 
-const CARD_WIDTH = 280;
+const MAX_CARD_WIDTH = 280;
 const CARD_GAP = 16;
-const DRAG_THRESHOLD = 50;
+/** A swipe commits if it travelled this far (px)… */
+const DISTANCE_THRESHOLD = 50;
+/** …or was released faster than this (px/s). */
+const VELOCITY_THRESHOLD = 500;
+
+/**
+ * stiffness 300, damping 22, mass 1 → damping ratio 22 / (2·√300) ≈ 0.64.
+ * Underdamped: from rest it overshoots the target by ~7.6% of the distance
+ * before settling. A fling adds its release velocity on top.
+ */
+const SPRING = { type: "spring" as const, stiffness: 300, damping: 22, mass: 1 };
+
+function Card({
+  card,
+  index,
+  total,
+  x,
+  step,
+  width,
+}: {
+  card: CarouselCard;
+  index: number;
+  total: number;
+  x: MotionValue<number>;
+  step: number;
+  width: number;
+}) {
+  // How far (px) this card is from the resting position of the active card.
+  const distance = useTransform(x, (latest) => Math.abs(latest + index * step));
+  const scale = useTransform(distance, [0, width], [1, 0.92]);
+  const opacity = useTransform(distance, [0, width * 1.5], [1, 0.5]);
+
+  return (
+    <motion.div
+      role="group"
+      aria-roledescription="slide"
+      aria-label={`${index + 1} of ${total}`}
+      className={styles.card}
+      style={{ width, scale, opacity }}
+    >
+      <div className={styles.cardGradient} style={{ background: card.gradient }} />
+      <div className={styles.cardContent}>
+        <h3 className={styles.cardTitle}>{card.title}</h3>
+        <p className={styles.cardDescription}>{card.description}</p>
+      </div>
+    </motion.div>
+  );
+}
 
 export function SwipeCarousel({
   cards = defaultCards,
@@ -56,82 +106,113 @@ export function SwipeCarousel({
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const x = useMotionValue(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+  const [viewportRef, { width: viewportWidth }] = useMeasure<HTMLDivElement>();
+
+  // Cards are at most 280px, and at most 85% of the viewport so the next card peeks in.
+  const cardWidth = viewportWidth
+    ? Math.min(MAX_CARD_WIDTH, Math.round(viewportWidth * 0.85))
+    : MAX_CARD_WIDTH;
+  const step = cardWidth + CARD_GAP;
+  // Centre the active card in the viewport.
+  const inset = viewportWidth ? Math.max(0, (viewportWidth - cardWidth) / 2) : 0;
+
+  // Keep the track aligned if the container is resized.
+  useEffect(() => {
+    if (!x.isAnimating()) x.set(-activeIndex * step);
+  }, [step, activeIndex, x]);
 
   const canGoLeft = activeIndex > 0;
   const canGoRight = activeIndex < cards.length - 1;
 
-  const goTo = (index: number) => {
+  const goTo = (index: number, velocity = 0) => {
     const clamped = Math.max(0, Math.min(index, cards.length - 1));
     setActiveIndex(clamped);
-    animate(x, -clamped * (CARD_WIDTH + CARD_GAP), {
-      type: "spring",
-      stiffness: 300,
-      damping: 30,
-    });
+    const target = -clamped * step;
+    if (reduceMotion) {
+      x.stop();
+      x.set(target);
+      return;
+    }
+    // Hand the gesture's release velocity to the spring, so a hard fling
+    // arrives with more energy (and overshoots further) than a gentle drag.
+    animate(x, target, { ...SPRING, velocity });
   };
 
-  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = (
+    _: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
     const offset = info.offset.x;
     const velocity = info.velocity.x;
 
-    if (Math.abs(offset) > DRAG_THRESHOLD || Math.abs(velocity) > 500) {
-      if (offset > 0 || velocity > 500) {
-        goTo(activeIndex - 1);
+    if (Math.abs(offset) > DISTANCE_THRESHOLD || Math.abs(velocity) > VELOCITY_THRESHOLD) {
+      if (offset > 0 || velocity > VELOCITY_THRESHOLD) {
+        goTo(activeIndex - 1, velocity);
       } else {
-        goTo(activeIndex + 1);
+        goTo(activeIndex + 1, velocity);
       }
     } else {
-      goTo(activeIndex);
+      goTo(activeIndex, velocity);
+    }
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      goTo(activeIndex - 1);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      goTo(activeIndex + 1);
     }
   };
 
   return (
-    <div className={styles.carousel}>
-      <div className={styles.viewport} ref={containerRef}>
+    <div
+      className={styles.carousel}
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Focus areas"
+      onKeyDown={handleKeyDown}
+    >
+      <div
+        className={styles.viewport}
+        ref={viewportRef}
+        tabIndex={0}
+        aria-label="Slides. Use the left and right arrow keys to navigate."
+        role="group"
+      >
         <motion.div
           className={styles.track}
-          style={{ x }}
+          style={{ x, paddingInline: inset }}
           drag="x"
-          dragConstraints={{
-            left: -(cards.length - 1) * (CARD_WIDTH + CARD_GAP),
-            right: 0,
-          }}
+          dragConstraints={{ left: -(cards.length - 1) * step, right: 0 }}
           dragElastic={0.1}
+          dragMomentum={false}
           onDragEnd={handleDragEnd}
         >
-          {cards.map((card, i) => {
-            const distance = useTransform(x, (latest) => {
-              const cardCenter = i * (CARD_WIDTH + CARD_GAP);
-              return Math.abs(latest + cardCenter);
-            });
-            const scale = useTransform(distance, [0, CARD_WIDTH], [1, 0.92]);
-            const opacity = useTransform(distance, [0, CARD_WIDTH * 1.5], [1, 0.5]);
-
-            return (
-              <motion.div
-                key={i}
-                className={styles.card}
-                style={{ scale, opacity }}
-                onClick={() => goTo(i)}
-              >
-                <div
-                  className={styles.cardGradient}
-                  style={{ background: card.gradient }}
-                />
-                <div className={styles.cardContent}>
-                  <h3 className={styles.cardTitle}>{card.title}</h3>
-                  <p className={styles.cardDescription}>{card.description}</p>
-                </div>
-              </motion.div>
-            );
-          })}
+          {cards.map((card, i) => (
+            <Card
+              key={card.title}
+              card={card}
+              index={i}
+              total={cards.length}
+              x={x}
+              step={step}
+              width={cardWidth}
+            />
+          ))}
         </motion.div>
+      </div>
+
+      <div className={styles.srOnly} aria-live="polite" aria-atomic="true">
+        {`Card ${activeIndex + 1} of ${cards.length}: ${cards[activeIndex]?.title ?? ""}`}
       </div>
 
       {/* Controls */}
       <div className={styles.controls}>
         <button
+          type="button"
           className={styles.navButton}
           onClick={() => goTo(activeIndex - 1)}
           disabled={!canGoLeft}
@@ -140,16 +221,19 @@ export function SwipeCarousel({
           <ChevronLeft size={18} />
         </button>
         <div className={styles.dots}>
-          {cards.map((_, i) => (
+          {cards.map((card, i) => (
             <button
-              key={i}
+              type="button"
+              key={card.title}
               className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ""}`}
               onClick={() => goTo(i)}
               aria-label={`Go to card ${i + 1}`}
+              aria-current={i === activeIndex ? "true" : undefined}
             />
           ))}
         </div>
         <button
+          type="button"
           className={styles.navButton}
           onClick={() => goTo(activeIndex + 1)}
           disabled={!canGoRight}

@@ -1,0 +1,146 @@
+/* Article body. Posts write plain elements; this styles them. */
+
+.prose > p,
+.prose > ul,
+.prose > ol {
+  font-size: 16px;
+  line-height: 28px;
+  color: rgb(var(--text-weak));
+}
+
+.prose > * + * {
+  margin-top: 20px;
+}
+
+.prose > h2 {
+  margin-top: 56px;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: rgb(var(--text-strong));
+}
+
+.prose > h2 + * {
+  margin-top: 12px;
+}
+
+.prose > ul,
+.prose > ol {
+  padding-left: 20px;
+}
+
+.prose li + li {
+  margin-top: 6px;
+}
+
+.prose li::marker {
+  color: rgb(var(--icon-neutral));
+}
+
+.prose strong {
+  font-weight: 600;
+  color: rgb(var(--text-strong));
+}
+
+.prose a {
+  color: rgb(var(--text-strong));
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--text-strong) / 0.25);
+  text-underline-offset: 3px;
+  border-radius: 2px;
+  transition: text-decoration-color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .prose a:hover {
+    text-decoration-color: rgb(var(--text-strong));
+  }
+}
+
+.prose :not(pre) > code {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.875em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgb(var(--fill-weak));
+  color: rgb(var(--text-strong));
+  overflow-wrap: anywhere;
+}
+
+/* Demo: full-bleed on phones, wider than the text column on desktop. */
+
+.prose > .demo {
+  margin: 32px calc(var(--gutter) * -1);
+}
+
+.stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  padding: 40px var(--gutter);
+  background: rgb(var(--background-raised));
+  box-shadow: var(--stroke-weak);
+  overflow-x: clip;
+}
+
+.caption {
+  margin-top: 10px;
+  padding-inline: var(--gutter);
+  font-size: 13px;
+  line-height: 20px;
+  color: rgb(var(--text-weak));
+}
+
+@media (min-width: 720px) {
+  .prose > .demo {
+    margin-inline: -48px;
+  }
+
+  .stage {
+    padding: 48px;
+    border-radius: 12px;
+  }
+
+  .caption {
+    padding-inline: 48px;
+  }
+}
+
+@media (min-width: 960px) {
+  .prose > .demo {
+    margin-inline: -96px;
+  }
+
+  .caption {
+    padding-inline: 96px;
+  }
+}
+
+/* Code excerpt */
+
+.prose > .code {
+  margin-block: 24px;
+}
+
+.codeLabel {
+  margin-bottom: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgb(var(--text-weak));
+}
+
+.code pre {
+  margin: 0;
+  padding: 14px 16px;
+  overflow-x: auto;
+  border-radius: 8px;
+  background: rgb(var(--fill-weak));
+  box-shadow: inset 0 0 0 1px rgb(var(--stroke-color-weak));
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 21px;
+  color: rgb(var(--text-strong));
+  tab-size: 2;
+}

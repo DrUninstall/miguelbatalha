@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   motion,
   useMotionValue,
+  useReducedMotion,
   useTransform,
   animate,
 } from "framer-motion";
@@ -12,7 +13,9 @@ import styles from "./outline-orbit-button.module.css";
 
 // Animation constants
 const STROKE_WIDTH = 2;
-const ANIMATION_DURATION = 3;
+const ANIMATION_DURATION = 3; // s per loop at normal speed
+const HOVER_SPEED = 2.5; // playback-rate multiplier while hovered / keyboard-focused
+const SPEED_RAMP = { duration: 0.6, ease: [0.215, 0.61, 0.355, 1] as const };
 
 // Proportional multipliers for orbit layers (based on original ratios)
 const ORBIT_MULTIPLIERS = [
@@ -23,7 +26,7 @@ const ORBIT_MULTIPLIERS = [
 
 interface OutlineOrbitButtonProps {
   children: React.ReactNode;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   href?: string;
   target?: string;
   className?: string;
@@ -37,9 +40,13 @@ export function OutlineOrbitButton({
   className,
 }: OutlineOrbitButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isFocusVisible, setIsFocusVisible] = useState(false);
+  const isActive = isHovered || isFocusVisible;
+  const reduceMotion = useReducedMotion();
   const [dimensions, setDimensions] = useState({ width: 200, height: 56 });
   const containerRef = useRef<HTMLButtonElement & HTMLAnchorElement>(null);
   const progress = useMotionValue(0);
+  const speed = useMotionValue(1);
 
   // Measure button dimensions on mount and resize
   useLayoutEffect(() => {
@@ -74,30 +81,58 @@ export function OutlineOrbitButton({
 
   const offsets = [innerOffset, middleOffset, outerOffset];
 
-  // Master animation loop
+  // Master loop: one linear 0 -> 1 tween repeated forever. Not started at all
+  // under reduced motion (the dashed orbits then render static).
   useEffect(() => {
+    if (reduceMotion) return;
     const controls = animate(progress, 1, {
       duration: ANIMATION_DURATION,
       ease: "linear",
       repeat: Infinity,
       repeatType: "loop",
     });
+    // Hover changes the loop's playback rate rather than restarting it, so the
+    // dashes keep their position and just accelerate/decelerate.
+    controls.speed = speed.get();
+    const unsubscribe = speed.on("change", (v) => {
+      controls.speed = v;
+    });
+    return () => {
+      unsubscribe();
+      controls.stop();
+    };
+  }, [progress, speed, reduceMotion]);
 
+  // Ease the playback rate between 1x and HOVER_SPEED.
+  useEffect(() => {
+    if (reduceMotion) return;
+    const controls = animate(speed, isActive ? HOVER_SPEED : 1, SPEED_RAMP);
     return () => controls.stop();
-  }, [progress]);
+  }, [isActive, speed, reduceMotion]);
 
-  const containerClass = `${styles.container} ${isHovered ? styles.hovered : ""} ${className || ""}`;
+  const pointerHandlers = {
+    onPointerEnter: (e: React.PointerEvent) => {
+      if (e.pointerType === "mouse") setIsHovered(true);
+    },
+    onPointerLeave: () => setIsHovered(false),
+    onFocus: (e: React.FocusEvent<HTMLElement>) =>
+      setIsFocusVisible(e.currentTarget.matches(":focus-visible")),
+    onBlur: () => setIsFocusVisible(false),
+  };
+
+  const containerClass = `${styles.container} ${isActive ? styles.hovered : ""} ${className || ""}`;
 
   const content = (
     <>
       <span className={styles.buttonText}>{children}</span>
-      <div className={styles.buttonBg} />
+      <span className={styles.buttonBg} aria-hidden />
 
       {/* SVG orbit layers */}
       {rectangles.map((rect, index) => (
         <svg
           key={index}
           className={styles.orbitSvg}
+          aria-hidden
           width={rect.width + STROKE_WIDTH}
           height={rect.height + STROKE_WIDTH}
           viewBox={`0 0 ${rect.width + STROKE_WIDTH} ${rect.height + STROKE_WIDTH}`}
@@ -133,8 +168,7 @@ export function OutlineOrbitButton({
         href={href}
         target={target}
         className={containerClass}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        {...pointerHandlers}
       >
         {content}
       </Link>
@@ -144,10 +178,10 @@ export function OutlineOrbitButton({
   return (
     <button
       ref={containerRef}
+      type="button"
       className={containerClass}
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      {...pointerHandlers}
     >
       {content}
     </button>

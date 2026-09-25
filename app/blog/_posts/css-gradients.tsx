@@ -1,5 +1,3 @@
-"use client";
-
 import {
   GradientTypes,
   GradientColorSpaces,
@@ -7,95 +5,197 @@ import {
   AnimatedBorderGradient,
   LayeredGradients,
 } from "@/components/gradient-demos";
-import styles from "../[slug]/page.module.css";
+import { Code, Demo } from "../_components/demo";
 
 export default function CssGradients() {
   return (
-    <div className={styles.prose}>
+    <>
       <p>
-        Gradients have a reputation problem. Say &quot;gradient&quot; and most people picture a neon pink-to-blue banner from a 2013 startup landing page. Fair. But modern CSS gradients are a completely different tool — color space interpolation, conic sweeps, animated borders, layered compositions. The spec evolved. Most implementations didn&apos;t.
-      </p>
-
-      <h2 className={styles.sectionHeading}>Gradient Types</h2>
-      <p>
-        Three types, three use cases. <strong>Linear</strong> for directional fills — backgrounds, text masks, dividers. <strong>Radial</strong> for focal points — highlights, glows, spotlight effects. <strong>Conic</strong> for angular sweeps — pie charts, loading rings, color wheels.
-      </p>
-      <p>
-        Most devs only reach for linear. That&apos;s leaving two-thirds of the toolkit on the table.
-      </p>
-
-      <div className={styles.demo}>
-        <div className={styles.demoLabel}>Live Demo — Linear, Radial, Conic</div>
-        <div className={styles.demoInner}>
-          <GradientTypes />
-        </div>
-      </div>
-
-      <h2 className={styles.sectionHeading}>Color Space Interpolation</h2>
-      <p>
-        Here&apos;s the thing nobody tells you: <code>linear-gradient(red, blue)</code> in sRGB produces a muddy brown in the middle. That&apos;s not a bug — it&apos;s how sRGB mixes colors. The fix is one keyword: <code>in oklch</code> or <code>in lab</code>.
+        The first draft of this post said that <code>linear-gradient(red, blue)</code>{" "}
+        goes through a muddy brown in the middle. It doesn’t. The midpoint is{" "}
+        <code>rgb(128 0 128)</code>, a dark purple. I’d repeated something I’d
+        read instead of checking, which is a bad habit in a post about getting
+        colour right.
       </p>
       <p>
-        OKLCH interpolates through perceptually uniform color space — the midpoint between red and blue is a vibrant purple, not mud. This single change makes every gradient look better. Browser support is solid now — no excuse not to use it.
+        The underlying point still holds, and it’s the most useful thing in
+        here: <em>how</em> a gradient mixes colours is a choice now, and the
+        default isn’t always the right one.
       </p>
 
-      <div className={styles.demo}>
-        <div className={styles.demoLabel}>Live Demo — sRGB vs OKLCH</div>
-        <div className={styles.demoInner}>
-          <GradientColorSpaces />
-        </div>
-      </div>
-
-      <h2 className={styles.sectionHeading}>Animated Gradient</h2>
+      <h2>Three shapes</h2>
       <p>
-        You can&apos;t animate <code>background</code> directly — CSS treats it as a non-animatable shorthand. The workaround: use <code>@property</code> to register custom properties with a declared type (<code>&lt;color&gt;</code>), then animate those properties. The browser knows the type, so it can interpolate.
+        Quick grounding first. <code>linear-gradient</code> blends along a
+        line, <code>radial-gradient</code> out from a point, and{" "}
+        <code>conic-gradient</code> around a point, like a colour wheel or a
+        pie chart. Each one takes its geometry from the pointer here, through
+        two CSS variables the component sets.
       </p>
-      <p>
-        Alternatively — and this is what I usually reach for — animate <code>background-position</code> on an oversized gradient. Make the gradient 200% wide, shift it left-to-right on a loop. Simpler, wider support, and the visual result is identical for most cases.
-      </p>
+      <Demo caption="Hover, drag on touch, or focus a swatch and use the arrow keys. Home resets.">
+        <GradientTypes />
+      </Demo>
 
-      <div className={styles.demo}>
-        <div className={styles.demoLabel}>Live Demo</div>
-        <div className={styles.demoInner}>
-          <AnimatedGradient />
-        </div>
-      </div>
-
-      <h2 className={styles.sectionHeading}>Animated Border</h2>
+      <h2>Where the colours travel</h2>
       <p>
-        Animated gradient borders are the one effect I see constantly requested and rarely implemented well. The trick: a pseudo-element with the gradient rotating behind the card, masked by the card&apos;s own background. The pseudo rotates using <code>transform: rotate()</code> — compositor-only, smooth at 60fps.
+        A gradient between two colours is a path through a colour space. By
+        default, that space is sRGB, and the path is a straight line through
+        the RGB cube. Between complementary colours, that line runs straight
+        through the grey in the middle: blue <code>#0000ff</code> to yellow{" "}
+        <code>#ffff00</code> passes through <code>rgb(128 128 128)</code>.
       </p>
       <p>
-        The alternative approach uses <code>conic-gradient</code> with animated <code>@property</code> angle values. Both work. I prefer the pseudo-element method because it&apos;s more portable and doesn&apos;t require <code>@property</code> support.
+        Since 2023, every major browser lets you pick the space:
       </p>
-
-      <div className={styles.demo}>
-        <div className={styles.demoLabel}>Live Demo</div>
-        <div className={styles.demoInner}>
-          <AnimatedBorderGradient />
-        </div>
-      </div>
-
-      <h2 className={styles.sectionHeading}>Layered Gradients</h2>
+      <Code label="CSS">{`
+background: linear-gradient(to right in oklab, blue, yellow);
+background: linear-gradient(to right in oklch, blue, yellow);
+`}</Code>
+      <p>The two “ok” spaces solve different problems:</p>
+      <ul>
+        <li>
+          <strong>oklab</strong> is built so that equal steps look like equal
+          changes. The path is still a straight line, but the brightness in the
+          middle sits where your eye expects it. Complements still pass close
+          to grey, just a nicer grey.
+        </li>
+        <li>
+          <strong>oklch</strong> is the same space in polar form: lightness,
+          chroma, hue. Interpolating there walks around the hue wheel and keeps
+          the saturation up. Blue to yellow stays vivid, but it gets there
+          through cyan and green. Some of those in-between colours are outside
+          what an sRGB screen can show, so the browser clips them.
+        </li>
+      </ul>
       <p>
-        CSS allows multiple background layers in a single declaration — and most of the interesting gradient effects come from stacking them. A radial highlight on top of a linear base. A noise texture over a color sweep. Conic accents behind a frosted overlay.
+        Each row below uses the same two endpoints with no extra stops. Only
+        the interpolation space changes. The small square at the end of each
+        row is the exact midpoint, computed with <code>color-mix()</code> in
+        the same space:
+      </p>
+      <Code label="gradient-demos.module.css">{`
+.oklch    { background: linear-gradient(to right in oklch, var(--from), var(--to)); }
+.oklchMid { background: color-mix(in oklch, var(--from), var(--to)); }
+`}</Code>
+      <Demo caption="Switch between three pairs. Blue → yellow shows the sRGB grey; green → magenta shows how far oklch can detour.">
+        <GradientColorSpaces />
+      </Demo>
+      <p>
+        How I choose now: oklab when the two colours are related and I want
+        the blend to stay between them, oklch when I want saturation and I’m
+        happy with the detour. The midpoint swatch is how I check. If it
+        surprises me, I add a stop.
       </p>
       <p>
-        Layer order matters. Later declarations sit behind earlier ones. Transparency in upper layers lets lower layers bleed through. It&apos;s essentially compositing — the same mental model as Photoshop layers, but in one CSS property.
+        One gotcha with fallbacks. If the gradient comes through a CSS
+        variable and the browser doesn’t support the <code>in</code> syntax, the
+        whole declaration becomes invalid when it’s computed, and the element
+        gets no background at all. It doesn’t fall back to sRGB on its own.
+        The demo uses <code>@supports</code> to redeclare the plain version for
+        those browsers.
       </p>
 
-      <div className={styles.demo}>
-        <div className={styles.demoLabel}>Live Demo — Stacked gradient layers</div>
-        <div className={styles.demoInner}>
-          <LayeredGradients />
-        </div>
-      </div>
-
-      <hr className={styles.separator} />
-
+      <h2>Animating a gradient</h2>
       <p>
-        Gradients are one of those CSS features where the gap between &quot;standard usage&quot; and &quot;what&apos;s actually possible&quot; is enormous. Color spaces alone are a game-changer — the muddy midpoints that plagued gradients for a decade are a solved problem. Worth revisiting if you haven&apos;t touched gradients since 2015.
+        You can’t transition one gradient into another: the browser treats
+        gradient images as not interpolable, so it swaps them in one step. What
+        you can animate is where the gradient sits. Make the tile twice as
+        wide as the box, let it repeat, and slide it by exactly one tile:
       </p>
-    </div>
+      <Code label="gradient-demos.module.css">{`
+.animated {
+  background-image: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);
+  background-size: 200% 100%;
+  animation: slide 12s linear infinite;
+}
+@keyframes slide { to { background-position: 200% 0; } }
+`}</Code>
+      <p>
+        The gradient starts and ends on the same colour, and a position of
+        200% on a 200%-wide tile is exactly one tile, so the last frame
+        matches the first and the loop never jumps. Earlier versions ran back
+        and forth, which always looks like it’s breathing rather than flowing.
+      </p>
+      <Demo caption="12 seconds per loop. With reduced motion on, it shows one still frame.">
+        <AnimatedGradient />
+      </Demo>
+      <p>
+        The cost: moving a background repaints the element every frame. It
+        isn’t a compositor animation. On a card this size that’s nothing. On a
+        full-screen hero, I’d check the frame rate on a cheap laptop first.
+      </p>
+
+      <h2>A rotating border with @property</h2>
+      <p>
+        Custom properties are normally just strings, so the browser can’t
+        animate them smoothly. Registering one with a type fixes that:
+      </p>
+      <Code label="gradient-demos.module.css">{`
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.border {
+  padding: 2px;
+  background: conic-gradient(from var(--angle), #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);
+  animation: spin 4s linear infinite;
+}
+@keyframes spin { to { --angle: 360deg; } }
+`}</Code>
+      <p>
+        The “border” is 2px of the wrapper’s background showing around an
+        inner card. <code>@property</code> has worked in every major browser
+        since mid-2024. Without it, the angle can’t interpolate, and the border
+        jumps instead of turning.
+      </p>
+      <Demo caption="A registered --angle turns once every 4 seconds.">
+        <AnimatedBorderGradient />
+      </Demo>
+      <p>
+        This also repaints every frame. The alternative, a rotating
+        pseudo-element behind the card, uses <code>transform</code> and stays
+        on the compositor, but it needs extra markup and clipping. For one
+        small card I take the simpler CSS.
+      </p>
+
+      <h2>Layers</h2>
+      <p>
+        <code>background</code> takes a list, and most interesting gradient
+        effects are several simple ones stacked. The first layer listed paints
+        on top. A mesh gradient is six soft radial spots over a dark linear
+        base, which comes last so it sits at the bottom:
+      </p>
+      <Code label="gradient-demos.module.css">{`
+background:
+  radial-gradient(at 40% 20%, rgb(255 107 107 / 0.8) 0px, transparent 50%),
+  radial-gradient(at 80% 0%, rgb(72 219 251 / 0.8) 0px, transparent 50%),
+  /* …four more… */
+  linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+`}</Code>
+      <p>
+        The other tiles use the same idea: a <code>repeating-linear-gradient</code>{" "}
+        of translucent stripes over a colour sweep, an SVG noise texture over a
+        gradient for grain, and a frosted panel. The frosted one taught me
+        something obvious in hindsight: <code>backdrop-filter</code> blurs what’s
+        behind the element, and the first version had nothing behind it. It
+        was a white box on a white card. Now it sits over hard-edged shapes, so
+        you can see the blur working.
+      </p>
+      <Demo caption="Four tiles, each a stack of simple layers. The first three respond to the pointer.">
+        <LayeredGradients />
+      </Demo>
+
+      <h2>What changed my mind</h2>
+      <p>
+        I used to think of gradients as decoration you get right by eye.
+        Picking the colour space and checking the midpoint turned it into
+        something I can reason about. It’s one keyword and a{" "}
+        <code>color-mix()</code> to check it. I’m still not sure oklch is
+        always the right default for UI. It can be too vivid for subtle
+        surfaces. But I now choose the space deliberately instead of
+        inheriting sRGB by accident.
+      </p>
+    </>
   );
 }

@@ -264,9 +264,10 @@ svg {
   background: rgb(var(--fill-brand-strong) / 0.2);
 }
 
+/* An outline, not a box-shadow, so components that set their own shadows can't erase it. */
 :focus-visible {
-  outline: none;
-  box-shadow: var(--stroke-focus);
+  outline: 2px solid rgb(var(--fill-brand-strong));
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

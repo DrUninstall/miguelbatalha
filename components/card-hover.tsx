@@ -1,28 +1,112 @@
+"use client";
+
+import { useRef } from "react";
 import styles from "./card-hover.module.css";
+
+type Edge = "top" | "right" | "bottom" | "left";
+
+// Where the overlay waits (off-card) before sliding in from / after sliding out to an edge.
+const OFFSCREEN: Record<Edge, string> = {
+  top: "translate3d(0, -100%, 0)",
+  right: "translate3d(100%, 0, 0)",
+  bottom: "translate3d(0, 100%, 0)",
+  left: "translate3d(-100%, 0, 0)",
+};
+const SHOWN = "translate3d(0, 0, 0)";
+const TRANSITION_MS = 300; // keep in sync with .overlay transition
+
+// Which edge of `rect` is the point nearest to? For a point just outside the
+// card (pointerleave) the crossed edge has a negative distance, so it still wins.
+function nearestEdge(rect: DOMRect, clientX: number, clientY: number): Edge {
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  const distances: [Edge, number][] = [
+    ["top", y],
+    ["right", rect.width - x],
+    ["bottom", rect.height - y],
+    ["left", x],
+  ];
+  return distances.reduce((a, b) => (b[1] < a[1] ? b : a))[0];
+}
 
 interface CardHoverProps {
   title: string;
   subtitle: string;
-  href?: string;
   children?: React.ReactNode;
 }
 
-export function CardHover({ title, subtitle, href = "#", children }: CardHoverProps) {
+export function CardHover({ title, subtitle, children }: CardHoverProps) {
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const shown = useRef(false);
+  const hiddenAt = useRef(-Infinity);
+
+  const show = (from: Edge) => {
+    const el = overlayRef.current;
+    if (!el || shown.current) return;
+    shown.current = true;
+    // If the overlay is fully parked off-card, teleport it (no transition) to
+    // the entry edge first; otherwise it would sweep across from the old exit
+    // edge. If it's still mid-exit, just reverse from where it is.
+    if (performance.now() - hiddenAt.current > TRANSITION_MS) {
+      el.style.transition = "none";
+      el.style.transform = OFFSCREEN[from];
+      void el.offsetWidth; // flush so the start position is committed
+      el.style.transition = "";
+    }
+    el.style.transform = SHOWN;
+  };
+
+  const hide = (to: Edge) => {
+    const el = overlayRef.current;
+    if (!el || !shown.current) return;
+    shown.current = false;
+    hiddenAt.current = performance.now();
+    el.style.transform = OFFSCREEN[to];
+  };
+
+  const handlePointerEnter = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "touch") return; // touch uses tap-to-toggle
+    show(nearestEdge(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY));
+  };
+
+  const handlePointerLeave = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "touch") return;
+    hide(nearestEdge(e.currentTarget.getBoundingClientRect(), e.clientX, e.clientY));
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "touch") return;
+    if (shown.current) hide("bottom");
+    else show("bottom");
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLDivElement>) => {
+    // Only keyboard focus; a tap also focuses the card but is handled above.
+    if (e.currentTarget.matches(":focus-visible")) show("bottom");
+  };
+
   return (
-    <a href={href} className={styles.card}>
-      {children}
-      <div className={styles.cardDescription}>
+    <div
+      className={styles.card}
+      tabIndex={0}
+      role="group"
+      aria-label={title}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerLeave}
+      onPointerUp={handlePointerUp}
+      onFocus={handleFocus}
+      onBlur={() => hide("bottom")}
+    >
+      <div className={styles.artwork} aria-hidden>
+        {children}
+      </div>
+      <span className={styles.label} aria-hidden>
+        {title}
+      </span>
+      <div ref={overlayRef} className={styles.overlay}>
         <h3 className={styles.cardTitle}>{title}</h3>
         <p className={styles.cardSubtitle}>{subtitle}</p>
-        <svg className={styles.cardIcon} width="11" height="11" viewBox="0 0 11 11" fill="none">
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M6.33333 0.4375C6.33333 0.195877 6.52922 0 6.77083 0H10.5625C10.8041 0 11 0.195877 11 0.4375V4.22917C11 4.47078 10.8041 4.66667 10.5625 4.66667C10.3209 4.66667 10.125 4.47078 10.125 4.22917V1.49372L7.08017 4.53851C6.90932 4.70937 6.63235 4.70937 6.46149 4.53851C6.29063 4.36765 6.29063 4.09068 6.46149 3.91981L9.50626 0.875H6.77083C6.52922 0.875 6.33333 0.679122 6.33333 0.4375ZM0.5 6.27083C0.5 6.02922 0.695877 5.83333 0.9375 5.83333C1.17912 5.83333 1.375 6.02922 1.375 6.27083V9.00626L4.41981 5.96149C4.59068 5.79063 4.86765 5.79063 5.03851 5.96149C5.20937 6.13235 5.20937 6.40932 5.03851 6.58017L1.99372 9.625H4.72917C4.97078 9.625 5.16667 9.82088 5.16667 10.0625C5.16667 10.3041 4.97078 10.5 4.72917 10.5H0.9375C0.695877 10.5 0.5 10.3041 0.5 10.0625V6.27083Z"
-            fill="currentColor"
-          />
-        </svg>
       </div>
-    </a>
+    </div>
   );
 }

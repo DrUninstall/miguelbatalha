@@ -1,39 +1,90 @@
+/*
+  One 3D rendering context (preserve-3d on .wrapper) holds a flat planet at
+  z = 0, a ring lying in the tilted orbital plane, and a moon that travels
+  around that plane. Because they share the context, the browser depth-sorts
+  them: the moon passes in front of the planet, then behind it, and the far
+  half of the ring disappears behind the planet.
+
+  Moon transform, read right to left from the moon's point of view:
+    rotateZ(tilt-z) rotateX(tilt-x)   tilt the orbital plane toward the viewer
+    rotateY(a) translateZ(r)          walk out to the orbit, at angle a
+    rotateY(-a)                       undo the spin so the moon faces us
+    rotateX(-tilt-x) rotateZ(-tilt-z) undo the tilt (billboarding)
+*/
+
 @keyframes orbit {
   from {
-    transform: translate(-50%, -50%) rotateY(0deg) translateZ(74px) rotateY(360deg);
+    transform: rotateZ(var(--tilt-z)) rotateX(var(--tilt-x)) rotateY(0deg)
+      translateZ(var(--radius)) rotateY(0deg) rotateX(calc(var(--tilt-x) * -1))
+      rotateZ(calc(var(--tilt-z) * -1));
   }
   to {
-    transform: translate(-50%, -50%) rotateY(360deg) translateZ(74px) rotateY(0deg);
+    transform: rotateZ(var(--tilt-z)) rotateX(var(--tilt-x)) rotateY(360deg)
+      translateZ(var(--radius)) rotateY(-360deg) rotateX(calc(var(--tilt-x) * -1))
+      rotateZ(calc(var(--tilt-z) * -1));
   }
 }
 
 .wrapper {
+  --radius: 92px;
+  --tilt-x: -20deg;
+  --tilt-z: -14deg;
+  --planet: 88px;
+  --moon: 20px;
+
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 240px;
+  height: 180px;
+  perspective: 600px;
   transform-style: preserve-3d;
-  perspective: 500px;
 }
 
-.circle {
-  height: 96px;
-  width: 96px;
-  border-radius: 50%;
-  background: rgb(var(--grey-light-1000));
-}
-
-:global(.dark) .circle {
-  background: rgb(var(--grey-dark-1000));
-}
-
-.orbitingCircle {
-  width: 32px;
-  height: 32px;
+.ring,
+.planet,
+.moon {
   position: absolute;
-  left: 50%;
   top: 50%;
+  left: 50%;
   border-radius: 50%;
-  background: rgb(var(--fill-yellow));
+}
+
+.planet {
+  width: var(--planet);
+  height: var(--planet);
+  margin: calc(var(--planet) / -2);
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.5), transparent 55%),
+    rgb(var(--fill-brand-strong));
+  box-shadow: inset -10px -14px 24px rgb(0 0 0 / 0.28);
+}
+
+/* A circle turned flat (rotateX 90deg) into the orbital plane, then tilted like the orbit. */
+.ring {
+  width: calc(var(--radius) * 2);
+  height: calc(var(--radius) * 2);
+  margin: calc(var(--radius) * -1);
+  border: 1px solid rgb(var(--icon-neutral));
+  transform: rotateZ(var(--tilt-z)) rotateX(var(--tilt-x)) rotateX(90deg);
+}
+
+.moon {
+  width: var(--moon);
+  height: var(--moon);
+  margin: calc(var(--moon) / -2);
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.6), transparent 60%),
+    rgb(var(--fill-yellow));
+  box-shadow: inset -3px -4px 6px rgb(0 0 0 / 0.25);
+  /* Static pose (used when the animation is off): 20deg round the orbit, in
+     front of the planet and overlapping its edge, so depth still reads. */
+  transform: rotateZ(var(--tilt-z)) rotateX(var(--tilt-x)) rotateY(20deg)
+    translateZ(var(--radius)) rotateY(-20deg) rotateX(calc(var(--tilt-x) * -1))
+    rotateZ(calc(var(--tilt-z) * -1));
   animation: orbit 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moon {
+    animation: none;
+  }
 }

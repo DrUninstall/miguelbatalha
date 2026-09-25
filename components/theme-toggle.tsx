@@ -1,20 +1,19 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useSyncExternalStore } from "react";
+import { useId, useSyncExternalStore } from "react";
+import { flushSync } from "react-dom";
 import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./theme-toggle.module.css";
 
-// Helper function to toggle theme with View Transitions API
+// Switch theme inside a View Transition; app/globals.css grows the new theme
+// as a circle (clip-path) from --transition-x/--transition-y.
 function toggleThemeWithTransition(
-  event: React.MouseEvent,
-  isDark: boolean,
+  event: React.MouseEvent<HTMLElement>,
+  newTheme: "light" | "dark",
   setTheme: (theme: string) => void
 ) {
-  const newTheme = isDark ? "light" : "dark";
-
-  // Check if View Transitions API is supported
   if (
     !document.startViewTransition ||
     window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -23,23 +22,30 @@ function toggleThemeWithTransition(
     return;
   }
 
-  // Get click position for the circle origin
-  const x = event.clientX;
-  const y = event.clientY;
-  // Calculate the radius needed to cover the whole screen
+  // Circle origin: the pointer position, or the button's centre when the
+  // click came from the keyboard (Enter/Space report detail 0 and 0,0 coords).
+  let x = event.clientX;
+  let y = event.clientY;
+  if (event.detail === 0) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    x = rect.left + rect.width / 2;
+    y = rect.top + rect.height / 2;
+  }
+  // Radius that reaches the farthest viewport corner
   const endRadius = Math.hypot(
     Math.max(x, window.innerWidth - x),
     Math.max(y, window.innerHeight - y)
   );
 
-  // Set CSS custom properties for the animation
-  document.documentElement.style.setProperty("--transition-x", `${x}px`);
-  document.documentElement.style.setProperty("--transition-y", `${y}px`);
-  document.documentElement.style.setProperty("--transition-r", `${endRadius}px`);
+  const root = document.documentElement;
+  root.style.setProperty("--transition-x", `${x}px`);
+  root.style.setProperty("--transition-y", `${y}px`);
+  root.style.setProperty("--transition-r", `${endRadius}px`);
 
-  // Start the view transition
+  // flushSync so next-themes has applied the new class before the browser
+  // captures the "new" snapshot.
   document.startViewTransition(() => {
-    setTheme(newTheme);
+    flushSync(() => setTheme(newTheme));
   });
 }
 
@@ -63,7 +69,8 @@ export function ThemeToggle() {
 
   return (
     <button
-      onClick={(e) => toggleThemeWithTransition(e, isDark, setTheme)}
+      type="button"
+      onClick={(e) => toggleThemeWithTransition(e, isDark ? "light" : "dark", setTheme)}
       className={styles.themeToggle}
       aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
@@ -81,9 +88,9 @@ export function ThemeToggle() {
           className={styles.iconWrapper}
         >
           {isDark ? (
-            <Moon className={styles.icon} />
+            <Moon className={styles.icon} aria-hidden="true" />
           ) : (
-            <Sun className={styles.icon} />
+            <Sun className={styles.icon} aria-hidden="true" />
           )}
         </motion.div>
       </AnimatePresence>
@@ -91,9 +98,16 @@ export function ThemeToggle() {
   );
 }
 
+const OPTIONS = [
+  { value: "light", label: "Light", Icon: Sun },
+  { value: "dark", label: "Dark", Icon: Moon },
+] as const;
+
 export function ThemeToggleExpanded() {
   const mounted = useIsClient();
   const { resolvedTheme: theme, setTheme } = useTheme();
+  // Unique per instance so two toggles on one page don't share a highlight
+  const highlightId = `theme-highlight-${useId()}`;
 
   if (!mounted) {
     return (
@@ -105,43 +119,32 @@ export function ThemeToggleExpanded() {
   }
 
   return (
-    <div className={styles.expandedToggle}>
-      {/* Sliding background */}
-      <motion.div
-        className={styles.slidingBackground}
-        initial={false}
-        animate={{
-          left: theme === "light" ? "4px" : "calc(50% + 0px)",
-          width: "calc(50% - 8px)",
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 400,
-          damping: 30,
-        }}
-      />
-
-      <button
-        onClick={(e) => theme !== "light" && toggleThemeWithTransition(e, true, setTheme)}
-        aria-pressed={theme === "light"}
-        className={`${styles.toggleButton} ${
-          theme === "light" ? styles.active : styles.inactive
-        }`}
-      >
-        <Sun className={styles.toggleIcon} />
-        <span>Light</span>
-      </button>
-
-      <button
-        onClick={(e) => theme !== "dark" && toggleThemeWithTransition(e, false, setTheme)}
-        aria-pressed={theme === "dark"}
-        className={`${styles.toggleButton} ${
-          theme === "dark" ? styles.active : styles.inactive
-        }`}
-      >
-        <Moon className={styles.toggleIcon} />
-        <span>Dark</span>
-      </button>
+    <div className={styles.expandedToggle} role="group" aria-label="Theme">
+      {OPTIONS.map(({ value, label, Icon }) => {
+        const active = theme === value;
+        return (
+          <button
+            key={value}
+            type="button"
+            onClick={(e) => !active && toggleThemeWithTransition(e, value, setTheme)}
+            aria-pressed={active}
+            className={`${styles.toggleButton} ${active ? styles.active : styles.inactive}`}
+          >
+            {/* The highlight lives inside the active button; layoutId animates it
+                between buttons with a transform, so it matches unequal widths. */}
+            {active && (
+              <motion.span
+                layoutId={highlightId}
+                className={styles.highlight}
+                style={{ borderRadius: 6 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              />
+            )}
+            <Icon className={styles.toggleIcon} aria-hidden="true" />
+            <span className={styles.toggleLabel}>{label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

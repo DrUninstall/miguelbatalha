@@ -1,30 +1,33 @@
-/* ─────────── Shared Interactive Styles ─────────── */
+/* ─────────── Shared ─────────── */
 
-.interactive {
-  --mouse-x: 0.5;
-  --mouse-y: 0.5;
+.pointerSurface {
+  --pointer-x: 0.5;
+  --pointer-y: 0.5;
   cursor: crosshair;
-  transition: background 0.3s ease-out;
+  /* Dragging a finger over the swatch steers it instead of scrolling. */
+  touch-action: none;
 }
 
 /* ─────────── Gradient Types Demo ─────────── */
 
 .typesContainer {
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 480px) {
   .typesContainer {
-    grid-template-columns: 1fr;
+    gap: var(--space-3);
   }
 }
 
 .gradientCard {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .gradientBox {
@@ -42,32 +45,30 @@
 
 .gradientDescription {
   font-size: 12px;
+  line-height: 1.4;
   color: rgb(var(--text-weak));
   text-align: center;
+  text-wrap: pretty;
 }
 
-/* Linear gradient - angle follows mouse X */
+/* Linear: angle = pointer X × 360deg (default 180deg = top → bottom) */
 .linearGradient {
-  background: linear-gradient(
-    calc(var(--mouse-x) * 360deg),
-    #6366f1,
-    #ef4444
-  );
+  background: linear-gradient(calc(var(--pointer-x) * 360deg), #6366f1, #ef4444);
 }
 
-/* Radial gradient - center follows cursor */
+/* Radial: centre follows the pointer */
 .radialGradient {
   background: radial-gradient(
-    circle at calc(var(--mouse-x) * 100%) calc(var(--mouse-y) * 100%),
+    circle at calc(var(--pointer-x) * 100%) calc(var(--pointer-y) * 100%),
     #6366f1,
     #22c55e
   );
 }
 
-/* Conic gradient - rotation follows mouse */
+/* Conic: centre follows the pointer, start angle follows pointer X */
 .conicGradient {
   background: conic-gradient(
-    from calc(var(--mouse-x) * 360deg) at calc(var(--mouse-x) * 100%) calc(var(--mouse-y) * 100%),
+    from calc(var(--pointer-x) * 360deg) at calc(var(--pointer-x) * 100%) calc(var(--pointer-y) * 100%),
     #6366f1,
     #ef4444,
     #f59e0b,
@@ -79,9 +80,60 @@
 /* ─────────── Color Space Comparison Demo ─────────── */
 
 .colorSpaceContainer {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
+}
+
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-1);
+  align-self: center;
+  padding: var(--space-1);
+  border-radius: 10px;
+  background: rgb(var(--fill-weak));
+}
+
+.segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgb(var(--text-weak));
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out-cubic),
+    color var(--duration-fast) var(--ease-out-cubic);
+}
+
+@media (hover: hover) {
+  .segment:hover {
+    color: rgb(var(--text-strong));
+  }
+}
+
+.segment[aria-pressed="true"] {
+  color: rgb(var(--text-strong));
+  background: rgb(var(--background-base));
+  box-shadow: var(--stroke-weak);
+}
+
+.segmentChip {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
+  flex-shrink: 0;
 }
 
 .colorSpaceRow {
@@ -90,162 +142,260 @@
   gap: var(--space-2);
 }
 
-.colorSpaceGradient {
-  height: 80px;
-  border-radius: 12px;
-  box-shadow: var(--stroke-weak);
-}
-
-.colorSpaceInfo {
+.colorSpaceHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-3);
 }
 
 .colorSpaceLabel {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: rgb(var(--text-strong));
 }
 
+.midpoint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.midpointLabel {
+  font-size: 11px;
+  color: rgb(var(--text-weak));
+  font-variant-numeric: tabular-nums;
+}
+
+.midpointSwatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  box-shadow: var(--stroke-weak);
+}
+
+.colorSpaceGradient {
+  height: 56px;
+  border-radius: 12px;
+  box-shadow: var(--stroke-weak);
+}
+
 .colorSpaceNote {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgb(var(--text-weak));
+  text-wrap: pretty;
+}
+
+/* Same two endpoints, no mid stops, only the interpolation space differs. */
+.srgb {
+  background: linear-gradient(to right in srgb, var(--from), var(--to));
+}
+
+.oklab {
+  background: linear-gradient(to right in oklab, var(--from), var(--to));
+}
+
+.oklch {
+  background: linear-gradient(to right in oklch, var(--from), var(--to));
+}
+
+/* color-mix() at 50% in the same space is exactly the gradient's midpoint. */
+.srgbMid {
+  background: color-mix(in srgb, var(--from), var(--to));
+}
+
+.oklabMid {
+  background: color-mix(in oklab, var(--from), var(--to));
+}
+
+.oklchMid {
+  background: color-mix(in oklch, var(--from), var(--to));
+}
+
+.supportNote {
+  display: none;
+  margin: 0;
   font-size: 12px;
   color: rgb(var(--text-weak));
 }
 
-/* sRGB gradient - angle + position shifts with mouse */
-.srgbGradient {
-  background: linear-gradient(
-    calc(90deg + (var(--mouse-x) - 0.5) * 60deg) in srgb,
-    #ef4444 calc(var(--mouse-x) * -20%),
-    #8b5cf6 50%,
-    #3b82f6 calc(100% + var(--mouse-x) * 20%)
-  );
-  background-size: 150% 100%;
-  background-position: calc(var(--mouse-x) * 50%) 0;
+/*
+ * With var() in the value, an unsupported `in <space>` is invalid at
+ * computed-value time and the gradient would vanish, so re-declare plain
+ * (sRGB) gradients and show a note instead.
+ */
+@supports not (background-image: linear-gradient(in oklch, red, blue)) {
+  .srgb,
+  .oklab,
+  .oklch {
+    background: linear-gradient(to right, var(--from), var(--to));
+  }
+
+  .midpoint {
+    display: none;
+  }
+
+  .supportNote {
+    display: block;
+  }
 }
 
-/* LAB gradient - angle + position shifts with mouse */
-.labGradient {
-  background: linear-gradient(
-    calc(90deg + (var(--mouse-x) - 0.5) * 60deg) in lab,
-    #ef4444 calc(var(--mouse-x) * -20%),
-    #8b5cf6 50%,
-    #3b82f6 calc(100% + var(--mouse-x) * 20%)
-  );
-  background-size: 150% 100%;
-  background-position: calc(var(--mouse-x) * 50%) 0;
+@supports not (color: color-mix(in oklch, red, blue)) {
+  .midpoint {
+    display: none;
+  }
 }
 
 /* ─────────── Animated Gradient Demo ─────────── */
 
 .animatedContainer {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
+.animatedLabel {
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgb(var(--text-weak));
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.reducedOnly {
+  display: none;
+}
+
+/*
+ * One tile = one full cycle of colours, starting and ending on the same stop.
+ * The tile is 200% of the box wide and repeats, so sliding it by exactly one
+ * tile width (background-position-x 0% → 200%, i.e. −2 × box width) lands on
+ * a frame identical to the first. Linear timing keeps the speed constant.
+ */
 .animatedGradient {
   height: 160px;
   border-radius: 12px;
   box-shadow: var(--stroke-weak);
-  background: linear-gradient(
-    270deg,
+  background-image: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #ff6b6b);
+  background-size: 200% 100%;
+  background-repeat: repeat-x;
+  animation: gradientSlide 12s linear infinite;
+}
+
+@keyframes gradientSlide {
+  from {
+    background-position: 0% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+/* ─────────── Animated Border Gradient Demo ─────────── */
+
+/* Registering the property gives it a type, so the browser can interpolate it. */
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.borderWrapper {
+  padding: 2px;
+  border-radius: 14px;
+  background: conic-gradient(
+    from var(--angle),
     #ff6b6b,
     #feca57,
     #48dbfb,
     #ff9ff3,
     #ff6b6b
   );
-  background-size: 400% 100%;
-  animation: gradientShift 8s ease infinite;
-  cursor: pointer;
-  transition: animation-duration 0.3s ease;
+  animation: spinAngle 4s linear infinite;
 }
 
-.animatedGradient.animatedFast {
-  animation-duration: 1.5s;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
+@keyframes spinAngle {
+  to {
+    --angle: 360deg;
   }
 }
 
-.animatedLabel {
-  font-size: 12px;
-  color: rgb(var(--text-weak));
+.borderInner {
+  min-height: 156px;
+  padding: var(--space-6);
+  border-radius: 12px;
+  background: rgb(var(--background-raised));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   text-align: center;
 }
 
-/* Animated border gradient */
-.animatedBorderWrapper {
-  position: relative;
-  height: 160px;
-  border-radius: 12px;
-  padding: 4px;
-  background: linear-gradient(
-    270deg,
-    #ff6b6b,
-    #feca57,
-    #48dbfb,
-    #ff9ff3,
-    #ff6b6b
-  );
-  background-size: 400% 100%;
-  animation: gradientShift 8s ease infinite;
-  cursor: pointer;
-  transition: animation-duration 0.3s ease;
-}
-
-.animatedBorderWrapper.animatedFast {
-  animation-duration: 1.5s;
-}
-
-.animatedBorderInner {
-  width: 100%;
-  height: 100%;
-  border-radius: 8px;
-  background: rgb(var(--background-base));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.animatedBorderText {
-  font-size: 14px;
+.borderTitle {
+  font-size: 15px;
   font-weight: 500;
+  color: rgb(var(--text-strong));
+}
+
+.borderCode {
+  font-size: 12px;
   color: rgb(var(--text-weak));
+  overflow-wrap: anywhere;
+}
+
+/* ─────────── Reduced motion ─────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  /* The global rule would run each loop once in 0.01ms and snap to the end. */
+  .animatedGradient {
+    animation: none;
+    background-position: 50% 0;
+  }
+
+  .borderWrapper {
+    animation: none;
+    --angle: 135deg;
+  }
+
+  .motionOnly {
+    display: none;
+  }
+
+  .reducedOnly {
+    display: inline;
+  }
 }
 
 /* ─────────── Layered Gradients Demo ─────────── */
 
 .layeredContainer {
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 480px) {
   .layeredContainer {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 .layeredCard {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .layeredBox {
+  --pointer-x: 0.5;
+  --pointer-y: 0.5;
   height: 140px;
   border-radius: 12px;
   box-shadow: var(--stroke-weak);
@@ -260,97 +410,97 @@
 
 .layeredDescription {
   font-size: 12px;
+  line-height: 1.4;
   color: rgb(var(--text-weak));
   text-align: center;
+  text-wrap: pretty;
 }
 
-/* Mesh gradient - radials shift with mouse */
+/*
+ * Mesh: the first layer listed paints on top; the linear-gradient listed last
+ * is the bottom layer. Radials drift up to ±10% with the pointer.
+ */
 .meshGradient {
-  --offset-x: calc((var(--mouse-x) - 0.5) * 20%);
-  --offset-y: calc((var(--mouse-y) - 0.5) * 20%);
+  --offset-x: calc((var(--pointer-x) - 0.5) * 20%);
+  --offset-y: calc((var(--pointer-y) - 0.5) * 20%);
   background:
-    radial-gradient(at calc(40% + var(--offset-x)) calc(20% + var(--offset-y)), rgba(255, 107, 107, 0.8) 0px, transparent 50%),
-    radial-gradient(at calc(80% - var(--offset-x)) calc(0% + var(--offset-y)), rgba(72, 219, 251, 0.8) 0px, transparent 50%),
-    radial-gradient(at calc(0% + var(--offset-x)) calc(50% + var(--offset-y)), rgba(254, 202, 87, 0.8) 0px, transparent 50%),
-    radial-gradient(at calc(80% - var(--offset-x)) calc(50% - var(--offset-y)), rgba(255, 159, 243, 0.8) 0px, transparent 50%),
-    radial-gradient(at calc(0% + var(--offset-x)) calc(100% - var(--offset-y)), rgba(72, 219, 251, 0.8) 0px, transparent 50%),
-    radial-gradient(at calc(80% - var(--offset-x)) calc(100% - var(--offset-y)), rgba(255, 107, 107, 0.8) 0px, transparent 50%),
+    radial-gradient(at calc(40% + var(--offset-x)) calc(20% + var(--offset-y)), rgb(255 107 107 / 0.8) 0px, transparent 50%),
+    radial-gradient(at calc(80% - var(--offset-x)) calc(0% + var(--offset-y)), rgb(72 219 251 / 0.8) 0px, transparent 50%),
+    radial-gradient(at calc(0% + var(--offset-x)) calc(50% + var(--offset-y)), rgb(254 202 87 / 0.8) 0px, transparent 50%),
+    radial-gradient(at calc(80% - var(--offset-x)) calc(50% - var(--offset-y)), rgb(255 159 243 / 0.8) 0px, transparent 50%),
+    radial-gradient(at calc(0% + var(--offset-x)) calc(100% - var(--offset-y)), rgb(72 219 251 / 0.8) 0px, transparent 50%),
+    radial-gradient(at calc(80% - var(--offset-x)) calc(100% - var(--offset-y)), rgb(255 107 107 / 0.8) 0px, transparent 50%),
     linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
 }
 
-/* Striped overlay - angle follows mouse */
+/* Stripes: 10px clear / 10px white-12% bands on top of a linear gradient. */
 .stripedOverlay {
   background:
     repeating-linear-gradient(
-      calc(45deg + (var(--mouse-x) - 0.5) * 90deg),
-      transparent,
-      transparent 10px,
-      rgba(255, 255, 255, 0.05) 10px,
-      rgba(255, 255, 255, 0.05) 20px
+      calc(45deg + (var(--pointer-x) - 0.5) * 90deg),
+      transparent 0 10px,
+      rgb(255 255 255 / 0.12) 10px 20px
     ),
-    linear-gradient(
-      calc(135deg + (var(--mouse-y) - 0.5) * 60deg),
-      #6366f1,
-      #ef4444
-    );
+    linear-gradient(calc(135deg + (var(--pointer-y) - 0.5) * 60deg), #6366f1, #ef4444);
 }
 
-/* Noise texture - more dramatic mouse effect */
+/* Noise: SVG feTurbulence grain blended over a 200%-sized gradient. */
 .noiseTexture {
   position: relative;
   background: linear-gradient(
-    calc(135deg + (var(--mouse-x) - 0.5) * 60deg),
+    calc(135deg + (var(--pointer-x) - 0.5) * 60deg),
     #667eea 0%,
     #764ba2 50%,
     #f093fb 100%
   );
   background-size: 200% 200%;
-  background-position: calc(var(--mouse-x) * 100%) calc(var(--mouse-y) * 100%);
-  transform: scale(calc(1 + (var(--mouse-y) - 0.5) * 0.05));
+  background-position: calc(var(--pointer-x) * 100%) calc(var(--pointer-y) * 100%);
 }
 
 .noiseTexture::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 12px;
+  border-radius: inherit;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   opacity: 0.2;
   mix-blend-mode: overlay;
+  pointer-events: none;
 }
 
-/* Glass effect - refined Apple-style */
-.glassEffect {
+/*
+ * Glass: backdrop-filter only blurs what is behind the element, so the tile
+ * paints crisp, hard-edged discs and stripes for the panel to frost.
+ */
+.glassScene {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 22% 30%, #ff6b6b 0 26px, transparent 27px),
+    radial-gradient(circle at 78% 72%, #48dbfb 0 32px, transparent 33px),
+    radial-gradient(circle at 60% 18%, #feca57 0 18px, transparent 19px),
+    repeating-linear-gradient(-45deg, rgb(255 255 255 / 0.1) 0 6px, transparent 6px 16px),
+    linear-gradient(135deg, #3b2f7a, #16213e);
+}
+
+.glassPanel {
+  width: 64%;
+  padding: var(--space-4) var(--space-3);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.14);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 4px 24px rgba(0, 0, 0, 0.1);
+    inset 0 0 0 1px rgb(255 255 255 / 0.25),
+    0 8px 24px rgb(0 0 0 / 0.25);
+  text-align: center;
 }
 
-/* Subtle highlight follows cursor */
-.glassEffect::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle 120px at calc(var(--mouse-x) * 100%) calc(var(--mouse-y) * 100%),
-    rgba(255, 255, 255, 0.12) 0%,
-    transparent 100%
-  );
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.glassEffect:hover::before {
-  opacity: 1;
+.glassText {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
 }

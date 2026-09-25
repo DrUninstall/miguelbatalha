@@ -1,34 +1,49 @@
-.marquee {
-  position: relative;
+.root {
   display: flex;
-  overflow: hidden;
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 10%,
-    black 90%,
-    transparent
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 10%,
-    black 90%,
-    transparent
-  );
-  gap: 0;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
-.pauseOnHover:hover .track {
-  animation-play-state: paused;
+.viewport {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
 .track {
   display: flex;
   flex-shrink: 0;
-  gap: 0;
   animation: scroll linear infinite;
-  will-change: transform;
+}
+
+.group {
+  display: flex;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Pause: the explicit toggle, hovering the moving strip, or focus inside the strip.
+   (Scoped to .viewport so hovering/focusing the toggle itself doesn't mask "Play".) */
+.paused .track,
+.viewport:focus-within .track {
+  animation-play-state: paused;
+}
+
+/* Only real hover; on touch screens :hover sticks after a tap. */
+@media (hover: hover) {
+  .pauseOnHover .viewport:hover .track {
+    animation-play-state: paused;
+  }
+
+  .pauseOnHover .viewport:hover .item {
+    color: rgb(var(--text-strong));
+  }
 }
 
 .item {
@@ -40,7 +55,6 @@
   font-weight: 500;
   color: rgb(var(--text-weak));
   transition: color 0.15s;
-  position: relative;
 }
 
 .item::after {
@@ -55,7 +69,26 @@
   opacity: 0.4;
 }
 
-.pauseOnHover:hover .item {
+.paused .item {
+  color: rgb(var(--text-strong));
+}
+
+.toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgb(var(--fill-weak));
+  box-shadow: var(--stroke-weak);
+  color: rgb(var(--icon-neutral));
+  cursor: pointer;
+}
+
+.toggle:hover {
   color: rgb(var(--text-strong));
 }
 
@@ -65,5 +98,43 @@
   }
   to {
     transform: translateX(-50%);
+  }
+}
+
+/*
+ * Reduced motion: no scrolling at all. Show the list once, wrapped and centred,
+ * so it reads as a deliberate static tag row rather than a frozen, clipped ticker.
+ * The pause toggle has nothing to control, so it is hidden.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .viewport {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .track {
+    animation: none;
+    flex-shrink: 1;
+    width: 100%;
+  }
+
+  .group {
+    flex-shrink: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .duplicate,
+  .toggle {
+    display: none;
+  }
+
+  .item {
+    padding: 4px 12px;
+  }
+
+  .item::after {
+    margin-left: 12px;
   }
 }

@@ -61,7 +61,7 @@
 
 .toggleButton {
   position: relative;
-  z-index: 10;
+  isolation: isolate;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -83,21 +83,30 @@
   color: rgb(var(--text-weak));
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .toggleButton.inactive:hover {
+    color: rgb(var(--text-strong));
+  }
+}
+
 .toggleIcon {
+  position: relative;
   width: 14px;
   height: 14px;
 }
 
-.slidingBackground {
+.toggleLabel {
+  position: relative;
+}
+
+/* Rendered inside the active button; framer's layoutId moves it between
+   buttons with transforms (border-radius is set inline so it's scale-corrected) */
+.highlight {
   position: absolute;
-  top: 4px;
-  height: calc(100% - 8px);
+  inset: 0;
+  z-index: -1;
   background: rgb(var(--background-base));
-  border-radius: 6px;
-  border: none;
   box-shadow: var(--stroke-weak), var(--elevation-raised);
-  transition: left var(--duration-normal) var(--ease-out-cubic),
-              width var(--duration-normal) var(--ease-out-cubic);
 }
 
 /* Placeholder until the theme is known, so the header doesn't shift */

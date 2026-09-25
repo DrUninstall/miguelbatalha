@@ -1,9 +1,11 @@
 .container {
+  container-type: inline-size;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 280px;
-  padding: 32px;
+  padding: 32px 0;
 }
 
 /* Collapsed State */
@@ -14,16 +16,22 @@
   gap: 16px;
 }
 
+/* A one-cell grid: the avatar and all four cards occupy the same cell,
+   centred, and z-index decides the paint order. */
 .stackContainer {
-  position: relative;
+  display: grid;
+  place-items: center;
   width: 120px;
   height: 120px;
+  border-radius: 16px;
   cursor: pointer;
   background: transparent;
   border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  touch-action: manipulation;
+}
+
+.stackContainer > * {
+  grid-area: 1 / 1;
 }
 
 .avatarWrapper {
@@ -38,11 +46,7 @@
 }
 
 .stackedImage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -32px;
-  margin-left: -32px;
+  position: relative;
 }
 
 .collectionInfo {
@@ -94,8 +98,9 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  will-change: transform;
   padding: 24px 0;
+  /* Let a horizontal finger drag drive the dock; vertical still scrolls. */
+  touch-action: pan-y;
 }
 
 /* Shared image styles */
@@ -106,17 +111,37 @@
   flex-shrink: 0;
 }
 
+.stackImage {
+  width: 64px;
+  height: 64px;
+}
+
+.dockImage {
+  width: 72px;
+  height: 72px;
+}
+
+/* Narrow stages (phones): smaller dock so magnified items stay in bounds. */
+@container (max-width: 400px) {
+  .dockImage {
+    width: 52px;
+    height: 52px;
+  }
+}
+
 .image {
   display: block;
   width: 100%;
   height: 100%;
 }
 
+/* --stroke-color-weak is already themed: a dark-navy hairline in light mode,
+   a white one on .dark. */
 .insetBorder {
   position: absolute;
   inset: 0;
   border-radius: 12px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 0 0 1px rgb(var(--stroke-color-weak));
   pointer-events: none;
 }
 
@@ -125,8 +150,7 @@
   border-radius: 50%;
 }
 
-/* View All button */
-.viewAllButton {
+.collapseButton {
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
@@ -141,10 +165,10 @@
   transition: background var(--duration-fast) var(--ease-out-cubic);
 }
 
-.viewAllButton:hover {
+.collapseButton:hover {
   background: rgb(var(--fill-brand-strong) / 0.9);
 }
 
-.viewAllButton:active {
+.collapseButton:active {
   background: rgb(var(--fill-brand-strong) / 0.8);
 }

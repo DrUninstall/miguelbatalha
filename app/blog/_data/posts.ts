@@ -9,75 +9,51 @@ export interface BlogPost {
 export const blogPosts: BlogPost[] = [
   {
     slug: "motion-foundations",
-    title: "Motion Foundations",
+    title: "Transform, Opacity, and the Exceptions",
     description:
-      "The building blocks of animation on the web — orbits, flips, reveals, and the GPU tricks that make them smooth.",
-    date: "2025-02-28",
+      "Why the one rule of web animation works, a 3D coin and orbit that stay on the cheap path, and the one place I break it on purpose.",
+    date: "2026-09-25",
     tags: ["animation", "performance", "css"],
   },
   {
-    slug: "layout-animations",
-    title: "Shared Layout Animations",
+    slug: "springs-and-gestures",
+    title: "Springs, Velocity, and Letting Go",
     description:
-      "How Framer Motion's layout animations create fluid transitions between completely different UI states.",
-    date: "2025-02-21",
+      "What a spring gives you that a duration can't: a carousel that keeps your fling, a meter that reacts, and a dialog that resizes to fit.",
+    date: "2026-09-25",
+    tags: ["animation", "interaction", "framer-motion"],
+  },
+  {
+    slug: "layout-animations",
+    title: "Animating Between Layouts",
+    description:
+      "How layout and layoutId animations work, what they cost, and the details that make a tab bar, a reorder and a card-to-dialog feel continuous.",
+    date: "2026-09-25",
     tags: ["framer-motion", "animation", "react"],
   },
   {
-    slug: "interactive-buttons",
-    title: "Crafting Buttons That Feel Alive",
+    slug: "designing-for-the-pointer",
+    title: "Designing for the Pointer",
     description:
-      "Sparkles, orbits, morphing pills, and hold-to-confirm — making the most clicked element on the web worth clicking.",
-    date: "2025-02-14",
-    tags: ["interaction", "animation", "ux"],
+      "Cursor-driven effects from someone who works on an aim trainer, and what each one does when there's no cursor at all.",
+    date: "2026-09-25",
+    tags: ["interaction", "input", "accessibility"],
   },
   {
     slug: "css-gradients",
-    title: "The Art of CSS Gradients",
+    title: "CSS Gradients, Revisited",
     description:
-      "Linear, radial, conic. Color spaces, animation, layering. Everything I've learned about making gradients that don't look like 2012.",
-    date: "2025-02-07",
-    tags: ["css", "visual-design", "animation"],
+      "Colour-space interpolation, animated borders with @property, and layered backgrounds, with demos that show the difference.",
+    date: "2026-09-25",
+    tags: ["css", "color", "visual-design"],
   },
   {
-    slug: "cursor-interactions",
-    title: "Cursor-Driven Interfaces",
+    slug: "the-boring-components",
+    title: "The Boring Components",
     description:
-      "Mouse-follow patterns, magnified docks, card reveals, and infinite marquees — designing for the pointer.",
-    date: "2025-01-31",
-    tags: ["interaction", "animation", "ux"],
-  },
-  {
-    slug: "animated-icons",
-    title: "Building Animated Icons",
-    description:
-      "Twelve icons that transition between states with purpose. Hearts, spinners, toggles — each with a different animation strategy.",
-    date: "2025-01-24",
-    tags: ["icons", "animation", "svg"],
-  },
-  {
-    slug: "drag-and-spring-physics",
-    title: "Drag, Swipe & Spring Physics",
-    description:
-      "Carousels that snap, passwords that pulse, dialogs that resize — building interfaces that respond to force.",
-    date: "2025-01-17",
-    tags: ["physics", "interaction", "framer-motion"],
-  },
-  {
-    slug: "design-system",
-    title: "Building a Design System",
-    description:
-      "Buttons, inputs, toggles, tabs, accordions, and stages — the unsexy components that make everything else work.",
-    date: "2025-01-10",
-    tags: ["design-system", "components", "architecture"],
-  },
-  {
-    slug: "theming-and-polish",
-    title: "Dark Mode, Toasts & the Details",
-    description:
-      "Theme switching with view transitions, toast notifications, virtualized lists, and the small things that separate good from great.",
-    date: "2025-01-03",
-    tags: ["theming", "polish", "ux"],
+      "Buttons, inputs, switches, tabs, toasts and icons: the parts that ship in every feature, and the details that make them hold up.",
+    date: "2026-09-25",
+    tags: ["design-system", "components", "accessibility"],
   },
 ];
 

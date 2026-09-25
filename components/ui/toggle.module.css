@@ -8,24 +8,27 @@
   font-size: 14px;
   font-weight: 500;
   color: rgb(var(--text-strong));
+  cursor: pointer;
+  user-select: none;
 }
 
 .labelDisabled {
   color: rgb(var(--text-disabled));
+  cursor: not-allowed;
 }
 
 .track {
   position: relative;
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   border-radius: 9999px;
-  transition: background-color 200ms ease, border-color 200ms ease, opacity 200ms ease;
+  transition:
+    background-color 200ms ease,
+    box-shadow 200ms ease,
+    opacity 200ms ease,
+    transform 150ms var(--ease-out-cubic);
   cursor: pointer;
-}
-
-.track:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgb(var(--fill-brand-strong) / 0.2);
 }
 
 .track:hover:not(:disabled) {
@@ -52,22 +55,27 @@
   height: 20px;
 }
 
-/* States */
+/*
+ * States. The unchecked fill is --icon-neutral, a mid grey that clears 3:1
+ * against the page in both themes, so the track's boundary is visible
+ * without relying on the hairline. The hairline is a box-shadow token.
+ */
 .trackUnchecked {
-  background: rgb(var(--fill-weaker));
-  border: 1px solid rgb(var(--stroke-weak));
+  background: rgb(var(--icon-neutral));
+  box-shadow: var(--stroke-weak);
 }
 
 .trackChecked {
   background: rgb(var(--fill-brand-strong));
-  border: 1px solid rgb(var(--fill-brand-strong));
+  box-shadow: none;
 }
 
-/* Thumb */
+/* Thumb: white in both themes, lifted with the raised elevation. */
 .thumb {
   display: inline-block;
   border-radius: 9999px;
-  box-shadow: var(--elevation-raised);
+  background: rgb(255 255 255);
+  box-shadow: var(--elevation-raised), 0 0 0 0.5px rgb(0 0 0 / 0.06);
 }
 
 .thumbMedium {
@@ -78,12 +86,4 @@
 .thumbSmall {
   width: 16px;
   height: 16px;
-}
-
-.thumbUnchecked {
-  background: rgb(var(--text-strong));
-}
-
-.thumbChecked {
-  background: rgb(var(--text-inverse-strong));
 }

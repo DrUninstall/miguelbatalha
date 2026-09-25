@@ -1,7 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { CheckCircle, XCircle, Info, Loader2 } from "lucide-react";
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useCallback,
+  useSyncExternalStore,
+} from "react";
+import { CheckCircle, XCircle, Info, Loader2, X } from "lucide-react";
 import styles from "./toast.module.css";
 
 type ToastType = "success" | "error" | "info" | "loading";
@@ -10,87 +17,126 @@ interface ToastData {
   id: string;
   type: ToastType;
   message: string;
+  /** True for the EXIT_MS window between dismissal and removal from the DOM */
+  removing: boolean;
 }
 
-// ============================================
-// Observer Pattern Store (Context-Free API)
-// ============================================
-type Subscriber = (toasts: ToastData[]) => void;
+// Auto-dismiss durations (ms). Loading toasts stay until updated or dismissed.
+const DEFAULT_DURATION: Record<ToastType, number> = {
+  success: 4000,
+  info: 4000,
+  error: 6000,
+  loading: Infinity,
+};
+const EXIT_MS = 200; // matches the exit transition in toast.module.css
+const VISIBLE_TOASTS = 3; // collapsed stack shows the newest three
+const STACK_PEEK = 8; // px each older toast peeks out above the one in front
+const STACK_SCALE_STEP = 0.05; // each older toast is 5% smaller
+const GAP = 12; // px between toasts when the stack is expanded
 
+// ============================================
+// Store (context-free, read with useSyncExternalStore)
+// ============================================
 let toasts: ToastData[] = [];
-const subscribers = new Set<Subscriber>();
+const listeners = new Set<() => void>();
 let toastId = 0;
 
-function generateId() {
-  return `toast-${++toastId}`;
+function emit() {
+  listeners.forEach((listener) => listener());
 }
 
-function notify() {
-  subscribers.forEach((sub) => sub([...toasts]));
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
 }
 
-function addToast(type: ToastType, message: string, duration = 3000): string {
-  const id = generateId();
-  toasts = [...toasts, { id, type, message }];
-  notify();
+const EMPTY: ToastData[] = [];
+const getSnapshot = () => toasts;
+const getServerSnapshot = () => EMPTY;
 
-  if (type !== "loading" && duration > 0) {
-    scheduleRemoval(id, duration);
-  }
-
+function addToast(type: ToastType, message: string, duration?: number): string {
+  const id = `toast-${++toastId}`;
+  toasts = [...toasts, { id, type, message, removing: false }];
+  emit();
+  scheduleRemoval(id, duration ?? DEFAULT_DURATION[type]);
   return id;
 }
 
-function removeToast(id: string) {
-  toasts = toasts.filter((t) => t.id !== id);
-  notify();
-}
-
-function updateToast(id: string, data: Partial<Omit<ToastData, "id">>) {
+function updateToast(id: string, data: Partial<Pick<ToastData, "type" | "message">>) {
+  if (!toasts.some((t) => t.id === id && !t.removing)) return;
   toasts = toasts.map((t) => (t.id === id ? { ...t, ...data } : t));
-  notify();
+  emit();
 }
 
-// Timer management with visibility pause
-const timers = new Map<string, { timeout: ReturnType<typeof setTimeout>; remaining: number; start: number }>();
+// Dismissal is two-step: flag the toast so its exit transition plays, then
+// drop it from the list once the transition has finished.
+function dismissToast(id: string) {
+  clearTimer(id);
+  if (!toasts.some((t) => t.id === id && !t.removing)) return;
+  toasts = toasts.map((t) => (t.id === id ? { ...t, removing: true } : t));
+  emit();
+  setTimeout(() => {
+    toasts = toasts.filter((t) => t.id !== id);
+    emit();
+  }, EXIT_MS);
+}
+
+// ============================================
+// Pausable timers
+// ============================================
+interface Timer {
+  remaining: number;
+  start: number;
+  timeout: ReturnType<typeof setTimeout> | null;
+}
+
+const timers = new Map<string, Timer>();
+// Timers run only while this set is empty ("hidden" tab, "interaction" hover/focus).
+const pauseReasons = new Set<string>();
+
+function startTimer(id: string, timer: Timer) {
+  timer.start = Date.now();
+  timer.timeout = setTimeout(() => dismissToast(id), timer.remaining);
+}
+
+function clearTimer(id: string) {
+  const timer = timers.get(id);
+  if (timer?.timeout) clearTimeout(timer.timeout);
+  timers.delete(id);
+}
 
 function scheduleRemoval(id: string, duration: number) {
-  const start = Date.now();
-  const timeout = setTimeout(() => {
-    timers.delete(id);
-    removeToast(id);
-  }, duration);
-  timers.set(id, { timeout, remaining: duration, start });
+  clearTimer(id);
+  if (!Number.isFinite(duration) || duration <= 0) return; // persistent
+  const timer: Timer = { remaining: duration, start: 0, timeout: null };
+  timers.set(id, timer);
+  if (pauseReasons.size === 0) startTimer(id, timer);
 }
 
-function pauseAllTimers() {
-  timers.forEach((timer, id) => {
-    clearTimeout(timer.timeout);
-    const elapsed = Date.now() - timer.start;
-    timer.remaining = Math.max(0, timer.remaining - elapsed);
-  });
-}
+function setPaused(reason: string, paused: boolean) {
+  const wasPaused = pauseReasons.size > 0;
+  if (paused) pauseReasons.add(reason);
+  else pauseReasons.delete(reason);
+  const isPaused = pauseReasons.size > 0;
+  if (wasPaused === isPaused) return;
 
-function resumeAllTimers() {
   timers.forEach((timer, id) => {
-    if (timer.remaining > 0) {
-      timer.start = Date.now();
-      timer.timeout = setTimeout(() => {
-        timers.delete(id);
-        removeToast(id);
-      }, timer.remaining);
+    if (isPaused) {
+      if (!timer.timeout) return;
+      clearTimeout(timer.timeout);
+      timer.timeout = null;
+      timer.remaining = Math.max(0, timer.remaining - (Date.now() - timer.start));
+    } else {
+      startTimer(id, timer);
     }
   });
 }
 
-// Set up visibility change listener once
 if (typeof document !== "undefined") {
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      pauseAllTimers();
-    } else {
-      resumeAllTimers();
-    }
+    setPaused("hidden", document.hidden);
   });
 }
 
@@ -105,26 +151,26 @@ export const toast = Object.assign(
     success: (message: string, duration?: number) => addToast("success", message, duration),
     error: (message: string, duration?: number) => addToast("error", message, duration),
     info: (message: string, duration?: number) => addToast("info", message, duration),
-    loading: (message: string) => addToast("loading", message, 0),
-    dismiss: (id: string) => removeToast(id),
+    loading: (message: string) => addToast("loading", message),
+    dismiss: (id: string) => dismissToast(id),
     promise: <T,>(
       promise: Promise<T>,
       messages: { loading: string; success: string | ((data: T) => string); error: string | ((err: unknown) => string) }
     ): Promise<T> => {
-      const id = addToast("loading", messages.loading, 0);
+      const id = addToast("loading", messages.loading);
 
-      promise
-        .then((data) => {
+      promise.then(
+        (data) => {
           const msg = typeof messages.success === "function" ? messages.success(data) : messages.success;
           updateToast(id, { type: "success", message: msg });
-          scheduleRemoval(id, 3000);
-          return data;
-        })
-        .catch((err) => {
+          scheduleRemoval(id, DEFAULT_DURATION.success);
+        },
+        (err) => {
           const msg = typeof messages.error === "function" ? messages.error(err) : messages.error;
           updateToast(id, { type: "error", message: msg });
-          scheduleRemoval(id, 3000);
-        });
+          scheduleRemoval(id, DEFAULT_DURATION.error);
+        }
+      );
 
       return promise;
     },
@@ -141,138 +187,132 @@ export function useToast() {
 // ============================================
 // Toast Component
 // ============================================
+const ICONS: Record<ToastType, React.ReactNode> = {
+  success: <CheckCircle className={`${styles.icon} ${styles.iconSuccess}`} aria-hidden="true" />,
+  error: <XCircle className={`${styles.icon} ${styles.iconError}`} aria-hidden="true" />,
+  info: <Info className={`${styles.icon} ${styles.iconInfo}`} aria-hidden="true" />,
+  loading: <Loader2 className={`${styles.icon} ${styles.iconLoading}`} aria-hidden="true" />,
+};
+
+interface ToastLayout {
+  index: number; // 0 = newest (front)
+  y: number; // px, negative = up
+  scale: number;
+  hidden: boolean;
+}
+
 function Toast({
-  index,
   data,
-  totalCount,
-  isHovered,
-  onRemove,
+  layout,
+  onHeight,
+  onDismiss,
+  onTap,
 }: {
-  index: number;
   data: ToastData;
-  totalCount: number;
-  isHovered: boolean;
-  onRemove: (id: string) => void;
+  layout: ToastLayout;
+  onHeight: (id: string, height: number | null) => void;
+  onDismiss: (id: string, viaKeyboard: boolean) => void;
+  onTap: () => void;
 }) {
-  const [mounted, setMounted] = useState(false);
-  const [removing, setRemoving] = useState(false);
-  const toastRef = useRef<HTMLDivElement>(null);
-  const dragState = useRef<{
-    startX: number;
-    startY: number;
-    startTime: number;
-    currentX: number;
-  } | null>(null);
+  const toastRef = useRef<HTMLLIElement>(null);
+  const dragState = useRef<{ startX: number; startY: number; startTime: number; currentX: number } | null>(null);
 
-  useEffect(() => {
-    // Trigger enter animation on next frame
-    requestAnimationFrame(() => setMounted(true));
-  }, []);
-
-  const handleRemove = useCallback(() => {
-    setRemoving(true);
-    // Wait for exit animation
-    setTimeout(() => onRemove(data.id), 200);
-  }, [data.id, onRemove]);
-
-  // Swipe-to-dismiss handlers
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (data.type === "loading") return;
+  // Report our height so the expanded stack can offset toasts of different heights.
+  useLayoutEffect(() => {
     const el = toastRef.current;
     if (!el) return;
-
-    el.setPointerCapture(e.pointerId);
-    dragState.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      startTime: Date.now(),
-      currentX: 0,
+    const observer = new ResizeObserver(() => onHeight(data.id, el.offsetHeight));
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      onHeight(data.id, null);
     };
+  }, [data.id, onHeight]);
+
+  const canSwipe = data.type !== "loading" && !data.removing;
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLLIElement>) => {
+    if (!canSwipe || e.button !== 0) return;
+    if ((e.target as HTMLElement).closest("button")) return; // let the dismiss button click
+    const el = e.currentTarget;
+    el.setPointerCapture(e.pointerId);
+    dragState.current = { startX: e.clientX, startY: e.clientY, startTime: Date.now(), currentX: 0 };
     el.style.transition = "none";
-  }, [data.type]);
+  };
 
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!dragState.current || !toastRef.current) return;
-
+  const handlePointerMove = (e: React.PointerEvent<HTMLLIElement>) => {
+    if (!dragState.current) return;
     const deltaX = e.clientX - dragState.current.startX;
     const deltaY = e.clientY - dragState.current.startY;
-
-    // Apply friction for upward movement (negative deltaY)
-    let adjustedX = deltaX;
-    if (deltaY < 0) {
-      adjustedX = deltaX * 0.3; // Friction
-    }
-
+    // Dragging up-and-sideways gets friction so a vertical scroll doesn't dismiss
+    const adjustedX = deltaY < 0 ? deltaX * 0.3 : deltaX;
     dragState.current.currentX = adjustedX;
-    toastRef.current.style.transform = `translateX(calc(-50% + ${adjustedX}px))`;
-    toastRef.current.style.opacity = `${1 - Math.abs(adjustedX) / 200}`;
-  }, []);
+    e.currentTarget.style.setProperty("--swipe-x", `${adjustedX}px`);
+    e.currentTarget.style.opacity = `${Math.max(0, 1 - Math.abs(adjustedX) / 200)}`;
+  };
 
-  const handlePointerUp = useCallback((e: React.PointerEvent) => {
-    if (!dragState.current || !toastRef.current) return;
-
-    const el = toastRef.current;
-    el.releasePointerCapture(e.pointerId);
+  const endDrag = (e: React.PointerEvent<HTMLLIElement>, cancelled: boolean) => {
+    if (!dragState.current) return;
+    const el = e.currentTarget;
+    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
     el.style.transition = "";
 
     const deltaX = dragState.current.currentX;
-    const elapsed = Date.now() - dragState.current.startTime;
-    const velocity = Math.abs(deltaX) / elapsed;
-
-    // Dismiss if velocity is high enough or dragged far enough
-    if (velocity > 0.5 || Math.abs(deltaX) > 100) {
-      const direction = deltaX > 0 ? 1 : -1;
-      el.style.transform = `translateX(calc(-50% + ${direction * 300}px))`;
-      el.style.opacity = "0";
-      handleRemove();
-    } else {
-      // Snap back
-      el.style.transform = "";
-      el.style.opacity = "";
-    }
-
+    const elapsed = Math.max(1, Date.now() - dragState.current.startTime);
+    const velocity = Math.abs(deltaX) / elapsed; // px per ms
     dragState.current = null;
-  }, [handleRemove]);
 
-  const getIcon = (type: ToastType) => {
-    switch (type) {
-      case "success":
-        return <CheckCircle className={`${styles.icon} ${styles.iconSuccess}`} />;
-      case "error":
-        return <XCircle className={`${styles.icon} ${styles.iconError}`} />;
-      case "info":
-        return <Info className={`${styles.icon} ${styles.iconInfo}`} />;
-      case "loading":
-        return <Loader2 className={`${styles.icon} ${styles.iconLoading}`} />;
+    if (!cancelled && (velocity > 0.5 || Math.abs(deltaX) > 100)) {
+      el.dataset.swiped = "true";
+      el.style.setProperty("--swipe-x", `${deltaX > 0 ? 100 : -100}%`);
+      el.style.opacity = "0";
+      onDismiss(data.id, false);
+      return;
     }
+
+    el.style.removeProperty("--swipe-x");
+    el.style.opacity = "";
+    // A tap (no real drag) on touch toggles the expanded stack
+    if (!cancelled && Math.abs(deltaX) < 5 && e.pointerType !== "mouse") onTap();
   };
 
-  // Calculate visual index (reverse order - newest at bottom)
-  const visualIndex = totalCount - 1 - index;
-
   return (
-    <div
+    <li
       ref={toastRef}
       className={styles.toast}
       style={
         {
-          "--index": visualIndex,
-          "--scale": isHovered ? 1 : 1 - visualIndex * 0.05,
-          "--y-offset": isHovered ? visualIndex : 0,
+          "--y": `${layout.y}px`,
+          "--scale": layout.scale,
         } as React.CSSProperties
       }
-      data-mounted={mounted}
-      data-removing={removing}
-      data-hovered={isHovered}
-      role="alert"
-      aria-live="polite"
+      data-front={layout.index === 0}
+      data-hidden={layout.hidden}
+      data-removing={data.removing}
+      data-toast
+      inert={data.removing || layout.hidden}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
+      onPointerUp={(e) => endDrag(e, false)}
+      onPointerCancel={(e) => endDrag(e, true)}
     >
-      {getIcon(data.type)}
-      <span className={styles.message}>{data.message}</span>
-    </div>
+      {ICONS[data.type]}
+      <span className={styles.message}>
+        {data.type === "error" && <span className={styles.srOnly}>Error: </span>}
+        {data.message}
+      </span>
+      {data.type !== "loading" && (
+        <button
+          type="button"
+          className={styles.dismiss}
+          aria-label="Dismiss notification"
+          data-dismiss={data.id}
+          onClick={(e) => onDismiss(data.id, e.detail === 0)}
+        >
+          <X aria-hidden="true" className={styles.dismissIcon} />
+        </button>
+      )}
+    </li>
   );
 }
 
@@ -280,52 +320,118 @@ function Toast({
 // Toaster Container
 // ============================================
 export function Toaster({ children }: { children?: React.ReactNode }) {
-  const [toastList, setToastList] = useState<ToastData[]>([]);
-  const [isHovered, setIsHovered] = useState(false);
+  const toastList = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [heights, setHeights] = useState<Record<string, number>>({});
+  const regionRef = useRef<HTMLDivElement>(null);
 
+  // If the last toast disappears under the pointer/focus, no leave/blur event
+  // fires; reset here so the next toast doesn't arrive expanded and paused.
+  if (toastList.length === 0 && (hovered || focused)) {
+    setHovered(false);
+    setFocused(false);
+  }
+
+  const expanded = hovered || focused;
+
+  // Pause every auto-dismiss timer while the stack is hovered or holds focus.
   useEffect(() => {
-    // Subscribe to toast store
-    const handleChange = (newToasts: ToastData[]) => {
-      setToastList(newToasts);
-    };
-    subscribers.add(handleChange);
-    // Sync initial state
-    setToastList([...toasts]);
+    setPaused("interaction", expanded);
+    return () => setPaused("interaction", false);
+  }, [expanded]);
 
-    return () => {
-      subscribers.delete(handleChange);
+  // Touch: a tap expands the stack; a tap anywhere else collapses it.
+  useEffect(() => {
+    if (!hovered) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (!regionRef.current?.contains(e.target as Node)) setHovered(false);
     };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [hovered]);
+
+  const handleHeight = useCallback((id: string, height: number | null) => {
+    setHeights((prev) => {
+      if (height === null) {
+        if (!(id in prev)) return prev;
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      }
+      return prev[id] === height ? prev : { ...prev, [id]: height };
+    });
   }, []);
 
-  const handleRemove = useCallback((id: string) => {
-    // Clear any pending timer
-    const timer = timers.get(id);
-    if (timer) {
-      clearTimeout(timer.timeout);
-      timers.delete(id);
+  const handleDismiss = useCallback((id: string, viaKeyboard: boolean) => {
+    const active = document.activeElement as HTMLElement | null;
+    if (active && regionRef.current?.contains(active)) {
+      // Keep keyboard users inside the stack: move to a neighbouring toast's
+      // dismiss button. Mouse users just lose focus (so the stack can collapse).
+      const buttons = Array.from(
+        regionRef.current.querySelectorAll<HTMLButtonElement>(
+          '[data-toast]:not([data-removing="true"]) [data-dismiss]'
+        )
+      );
+      const i = buttons.findIndex((b) => b.dataset.dismiss === id);
+      const next = viaKeyboard && i !== -1 ? buttons[i + 1] ?? buttons[i - 1] : undefined;
+      if (next) next.focus();
+      else active.blur();
     }
-    removeToast(id);
+    dismissToast(id);
   }, []);
+
+  const handleTap = useCallback(() => setHovered((h) => !h), []);
+
+  // Stack layout, newest first. Removing toasts keep their slot but don't push others.
+  const layouts = new Map<string, ToastLayout>();
+  let offset = 0;
+  let index = 0;
+  for (let i = toastList.length - 1; i >= 0; i--) {
+    const t = toastList[i];
+    layouts.set(t.id, {
+      index,
+      y: expanded ? -offset : -index * STACK_PEEK,
+      scale: expanded ? 1 : 1 - index * STACK_SCALE_STEP,
+      hidden: !expanded && index >= VISIBLE_TOASTS,
+    });
+    if (!t.removing) {
+      offset += (heights[t.id] ?? 0) + GAP;
+      index++;
+    }
+  }
 
   return (
     <>
       {children}
+      {/* One persistent polite live region: always in the DOM so additions are announced */}
       <div
+        ref={regionRef}
+        role="status"
+        aria-live="polite"
+        aria-atomic="false"
+        aria-label="Notifications"
         className={styles.toaster}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        data-expanded={expanded}
+        onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
+        onPointerLeave={(e) => e.pointerType === "mouse" && setHovered(false)}
+        onFocus={() => setFocused(true)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false);
+        }}
       >
-        {/* Gap filler pseudo-elements are handled in CSS */}
-        {toastList.map((t, i) => (
-          <Toast
-            key={t.id}
-            index={i}
-            data={t}
-            totalCount={toastList.length}
-            isHovered={isHovered}
-            onRemove={handleRemove}
-          />
-        ))}
+        <ol className={styles.list}>
+          {toastList.map((t) => (
+            <Toast
+              key={t.id}
+              data={t}
+              layout={layouts.get(t.id)!}
+              onHeight={handleHeight}
+              onDismiss={handleDismiss}
+              onTap={handleTap}
+            />
+          ))}
+        </ol>
       </div>
     </>
   );

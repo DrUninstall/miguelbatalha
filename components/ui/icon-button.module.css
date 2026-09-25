@@ -4,28 +4,23 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  border: none;
   border-radius: 8px;
-  transition: color 150ms ease, background-color 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
   cursor: pointer;
   position: relative;
-  will-change: transform;
-  outline: none;
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    opacity 150ms ease,
+    transform 150ms var(--ease-out-cubic);
 }
 
-.iconButton:focus-visible {
-  box-shadow: var(--stroke-focus);
-}
-
-.iconButton:hover:focus-visible {
-  box-shadow: var(--fill-hover-focus);
-}
-
-.iconButton:active:focus-visible {
-  box-shadow: var(--fill-press-focus);
-}
-
-.iconButton:active {
-  transform: scale(0.95);
+/* Press feedback: same single CSS mechanism as Button, a little deeper
+   because the target is smaller. */
+.iconButton:active:not(:disabled) {
+  transform: scale(0.94);
 }
 
 .iconButton:disabled {
@@ -34,104 +29,90 @@
   background: rgb(var(--fill-disabled));
 }
 
-/* Size variants - square buttons */
+/* Sizes: square, 4px grid. The icon (any child svg) fills the padding box. */
+.iconButton > svg {
+  width: 100%;
+  height: 100%;
+}
+
 .small {
   width: 32px;
   height: 32px;
   padding: 8px;
-  font-size: 14px;
 }
 
 .medium {
   width: 36px;
   height: 36px;
   padding: 8px;
-  font-size: 16px;
 }
 
 .large {
   width: 40px;
   height: 40px;
-  padding: 10px;
-  font-size: 18px;
+  padding: 8px;
 }
 
-/* Primary variants */
+/*
+ * Variants. Hover and press darken the surface with an inset box-shadow
+ * (--fill-hover / --fill-press), so they never change the button's size.
+ * Hairline borders are box-shadow tokens too (--stroke-*), so a stroked
+ * variant lists its stroke first and the hover/press fill second.
+ */
+
+/* Primary */
 .primaryBrand {
   background: rgb(var(--fill-brand-strong));
   color: rgb(var(--text-inverse-strong));
-  border: none;
-}
-
-.primaryBrand:hover {
-  box-shadow: var(--fill-hover);
-}
-
-.primaryBrand:active {
-  box-shadow: var(--fill-press);
 }
 
 .primaryNeutral {
   background: rgb(var(--fill-strong));
   color: rgb(var(--text-inverse-strong));
-  border: none;
-}
-
-.primaryNeutral:hover {
-  box-shadow: var(--fill-hover);
-}
-
-.primaryNeutral:active {
-  box-shadow: var(--fill-press);
 }
 
 .primaryDestructive {
   background: rgb(var(--fill-error-strong));
   color: rgb(var(--text-inverse-strong));
-  border: none;
-}
-
-.primaryDestructive:hover {
-  box-shadow: var(--fill-hover);
-}
-
-.primaryDestructive:active {
-  box-shadow: var(--fill-press);
 }
 
 .primaryInverse {
   background: rgb(var(--fill-inverse-strong));
   color: rgb(var(--text-inverse-strong));
-  border: none;
 }
 
+.primaryBrand:hover,
+.primaryNeutral:hover,
+.primaryDestructive:hover,
 .primaryInverse:hover {
   box-shadow: var(--fill-hover);
 }
 
+.primaryBrand:active,
+.primaryNeutral:active,
+.primaryDestructive:active,
 .primaryInverse:active {
   box-shadow: var(--fill-press);
 }
 
-/* Secondary variants */
+/* Secondary */
 .secondaryBrand {
   background: rgb(var(--fill-brand-weak));
   color: rgb(var(--text-brand));
-  border: 1px solid rgb(var(--stroke-brand-weak));
+  box-shadow: var(--stroke-brand-weak);
 }
 
 .secondaryBrand:hover {
-  box-shadow: var(--fill-hover);
+  box-shadow: var(--stroke-brand-weak), var(--fill-hover);
 }
 
 .secondaryBrand:active {
-  box-shadow: var(--fill-press);
+  box-shadow: var(--stroke-brand-weak), var(--fill-press);
 }
 
 .secondaryNeutral {
   background: rgb(var(--fill-weak));
   color: rgb(var(--text-strong));
-  border: none;
   box-shadow: var(--stroke-weak);
 }
 
@@ -146,85 +127,66 @@
 .secondaryDestructive {
   background: rgb(var(--fill-error-weak));
   color: rgb(var(--text-error));
-  border: 1px solid rgb(var(--stroke-error-weak));
+  box-shadow: var(--stroke-error-weak);
 }
 
 .secondaryDestructive:hover {
-  box-shadow: var(--fill-hover);
+  box-shadow: var(--stroke-error-weak), var(--fill-hover);
 }
 
 .secondaryDestructive:active {
-  box-shadow: var(--fill-press);
+  box-shadow: var(--stroke-error-weak), var(--fill-press);
 }
 
 .secondaryInverse {
   background: rgb(var(--fill-inverse-weak));
   color: rgb(var(--text-inverse-strong));
-  border: 1px solid rgb(var(--stroke-inverse-weak));
+  box-shadow: var(--stroke-inverse-weak);
 }
 
 .secondaryInverse:hover {
-  box-shadow: var(--fill-hover);
+  box-shadow: var(--stroke-inverse-weak), var(--fill-hover);
 }
 
 .secondaryInverse:active {
-  box-shadow: var(--fill-press);
+  box-shadow: var(--stroke-inverse-weak), var(--fill-press);
 }
 
-/* Tertiary variants */
+/* Tertiary */
 .tertiaryBrand {
   background: transparent;
   color: rgb(var(--text-brand));
-  border: 1px solid transparent;
-}
-
-.tertiaryBrand:hover {
-  box-shadow: var(--fill-hover);
-}
-
-.tertiaryBrand:active {
-  box-shadow: var(--fill-press);
 }
 
 .tertiaryNeutral {
   background: transparent;
   color: rgb(var(--text-weak));
-  border: 1px solid transparent;
 }
 
 .tertiaryNeutral:hover {
   color: rgb(var(--text-strong));
-  box-shadow: var(--fill-hover);
-}
-
-.tertiaryNeutral:active {
-  box-shadow: var(--fill-press);
 }
 
 .tertiaryDestructive {
   background: transparent;
   color: rgb(var(--text-error));
-  border: 1px solid transparent;
-}
-
-.tertiaryDestructive:hover {
-  box-shadow: var(--fill-hover);
-}
-
-.tertiaryDestructive:active {
-  box-shadow: var(--fill-press);
 }
 
 .tertiaryInverse {
   background: transparent;
   color: rgb(var(--text-inverse-strong));
-  border: 1px solid transparent;
 }
 
+.tertiaryBrand:hover,
+.tertiaryNeutral:hover,
+.tertiaryDestructive:hover,
 .tertiaryInverse:hover {
   box-shadow: var(--fill-hover);
 }
 
+.tertiaryBrand:active,
+.tertiaryNeutral:active,
+.tertiaryDestructive:active,
 .tertiaryInverse:active {
   box-shadow: var(--fill-press);
 }

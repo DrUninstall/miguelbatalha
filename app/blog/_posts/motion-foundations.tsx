@@ -1,86 +1,204 @@
-"use client";
-
-import { OrbitAnimation } from "@/components/orbit-animation";
 import { CoinFlip } from "@/components/coin-flip";
-import { WillChangeDemo } from "@/components/will-change-demo";
+import { OrbitAnimation } from "@/components/orbit-animation";
 import { TextReveal } from "@/components/text-reveal";
-import styles from "../[slug]/page.module.css";
+import { HoldToDelete } from "@/components/hold-to-delete";
+import { Code, Demo } from "../_components/demo";
 
 export default function MotionFoundations() {
   return (
-    <div className={styles.prose}>
+    <>
       <p>
-        Most animation on the web is bad. Not a taste problem — a property problem. Animate <code>width</code> and you trigger layout recalculation on every frame. Animate <code>background-color</code> and you force a repaint. The browser does ten times the work it needs to.
+        “Only animate <code>transform</code> and <code>opacity</code>.” It’s the
+        first rule anyone learns about web animation, and it’s a good one. It’s
+        also incomplete. The useful skill is knowing what you pay when you break
+        it, and when that price is fine.
       </p>
       <p>
-        The fix: <strong>transform</strong> and <strong>opacity</strong>. That&apos;s it. These two run on the compositor thread — GPU handles them, main thread stays free. Everything else is a compromise you should make deliberately, not accidentally.
-      </p>
-      <p>
-        I built four components around that constraint. Rotation, 3D perspective, staged reveals, GPU layer management. Each one compositor-only.
-      </p>
-
-      <h2 className={styles.sectionHeading}>Orbiting Animation</h2>
-      <p>
-        Three concentric rings rotating at different speeds. The entire effect is <code>transform: rotate()</code> on each ring — nothing else animates. Staggered speeds create depth without 3D math. Perceived complexity and actual complexity are different things.
+        I spend most of my time on an aim trainer, where a dropped frame is
+        something players notice and complain about. That makes you care about
+        where the work happens.
       </p>
 
-      <div className={styles.demo}>
-        <div className={styles.demoLabel}>Live Demo</div>
-        <div className={styles.demoInner}>
-          <OrbitAnimation />
-        </div>
-      </div>
-
-      <h2 className={styles.sectionHeading}>Coin Flip</h2>
+      <h2>What the rule is actually about</h2>
       <p>
-        CSS 3D transforms are underrated. <code>rotateY(180deg)</code> plus <code>backface-visibility: hidden</code> gives you a real two-sided object in the browser. <code>perspective</code> on the parent controls depth — higher values flatten, lower values exaggerate.
+        Every frame, the browser can run up to four stages: style, layout,
+        paint, composite. Change <code>width</code> and it redoes layout for
+        that element and everything it pushes around, then paints, then
+        composites. Change <code>background-color</code> and it skips layout
+        but repaints. Change <code>transform</code> or <code>opacity</code> on
+        an element that has its own layer, and it only composites: the GPU
+        moves or fades a texture it already has.
       </p>
       <p>
-        The thing that tripped me up initially: you need <code>transform-style: preserve-3d</code> on the container. Without it, children get flattened into 2D and you just see a weird scale effect instead of an actual flip.
+        That last condition matters. Browsers give an element its own layer
+        when a CSS animation or transition on <code>transform</code> or{" "}
+        <code>opacity</code> starts. <code>will-change</code> asks for that
+        layer ahead of time, which can save a hitch on the first frame. Layers
+        cost GPU memory, though, so add the hint before the animation and take
+        it off after.
       </p>
-
-      <div className={styles.demo}>
-        <div className={styles.demoLabel}>Live Demo — Click to flip</div>
-        <div className={styles.demoInner}>
-          <CoinFlip />
-        </div>
-      </div>
-
-      <h2 className={styles.sectionHeading}>Text Reveal</h2>
+      <Code label="CSS">{`
+.drawer { transition: transform 300ms ease-out; }
+.drawer.is-about-to-open { will-change: transform; }
+`}</Code>
       <p>
-        Staggered text animations — premium when done right, annoying when done wrong. The difference is timing. Each character gets a tiny delay offset, small enough that the eye reads the word as one motion instead of individual letter bounces.
+        I originally built a side-by-side demo for this: two balls, one with{" "}
+        <code>will-change</code>, one without. They looked identical, because
+        the browser already promotes an element for a transform transition. So
+        now it’s a paragraph. The hint only matters in narrower cases than most
+        articles suggest.
+      </p>
+
+      <h2>A coin with real depth</h2>
+      <p>
+        CSS 3D is still just transforms, so it stays on the cheap path. Three
+        properties do the work: <code>perspective</code> on the parent sets how
+        far away the viewer is, <code>transform-style: preserve-3d</code> keeps
+        the children in the same 3D space, and{" "}
+        <code>backface-visibility: hidden</code> hides each face when it turns
+        away.
+      </p>
+      <Code label="coin-flip.module.css">{`
+.scene { perspective: 400px; }
+
+.coin {
+  transform-style: preserve-3d;
+  transform: rotateY(var(--rotation, 0deg));
+  transition: transform 600ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.tails { transform: rotateY(180deg) translateZ(3px); }
+`}</Code>
+      <p>
+        Two details make it feel right. The easing curve goes past 1, so the
+        coin swings a few degrees beyond the face and settles back. And the
+        component stores a flip count rather than a boolean, so the rotation
+        keeps growing (0, 180, 360…) and the coin always turns the same way
+        instead of unwinding every other click. Six thin discs stacked on the Z
+        axis give it an edge you can see mid-flip.
+      </p>
+      <Demo caption="Click or tap the coin, or focus it and press Space.">
+        <CoinFlip />
+      </Demo>
+      <p>
+        Without <code>preserve-3d</code>, the browser flattens each child into
+        its parent’s plane, and you get a coin that squashes to a line and back.
+        It’s the most common reason a CSS flip “doesn’t work”.
+      </p>
+
+      <h2>An orbit that sorts its own depth</h2>
+      <p>
+        The moon here is one element with one keyframe animation. The
+        transform chain reads left to right: tilt the orbital plane, rotate
+        around it, step out to the radius, then undo the rotation and the tilt
+        so the moon keeps facing you.
+      </p>
+      <Code label="orbit-animation.module.css">{`
+@keyframes orbit {
+  to {
+    transform: rotateZ(var(--tilt-z)) rotateX(var(--tilt-x))
+      rotateY(360deg) translateZ(var(--radius))
+      rotateY(-360deg)
+      rotateX(calc(var(--tilt-x) * -1)) rotateZ(calc(var(--tilt-z) * -1));
+  }
+}
+`}</Code>
+      <p>
+        Because the planet, the ring and the moon share one 3D context, the
+        browser sorts them by depth. The moon passes in front of the planet and
+        disappears behind it with no z-index juggling.
+      </p>
+      <Demo caption="One element, one 6-second linear loop. With reduced motion on, it holds a still pose.">
+        <OrbitAnimation />
+      </Demo>
+      <p>
+        The first version had a bug that’s easy to miss: all the positioning
+        lived inside the keyframes. Turn animation off and the moon lost its
+        offset and sat in the middle of the planet. Now the element has a base
+        transform of its own, a pose with the moon just in front of the planet.
+        If motion is optional, the still frame is part of the design.
+      </p>
+
+      <h2>Staggered text</h2>
+      <p>
+        Each letter rises from one line below into place. The mask is just{" "}
+        <code>overflow: hidden</code> on the word, and the stagger is a 30ms
+        delay per letter.
+      </p>
+      <Code label="text-reveal.module.css">{`
+.letter {
+  display: inline-block;
+  animation: reveal 1.3s cubic-bezier(0.19, 1, 0.22, 1) backwards;
+  animation-delay: calc(30ms * var(--index));
+}
+`}</Code>
+      <p>
+        <code>backwards</code> keeps each letter hidden during its delay. Keep
+        the delay short enough and the eye reads one motion instead of ten
+        little ones. For “Animations”, the last letter starts at 270ms.
+      </p>
+      <Demo caption="Plays once on load. Replay restarts it by remounting the paragraph.">
+        <TextReveal />
+      </Demo>
+      <p>
+        Two things I got wrong at first. Splitting a word into spans makes some
+        screen readers spell it out, so the letters are{" "}
+        <code>aria-hidden</code> and the real word sits in visually hidden text.
+        And the site’s reduced-motion rule shortens durations but not delays,
+        so the letters still popped in one by one. This component turns the
+        animation off entirely in that case.
+      </p>
+
+      <h2>The exception: hold to delete</h2>
+      <p>
+        Here’s where I break the rule on purpose. A red layer wipes across the
+        button while you hold it, and that wipe is a <code>clip-path</code>{" "}
+        transition. That usually means a repaint every frame. The area is one
+        small button for 1.5 seconds, and the wipe <em>is</em> the progress
+        bar, so I’m fine paying for it.
       </p>
       <p>
-        Just <code>translateY</code> and <code>opacity</code> — compositor-only. Framer Motion&apos;s <code>staggerChildren</code> handles the cascade. 60fps with zero paint or layout work.
+        The important part isn’t the animation. The wipe is only a picture; a
+        timer decides when the hold succeeds:
       </p>
-
-      <div className={styles.demo}>
-        <div className={styles.demoLabel}>Live Demo — Hover to reveal</div>
-        <div className={styles.demoInner}>
-          <TextReveal />
-        </div>
-      </div>
-
-      <h2 className={styles.sectionHeading}>The will-change Property</h2>
+      <Code label="hold-to-delete.tsx">{`
+const startHold = () => {
+  setState("holding");
+  timer.current = setTimeout(() => setState("done"), HOLD_MS);
+};
+// pointerup, pointerleave, blur, or keyup → clearTimeout + back to idle
+`}</Code>
       <p>
-        <code>will-change</code> is the most misunderstood CSS property. It promotes an element to its own GPU layer <em>before</em> animation starts — avoids the jank of mid-animation layer creation. But layers cost VRAM. Slap it on everything and mobile devices choke.
+        That split pays off with reduced motion. The site collapses transition
+        durations, so if the animation were the source of truth, the hold would
+        finish instantly. Instead the timer still takes 1.5 seconds, and the
+        label switches to “Keep holding…” while the fill stays put.
+      </p>
+      <Demo caption="Press and hold with a mouse, finger, Space or Enter. Letting go early cancels.">
+        <HoldToDelete />
+      </Demo>
+      <p>
+        The wipe runs at constant speed (<code>linear</code>) while you hold,
+        so its edge is honest progress. Letting go snaps back in 200ms with an
+        ease-out. On touch, the button blocks the long-press menu and text
+        selection, which would otherwise fire right as the hold completes.
       </p>
       <p>
-        My rule: apply it to elements you <em>know</em> will animate, remove it when they stop. This demo shows the difference — promoted element paints once and composites after, unpromoted one repaints every frame.
+        One problem I haven’t solved: screen reader users in browse mode
+        activate buttons with a single synthetic click, so they can’t hold at
+        all. The likely answer is a second confirmation path for that case,
+        not a shorter hold. I haven’t built it yet.
       </p>
 
-      <div className={styles.demo}>
-        <div className={styles.demoLabel}>Live Demo</div>
-        <div className={styles.demoInner}>
-          <WillChangeDemo />
-        </div>
-      </div>
-
-      <hr className={styles.separator} />
-
+      <h2>What I check now</h2>
       <p>
-        None of these are flashy on their own. That&apos;s the point. Good animation infrastructure is invisible — you just notice when it&apos;s missing. I keep coming back to the same lesson: get the GPU fundamentals right first, and the complex stuff mostly builds itself.
+        I don’t treat the rule as a law anymore. I ask three questions: which
+        stage am I paying for (layout, paint, or just composite), how much of
+        the screen does it cover, and how long does it run. A full-width{" "}
+        <code>height</code> animation on every scroll is a real problem. A
+        1.5-second <code>clip-path</code> on one button isn’t. The rule gets
+        you most of the way, and those three questions cover the rest.
       </p>
-    </div>
+    </>
   );
 }

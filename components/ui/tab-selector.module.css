@@ -3,6 +3,7 @@
 .container {
   position: relative;
   display: flex;
+  max-width: 100%;
   border-bottom: 1px solid rgb(var(--stroke-color-weak));
 }
 
@@ -12,11 +13,14 @@
   font-size: 14px;
   line-height: 20px;
   font-weight: 500;
+  white-space: nowrap;
   border-radius: 8px 8px 0 0;
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: color var(--duration-fast) var(--ease-out-cubic), box-shadow var(--duration-fast) var(--ease-out-cubic);
+  transition:
+    color var(--duration-fast) var(--ease-out-cubic),
+    box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
 .tab.active {
@@ -41,21 +45,18 @@
   box-shadow: var(--fill-press);
 }
 
-.tab:focus-visible {
-  box-shadow: var(--stroke-focus);
-}
-
-.tab:not(.disabled):not(.active):hover:focus-visible {
-  box-shadow: var(--fill-hover-focus);
-}
-
-.tab:not(.disabled):not(.active):active:focus-visible {
-  box-shadow: var(--fill-press-focus);
-}
-
+/* Rendered inside the active tab; sits over the container's hairline. */
 .indicator {
   position: absolute;
-  bottom: 0;
+  left: 0;
+  right: 0;
+  bottom: -1px;
   height: 4px;
   background: rgb(var(--fill-brand-strong));
+}
+
+@media (max-width: 400px) {
+  .tab {
+    padding: 12px;
+  }
 }

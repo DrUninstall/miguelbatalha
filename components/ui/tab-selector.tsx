@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useLayoutEffect, useState } from "react";
+import { useId, useRef } from "react";
 import { motion } from "framer-motion";
 import styles from "./tab-selector.module.css";
 
@@ -8,91 +8,104 @@ interface Tab {
   id: string;
   label: string;
   disabled?: boolean;
+  /** id of the tabpanel this tab controls. Only then is aria-controls set. */
+  panelId?: string;
 }
 
 interface TabSelectorProps {
   tabs: Tab[];
   activeTab: string;
   onTabChange: (tabId: string) => void;
+  /** Accessible name for the tablist. */
+  "aria-label"?: string;
   className?: string;
+}
+
+const INDICATOR_SPRING = { type: "spring", stiffness: 400, damping: 30 } as const;
+
+/**
+ * Keyboard target for a horizontal tablist: Left/Right move to the
+ * previous/next enabled tab (wrapping), Home/End jump to the first/last.
+ */
+function getKeyTarget(key: string, from: number, enabled: boolean[]): number | null {
+  const count = enabled.length;
+  if (key === "Home") return enabled.indexOf(true);
+  if (key === "End") return enabled.lastIndexOf(true);
+  const step = key === "ArrowRight" ? 1 : key === "ArrowLeft" ? -1 : 0;
+  if (step === 0) return null;
+  for (let i = 1; i <= count; i++) {
+    const next = (from + step * i + count) % count;
+    if (enabled[next]) return next;
+  }
+  return null;
 }
 
 export function TabSelector({
   tabs,
   activeTab,
   onTabChange,
+  "aria-label": ariaLabel,
   className = "",
 }: TabSelectorProps) {
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-  const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  // Unique per instance so two tab bars on one page never share an indicator.
+  const indicatorLayoutId = `tab-indicator-${useId()}`;
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const updateIndicatorPosition = () => {
-    const activeButton = tabRefs.current.get(activeTab);
-    if (activeButton && containerRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const buttonRect = activeButton.getBoundingClientRect();
+  const enabled = tabs.map((tab) => !tab.disabled);
+  const activeIndex = tabs.findIndex((tab) => tab.id === activeTab);
+  // Roving tabindex: only the active tab is in the page's tab order.
+  const tabStop = activeIndex >= 0 && enabled[activeIndex] ? activeIndex : enabled.indexOf(true);
 
-      setIndicatorStyle({
-        left: buttonRect.left - containerRect.left,
-        width: buttonRect.width,
-      });
-    }
+  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
+    const target = getKeyTarget(event.key, index, enabled);
+    if (target === null || target === -1) return;
+    event.preventDefault();
+    // Automatic activation: moving focus also selects the tab.
+    onTabChange(tabs[target].id);
+    tabRefs.current[target]?.focus();
   };
 
-  useLayoutEffect(() => {
-    updateIndicatorPosition();
-  }, [activeTab, tabs]);
-
   return (
-    <div
-      ref={containerRef}
-      className={`${styles.container} ${className}`}
-      role="tablist"
-    >
-      {/* Tabs */}
-      {tabs.map((tab) => {
-        const isActive = activeTab === tab.id;
+    <div className={`${styles.container} ${className}`} role="tablist" aria-label={ariaLabel}>
+      {tabs.map((tab, index) => {
+        const isActive = index === activeIndex;
 
         const tabClasses = [
           styles.tab,
           isActive ? styles.active : styles.inactive,
-          tab.disabled && styles.disabled
+          tab.disabled && styles.disabled,
         ].filter(Boolean).join(" ");
 
         return (
           <button
             key={tab.id}
             ref={(el) => {
-              if (el) tabRefs.current.set(tab.id, el);
+              tabRefs.current[index] = el;
             }}
-            onClick={() => onTabChange(tab.id)}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            aria-controls={tab.panelId}
+            tabIndex={index === tabStop ? 0 : -1}
             disabled={tab.disabled}
             className={tabClasses}
-            role="tab"
-            aria-selected={isActive ? "true" : "false"}
-            aria-controls={`panel-${tab.id}`}
-            aria-disabled={tab.disabled ? "true" : "false"}
+            onClick={() => onTabChange(tab.id)}
+            onKeyDown={(event) => handleKeyDown(event, index)}
           >
             {tab.label}
+            {isActive && (
+              // Same layoutId in whichever tab is active: Framer animates the
+              // bar from the previous tab's box to this one with transforms.
+              <motion.span
+                layoutId={indicatorLayoutId}
+                className={styles.indicator}
+                transition={INDICATOR_SPRING}
+                aria-hidden="true"
+              />
+            )}
           </button>
         );
       })}
-
-      {/* Animated indicator */}
-      <motion.div
-        className={styles.indicator}
-        initial={false}
-        animate={{
-          left: indicatorStyle.left,
-          width: indicatorStyle.width,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 400,
-          damping: 30,
-        }}
-      />
     </div>
   );
 }

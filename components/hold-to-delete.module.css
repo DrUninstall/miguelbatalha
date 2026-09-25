@@ -3,34 +3,96 @@
   display: flex;
   height: 40px;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
+  border: none;
   border-radius: 9999px;
   background-color: rgb(var(--fill-weak));
+  box-shadow: var(--stroke-weak);
   padding-inline: var(--space-6);
+  font: inherit;
   font-weight: 500;
   color: rgb(var(--text-strong));
+  cursor: pointer;
   transition: transform var(--duration-fast) var(--ease-out-quad);
+
+  /* A long press must not select the label, open the iOS callout or wait for double-tap zoom. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-.button:active {
+.button[data-state="holding"] {
   transform: scale(0.97);
 }
 
-.holdOverlay {
+/* Every label sits in the same grid cell; only the active one is visible,
+   so the widest label sets the button's width and it never jumps. */
+.labels {
+  display: grid;
+}
+
+.labels > span {
+  grid-area: 1 / 1;
+  text-align: center;
+}
+
+.labels > span[data-active="false"] {
+  visibility: hidden;
+}
+
+/* The overlay is a second copy of the content in the destructive colours.
+   clip-path: inset() hides everything right of the progress edge. */
+.overlay {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  border-radius: 9999px;
-  background-color: rgb(var(--fill-error-weak));
-  color: rgb(var(--text-error));
-  clip-path: inset(0px 100% 0px 0px);
+  border-radius: inherit;
+  background-color: rgb(var(--fill-error-strong));
+  color: rgb(var(--text-inverse-strong));
+  clip-path: inset(0 100% 0 0);
+  /* Letting go: snap back quickly. */
   transition: clip-path var(--duration-fast) var(--ease-out-cubic);
 }
 
-.button:active .holdOverlay {
-  clip-path: inset(0px 0px 0px 0px);
-  transition: clip-path 1.5s linear;
+.button[data-state="holding"] .overlay {
+  clip-path: inset(0 0 0 0);
+  /* Holding: fill at constant speed, so the edge position is honest progress. */
+  transition: clip-path 1500ms linear;
+}
+
+.button[data-state="done"] .overlay {
+  clip-path: inset(0 0 0 0);
+  transition: none;
+}
+
+/* Reduced motion: no wipe. The overlay switches straight to full while held
+   (and the label reads "Keep holding…"); the JS timer still needs 1500ms. */
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .overlay,
+  .button[data-state="holding"] .overlay {
+    transition: none;
+  }
+
+  .button[data-state="holding"] {
+    transform: none;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }

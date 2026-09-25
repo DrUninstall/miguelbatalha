@@ -1,9 +1,23 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { Check } from "lucide-react";
+import { useReducedMotion } from "framer-motion";
 import styles from "./hold-to-delete.module.css";
 
+const HOLD_MS = 1500;
+const CONFIRMED_MS = 1500;
+
+type HoldState = "idle" | "holding" | "done";
+
+const LABELS = {
+  idle: "Hold to Delete",
+  holding: "Keep holding…",
+  done: "Deleted",
+} as const;
+
 const TrashIcon = () => (
-  <svg height="16" strokeLinejoin="round" viewBox="0 0 16 16" width="16">
+  <svg height="16" strokeLinejoin="round" viewBox="0 0 16 16" width="16" aria-hidden="true">
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -13,15 +27,90 @@ const TrashIcon = () => (
   </svg>
 );
 
-export function HoldToDelete() {
+/* Rendered twice: once as the button's own content, once inside the coloured overlay.
+   All labels are stacked in one grid cell so the button never changes width. */
+function Content({ label }: { label: keyof typeof LABELS }) {
   return (
-    <button className={styles.button}>
-      <div className={styles.holdOverlay}>
-        <TrashIcon />
-        Hold to Delete
-      </div>
-      <TrashIcon />
-      Hold to Delete
-    </button>
+    <>
+      {label === "done" ? <Check size={16} strokeWidth={2.5} aria-hidden="true" /> : <TrashIcon />}
+      <span className={styles.labels}>
+        {(Object.keys(LABELS) as (keyof typeof LABELS)[]).map((key) => (
+          <span key={key} data-active={key === label}>
+            {LABELS[key]}
+          </span>
+        ))}
+      </span>
+    </>
+  );
+}
+
+const isHoldKey = (key: string) => key === " " || key === "Enter";
+
+export function HoldToDelete() {
+  const [state, setState] = useState<HoldState>("idle");
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const reduceMotion = useReducedMotion();
+
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  // The wipe is only a picture of progress. This timer decides when the hold
+  // succeeds, so the duration is the same with or without animation.
+  const startHold = () => {
+    if (state !== "idle") return;
+    setState("holding");
+    timer.current = setTimeout(() => {
+      setState("done");
+      timer.current = setTimeout(() => setState("idle"), CONFIRMED_MS);
+    }, HOLD_MS);
+  };
+
+  const cancelHold = () => {
+    if (state !== "holding") return;
+    clearTimeout(timer.current);
+    setState("idle");
+  };
+
+  const label =
+    state === "done" ? "done" : state === "holding" && reduceMotion ? "holding" : "idle";
+
+  return (
+    <>
+      <button
+        type="button"
+        className={styles.button}
+        data-state={state}
+        onPointerDown={(e) => {
+          if (e.button !== 0) return; // primary mouse button, pen tip or touch contact
+          startHold();
+        }}
+        onPointerUp={cancelHold}
+        onPointerLeave={cancelHold}
+        onPointerCancel={cancelHold}
+        onKeyDown={(e) => {
+          if (!isHoldKey(e.key)) return;
+          e.preventDefault();
+          if (e.repeat) return; // held keys auto-repeat; only the first press counts
+          startHold();
+        }}
+        onKeyUp={(e) => {
+          if (!isHoldKey(e.key)) return;
+          e.preventDefault();
+          cancelHold();
+        }}
+        onBlur={cancelHold}
+        onContextMenu={(e) => {
+          // A long press on touch opens the context menu; don't let it interrupt the hold.
+          if (state === "holding") e.preventDefault();
+        }}
+      >
+        <Content label={label} />
+        <span className={styles.overlay} aria-hidden="true">
+          <Content label={label} />
+        </span>
+      </button>
+      <span className={styles.srOnly} role="status">
+        {state === "done" ? "Deleted" : ""}
+      </span>
+    </>
   );
 }

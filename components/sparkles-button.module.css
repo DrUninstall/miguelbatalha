@@ -26,5 +26,20 @@
   position: absolute;
   pointer-events: none;
   z-index: 2;
-  will-change: transform, opacity;
 }
+
+/*
+ * Two tones per theme contrast with the brand fill (particles over the button),
+ * two with the page background (particles that fly past its edge).
+ * Light: fill is rgb(76 100 217) on a white page.
+ */
+.tone0 { color: rgb(255 255 255); }
+.tone1 { color: rgb(255 214 90); }
+.tone2 { color: rgb(126 71 204); }
+.tone3 { color: rgb(236 72 153); }
+
+/* Dark: fill is light periwinkle rgb(163 178 255) on a near-black page. */
+:global(.dark) .tone0 { color: rgb(20 24 82); }
+:global(.dark) .tone1 { color: rgb(255 214 90); }
+:global(.dark) .tone2 { color: rgb(74 30 150); }
+:global(.dark) .tone3 { color: rgb(110 231 183); }

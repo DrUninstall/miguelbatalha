@@ -1,110 +1,108 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   motion,
   useMotionValue,
+  useReducedMotion,
   useSpring,
-  useTransform,
+  type MotionValue,
 } from "framer-motion";
 import styles from "./mouse-follow-pattern.module.css";
 
-const SPRING_CONFIG = { stiffness: 300, damping: 30 };
-const GRID_COLS = 20;
-const GRID_ROWS = 6;
-const SPOTLIGHT_RADIUS = 150; // px - shapes fade beyond this
-const ROTATION_RADIUS = 100; // px - shapes outside this don't rotate
+type Point = { x: number; y: number };
 
-// Find the closest equivalent angle accounting for 180° symmetry
-// Pills look the same at 0° and 180°, so we pick the shortest path
+const SPRING_CONFIG = { stiffness: 300, damping: 30 };
+const MAX_COLS = 20;
+const MIN_COLS = 6;
+const ROWS = 6;
+const SHAPE_WIDTH = 4; // px, keep in sync with .shape
+const GAP = 20; // px, keep in sync with .grid
+const PADDING = 32; // px, keep in sync with .container
+const SPOTLIGHT_RADIUS = 150; // px - opacity falls off to rest over this distance
+const ROTATION_RADIUS = 100; // px - shapes further away than this return to rest
+const REST_ANGLE = 90; // deg - a vertical 4x24 pill rotated 90deg lies horizontal
+const REST_OPACITY = 0.2;
+
+// Hermite smoothstep: 0 at t=0, 1 at t=1, zero slope at both ends.
+function smoothstep(t: number) {
+  const c = Math.min(Math.max(t, 0), 1);
+  return c * c * (3 - 2 * c);
+}
+
+// Pills look identical at a and a+180deg, so pick whichever equivalent
+// target angle is closest to the current one (shortest rotation path).
 function findClosestEquivalent(current: number, target: number): number {
   const normalized = ((target % 180) + 180) % 180;
   const candidates = [normalized, normalized + 180, normalized - 180];
-
   let closest = candidates[0];
-  let minDiff = Math.abs(current - candidates[0]);
-
   for (const candidate of candidates) {
-    const diff = Math.abs(current - candidate);
-    if (diff < minDiff) {
-      minDiff = diff;
+    if (Math.abs(current - candidate) < Math.abs(current - closest)) {
       closest = candidate;
     }
   }
-
   return closest;
 }
 
 function Shape({
-  index,
-  mouseX,
-  mouseY,
-  containerRef,
+  pointer,
+  layoutVersion,
+  reduceMotion,
 }: {
-  index: number;
-  mouseX: ReturnType<typeof useMotionValue<number>>;
-  mouseY: ReturnType<typeof useMotionValue<number>>;
-  containerRef: React.RefObject<HTMLDivElement | null>;
+  pointer: MotionValue<Point | null>;
+  layoutVersion: number;
+  reduceMotion: boolean;
 }) {
   const shapeRef = useRef<HTMLDivElement>(null);
-  const rotation = useMotionValue(90); // Start vertical
-  const opacity = useMotionValue(0.2);
-
+  // Shape centre relative to the container, cached so pointer moves never read layout.
+  const centre = useRef<Point>({ x: 0, y: 0 });
+  const rotation = useMotionValue(REST_ANGLE);
+  const opacity = useMotionValue(REST_OPACITY);
   const springRotation = useSpring(rotation, SPRING_CONFIG);
   const springOpacity = useSpring(opacity, SPRING_CONFIG);
 
+  // Re-measure whenever the parent reports a layout change (mount, resize, column change).
+  // offsetLeft/Top ignore transforms, so the shape's own rotation never skews the cache.
+  useLayoutEffect(() => {
+    const el = shapeRef.current;
+    if (!el) return;
+    centre.current = {
+      x: el.offsetLeft + el.offsetWidth / 2,
+      y: el.offsetTop + el.offsetHeight / 2,
+    };
+  }, [layoutVersion]);
+
   useEffect(() => {
-    const updateShape = () => {
-      if (!shapeRef.current || !containerRef.current) return;
-
-      const shapeRect = shapeRef.current.getBoundingClientRect();
-      const shapeCenterX = shapeRect.left + shapeRect.width / 2;
-      const shapeCenterY = shapeRect.top + shapeRect.height / 2;
-
-      const mx = mouseX.get();
-      const my = mouseY.get();
-
-      // If mouse is outside container (position is 0,0), reset to vertical
-      if (mx === 0 && my === 0) {
-        rotation.set(findClosestEquivalent(rotation.get(), 90));
-        opacity.set(0.2);
+    const update = (p: Point | null) => {
+      if (!p) {
+        rotation.set(findClosestEquivalent(rotation.get(), REST_ANGLE));
+        opacity.set(REST_OPACITY);
         return;
       }
+      const dx = p.x - centre.current.x;
+      const dy = p.y - centre.current.y;
+      const distance = Math.hypot(dx, dy);
 
-      const deltaX = mx - shapeCenterX;
-      const deltaY = my - shapeCenterY;
-      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      const angle =
+        distance < ROTATION_RADIUS
+          ? Math.atan2(dy, dx) * (180 / Math.PI) + 90
+          : REST_ANGLE;
+      rotation.set(findClosestEquivalent(rotation.get(), angle));
 
-      // Rotation: point toward cursor if within range
-      if (distance < ROTATION_RADIUS) {
-        const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI) + 90;
-        rotation.set(findClosestEquivalent(rotation.get(), angle));
-      } else {
-        rotation.set(findClosestEquivalent(rotation.get(), 90));
-      }
-
-      // Opacity: spotlight effect based on distance
-      const normalizedDistance = Math.min(distance / SPOTLIGHT_RADIUS, 1);
-      const newOpacity = 1 - normalizedDistance * 0.8; // Range: 0.2 to 1
-      opacity.set(newOpacity);
+      // 1 at the pointer, 0 at SPOTLIGHT_RADIUS and beyond, eased with smoothstep.
+      const intensity = smoothstep(1 - distance / SPOTLIGHT_RADIUS);
+      opacity.set(REST_OPACITY + (1 - REST_OPACITY) * intensity);
     };
-
-    const unsubX = mouseX.on("change", updateShape);
-    const unsubY = mouseY.on("change", updateShape);
-
-    return () => {
-      unsubX();
-      unsubY();
-    };
-  }, [mouseX, mouseY, rotation, opacity, containerRef]);
+    return pointer.on("change", update);
+  }, [pointer, rotation, opacity]);
 
   return (
     <motion.div
       ref={shapeRef}
       className={styles.shape}
       style={{
-        rotate: springRotation,
-        opacity: springOpacity,
+        rotate: reduceMotion ? rotation : springRotation,
+        opacity: reduceMotion ? opacity : springOpacity,
       }}
     />
   );
@@ -112,36 +110,70 @@ function Shape({
 
 export function MouseFollowPattern() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
+  const pointer = useMotionValue<Point | null>(null);
+  const reduceMotion = useReducedMotion() ?? false;
+  const [cols, setCols] = useState(MAX_COLS);
+  const [layoutVersion, setLayoutVersion] = useState(0);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    mouseX.set(e.clientX);
-    mouseY.set(e.clientY);
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const available = entry.contentRect.width;
+      const fit = Math.floor((available + GAP) / (SHAPE_WIDTH + GAP));
+      setCols(Math.max(MIN_COLS, Math.min(MAX_COLS, fit)));
+      setLayoutVersion((v) => v + 1);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const track = (e: React.PointerEvent<HTMLDivElement>) => {
+    // The only layout read per move: one rect for the container.
+    const rect = e.currentTarget.getBoundingClientRect();
+    pointer.set({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
+  const reset = () => pointer.set(null);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse") return;
+    // Keep receiving moves for this finger/pen even if it wanders off the grid.
+    e.currentTarget.setPointerCapture(e.pointerId);
+    track(e);
   };
 
-  const shapes = Array.from({ length: GRID_COLS * GRID_ROWS }, (_, i) => i);
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Mouse follows on hover; touch/pen only while pressed.
+    if (e.pointerType !== "mouse" && e.buttons === 0) return;
+    track(e);
+  };
+
+  const handlePointerEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") reset();
+  };
 
   return (
     <div
       ref={containerRef}
       className={styles.container}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      style={{ padding: PADDING }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerEnd}
+      onPointerCancel={reset}
+      onPointerLeave={reset}
     >
-      <div className={styles.grid}>
-        {shapes.map((index) => (
+      <div
+        className={styles.grid}
+        style={{ gridTemplateColumns: `repeat(${cols}, ${SHAPE_WIDTH}px)`, gap: GAP }}
+      >
+        {Array.from({ length: cols * ROWS }, (_, i) => (
           <Shape
-            key={index}
-            index={index}
-            mouseX={mouseX}
-            mouseY={mouseY}
-            containerRef={containerRef}
+            key={i}
+            pointer={pointer}
+            layoutVersion={layoutVersion}
+            reduceMotion={reduceMotion}
           />
         ))}
       </div>

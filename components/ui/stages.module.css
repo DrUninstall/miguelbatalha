@@ -13,6 +13,7 @@
 
 .headerContent {
   flex: 1;
+  min-width: 0;
 }
 
 .stepInfo {
@@ -22,15 +23,11 @@
 }
 
 .stepTitle {
+  margin: 0;
   font-size: 20px;
   line-height: 28px;
   font-weight: 600;
   color: rgb(var(--text-strong));
-}
-
-.backIcon {
-  width: 20px;
-  height: 20px;
 }
 
 .progressBar {
@@ -44,16 +41,17 @@
 
 .progressFill {
   position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
+  inset: 0;
   background: rgb(var(--fill-brand-strong));
+  transform-origin: left center;
 }
 
 .indicators {
   display: flex;
   justify-content: space-between;
-  margin-top: 16px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
 .indicator {
@@ -62,6 +60,7 @@
   align-items: center;
   gap: 8px;
   flex: 1;
+  min-width: 0;
 }
 
 .indicatorCircle {
@@ -74,29 +73,37 @@
   font-size: 14px;
   line-height: 20px;
   font-weight: 500;
-  transition: background-color var(--duration-fast) var(--ease-out-cubic), color var(--duration-fast) var(--ease-out-cubic), border-color var(--duration-fast) var(--ease-out-cubic);
+  transition:
+    background-color var(--duration-fast) var(--ease-out-cubic),
+    color var(--duration-fast) var(--ease-out-cubic),
+    box-shadow var(--duration-fast) var(--ease-out-cubic);
 }
 
 .indicatorCircle.completed {
   background: rgb(var(--fill-brand-strong));
   color: rgb(var(--text-inverse-strong));
+  box-shadow: inset 0 0 0 2px rgb(var(--fill-brand-strong));
 }
 
+/* Ring drawn with an inset box-shadow so the circle's size never changes. */
 .indicatorCircle.active {
   background: rgb(var(--fill-brand-strong) / 0.2);
   color: rgb(var(--text-brand));
-  border: 2px solid rgb(var(--stroke-brand-strong));
+  box-shadow: inset 0 0 0 2px rgb(var(--fill-brand-strong));
 }
 
 .indicatorCircle.inactive {
   background: rgb(var(--fill-weak));
   color: rgb(var(--text-weak));
+  box-shadow: inset 0 0 0 1px rgb(var(--stroke-color-weak));
 }
 
 .indicatorLabel {
+  max-width: 100%;
   font-size: 12px;
   line-height: 16px;
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .indicatorLabel.activeOrCompleted {
@@ -106,4 +113,16 @@
 
 .indicatorLabel.inactive {
   color: rgb(var(--text-weak));
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }

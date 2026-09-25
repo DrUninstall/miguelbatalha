@@ -6,27 +6,23 @@ import { formatDate } from "@/lib/utils";
 import site from "@/components/site/site.module.css";
 import styles from "./page.module.css";
 
-// Post component imports — static for tree-shaking with static export
+import postStyles from "../_components/post.module.css";
+
+// Static imports so every post is prerendered by the static export.
 import MotionFoundations from "../_posts/motion-foundations";
+import SpringsAndGestures from "../_posts/springs-and-gestures";
 import LayoutAnimations from "../_posts/layout-animations";
-import InteractiveButtons from "../_posts/interactive-buttons";
+import DesigningForThePointer from "../_posts/designing-for-the-pointer";
 import CssGradients from "../_posts/css-gradients";
-import CursorInteractions from "../_posts/cursor-interactions";
-import AnimatedIcons from "../_posts/animated-icons";
-import DragAndSpringPhysics from "../_posts/drag-and-spring-physics";
-import DesignSystem from "../_posts/design-system";
-import ThemingAndPolish from "../_posts/theming-and-polish";
+import TheBoringComponents from "../_posts/the-boring-components";
 
 const postComponents: Record<string, React.ComponentType> = {
   "motion-foundations": MotionFoundations,
+  "springs-and-gestures": SpringsAndGestures,
   "layout-animations": LayoutAnimations,
-  "interactive-buttons": InteractiveButtons,
+  "designing-for-the-pointer": DesigningForThePointer,
   "css-gradients": CssGradients,
-  "cursor-interactions": CursorInteractions,
-  "animated-icons": AnimatedIcons,
-  "drag-and-spring-physics": DragAndSpringPhysics,
-  "design-system": DesignSystem,
-  "theming-and-polish": ThemingAndPolish,
+  "the-boring-components": TheBoringComponents,
 };
 
 export function generateStaticParams() {
@@ -72,7 +68,9 @@ export default async function BlogPostPage({
           </time>
         </header>
 
-        <PostContent />
+        <div className={postStyles.prose}>
+          <PostContent />
+        </div>
       </article>
     </main>
   );
