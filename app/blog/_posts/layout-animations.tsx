@@ -76,8 +76,8 @@ export default function LayoutAnimations() {
         which would squash its corners. Framer corrects{" "}
         <code>border-radius</code> and <code>box-shadow</code> for the current
         scale, but only when they’re values it controls, set in{" "}
-        <code>style</code> or <code>animate</code>: a pixel radius, a literal
-        shadow. Anything that comes from a class or a CSS variable scales with
+        <code>style</code> or <code>animate</code>: a pixel radius, a single
+        literal shadow. Anything that comes from a class or a CSS variable scales with
         the box.
       </p>
       <p>
@@ -88,8 +88,8 @@ export default function LayoutAnimations() {
         <SharedLayoutTabs />
       </Demo>
       <p>
-        Click another tab while the pill is still moving and it turns from
-        wherever it is. Framer starts every layout animation from the
+        Click another tab while the pill is still moving and it heads for the
+        new one from wherever it is. Framer starts every layout animation from the
         element’s current box on screen, and that’s the concrete thing it has
         over view transitions.
       </p>
@@ -211,7 +211,8 @@ export default function LayoutAnimations() {
       <p>
         The one thing I left scaling is the shadows. Framer only corrects a
         single shadow, and the card and dialog use this site’s shadow tokens:
-        a hairline plus a two-layer elevation, from CSS variables. During the
+        five layers each (a hairline, two soft edge shadows and a two-layer
+        elevation), from CSS variables. During the
         morph they stretch with the box, so the hairline is two or three
         pixels thick for the first frames of the close. It lasts a few frames,
         and I decided it wasn’t worth replacing the design tokens with one
@@ -255,10 +256,12 @@ export default function LayoutAnimations() {
         <code>showModal()</code> gives you: it sits in the top layer above
         everything, Escape closes it, and the rest of the page becomes truly
         inert rather than just unreachable with Tab. A Radix or Base UI dialog
-        does the same in React, and with <code>forceMount</code> it can live
-        inside <code>AnimatePresence</code>. The catch with either is the exit.{" "}
-        <code>close()</code> takes the dialog away at once, so you have to hold
-        it open until the exit animation finishes. I hand-rolled this one to
+        does the same in React. The catch is the exit.{" "}
+        <code>close()</code> takes a native dialog away at once, so you have to
+        hold it open until the exit animation finishes, and a Radix dialog
+        needs <code>forceMount</code> (Base UI calls it{" "}
+        <code>keepMounted</code>) before <code>AnimatePresence</code> can keep
+        it on screen for its exit. I hand-rolled this one to
         show the parts. In a product I’d start from one of those.
       </p>
 

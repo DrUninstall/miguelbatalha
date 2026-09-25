@@ -389,7 +389,10 @@ export function SharedLayoutCard() {
                         }}
                         // Gone within the first few frames of the close, before the
                         // shrinking box reaches it.
-                        exit={{ opacity: 0, transition: { duration: 0.06, ease: "linear" } }}
+                        exit={{
+                          opacity: 0,
+                          transition: { duration: 0.06, ease: "linear" },
+                        }}
                       >
                         <p>
                           The card and this dialog are two different elements
