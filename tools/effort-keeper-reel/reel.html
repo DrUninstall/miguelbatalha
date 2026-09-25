@@ -247,7 +247,7 @@ const shapeW = geo('w'), shapeH = geo('h'), shapeR = geo('r');
 const camS = track(SCHEDULE.filter(([, s]) => !GEO[s].cam).map(([t, s]) => [t, camScale(GEO[s])]), CAMERA);
 const SRF = ['cream', 'dark', 'orange', 'accent'];
 const srfW = {};
-for (const k of SRF) srfW[k] = track(SCHEDULE.map(([t, s]) => [t, GEO[s].srf === k ? 1 : 0]), k === 'orange' ? spring(1600, 80) : spring(900, 60));
+for (const k of SRF) srfW[k] = track(SCHEDULE.map(([t, s]) => [t, GEO[s].srf === k ? 1 : 0]), spring(2200, 94));
 const scaleOf = (state) => camScale(GEO[GEO[state].cam || state]);
 const toScreen = (state, x, y) => { const s = scaleOf(state); return [CX + x * s, CY + y * s]; };
 const toLocal = (state, [x, y]) => { const s = scaleOf(state); return [(x - CX) / s, (y - CY) / s]; };
@@ -257,7 +257,7 @@ const accMix = track([[0, 0], [17.55, 1, SMOOTH], [22.5, 0, SMOOTH]]);
 
 /* Presses dip the shape; the sheet drag moves it. */
 const press = track([[0, 1],
-  [0.50, 0.94], [0.58, 1],
+  [0.50, 0.96], [0.58, 1],
   [2.00, 0.975], [2.50, 1],
   [3.46, 0.97], [3.54, 1],
 ], SNAPPY);
@@ -279,12 +279,15 @@ function el(html, parent = contents) {
   parent.appendChild(d);
   return d;
 }
-/* Own enter and exit per piece: a short blur in, a quicker blur out. */
+/* Own enter and exit per piece. The two overlap, masked by a light blur, so a
+   container never sits empty between states: one thing changes, rather than
+   one thing leaving and another arriving (Family's trays). */
+const EXIT = 0.14;
 function vis(t, tin, tout, dIn = 0.1) {
-  const a = smooth((since(t, tin) - dIn) / 0.16);
-  const b = tout == null ? 0 : smooth(since(t, tout) / 0.1);
-  const on = tout == null ? since(t, tin) >= 0 : (since(t, tin) >= 0 && since(t, tout) < 0.1);
-  return { o: on ? a * (1 - b) : 0, blur: (1 - a) * 10 + b * 8, s: 0.96 + 0.04 * a - 0.03 * b };
+  const a = smooth((since(t, tin) - dIn * 0.3) / 0.18);
+  const b = tout == null ? 0 : smooth(since(t, tout) / EXIT);
+  const on = tout == null ? since(t, tin) >= 0 : (since(t, tin) >= 0 && since(t, tout) < EXIT);
+  return { o: on ? a * (1 - b) : 0, blur: (1 - a) * 6 + b * 6, s: 0.97 + 0.03 * a - 0.02 * b };
 }
 function visAny(t, wins) {
   let best = { o: 0, blur: 0, s: 1 };
