@@ -24,6 +24,6 @@ for (const [, name, opts] of cues) {
 console.log(offsets);
 const placed = cues.map(([t, n, o]) => [t - offsets[n + JSON.stringify(o || {})], n, o]);
 p = await fresh();
-const [L, R] = await p.evaluate((c) => window.renderAudio(c, 23), placed);
+const [L, R] = await p.evaluate((c) => window.renderAudio(c, 26), placed);
 await b.close();
 fs.writeFileSync('audio-raw.json', JSON.stringify({ L, R }));

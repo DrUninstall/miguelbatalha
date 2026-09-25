@@ -2,7 +2,7 @@
 import json, wave
 import numpy as np
 
-SR, T = 48000, 20
+SR, T = 48000, 23
 d = json.load(open("audio-raw.json"))
 x = np.stack([np.array(d["L"]), np.array(d["R"])], 1)
 y = x[: T * SR].copy()

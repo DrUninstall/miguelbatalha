@@ -145,7 +145,7 @@ body { font-family: 'Quicksand', sans-serif; color: var(--ink); -webkit-font-smo
    One shape, never cut. Everything is a pure function of t: seek(t) writes
    every style from scratch and nothing is carried between frames.
    ──────────────────────────────────────────────────────────────────────────── */
-const T = 20;            // 10 bars at 120 BPM
+const T = 23;            // 46 beats at 120 BPM
 const BEAT = 0.5;
 const CX = 720, CY = 720;
 const ORANGE = '#F47A2F';
@@ -230,13 +230,13 @@ const SCHEDULE = [
   [12.5, 'toggleOn'],
   [13.0, 'tabs'],
   [14.0, 'controls'],
-  [14.5, 'bloomBase'],
-  [15.6, 'controls'],
-  [16.0, 'bento'],
-  [18.0, 'palette'],
-  [18.78, 'palette2'],
-  [19.0, 'toast'],
-  [19.5, 'plus'],
+  [15.0, 'bloomBase'],
+  [17.6, 'controls'],
+  [19.0, 'bento'],
+  [21.0, 'palette'],
+  [21.78, 'palette2'],
+  [22.0, 'toast'],
+  [22.5, 'plus'],
 ];
 /* Into the island, width leads and height follows, each with the app's small
    expand overshoot (TimerIsland EXPAND, bounce 0.18). */
@@ -253,7 +253,7 @@ const toScreen = (state, x, y) => { const s = scaleOf(state); return [CX + x * s
 const toLocal = (state, [x, y]) => { const s = scaleOf(state); return [(x - CX) / s, (y - CY) / s]; };
 
 /* The accent: orange, violet after the Blossom, orange again for the loop. */
-const accMix = track([[0, 0], [15.55, 1, SMOOTH], [19.5, 0, SMOOTH]]);
+const accMix = track([[0, 0], [17.55, 1, SMOOTH], [22.5, 0, SMOOTH]]);
 
 /* Presses dip the shape; the sheet drag moves it. */
 const press = track([[0, 1],
@@ -263,8 +263,8 @@ const press = track([[0, 1],
 ], SNAPPY);
 /* The floating timer hangs from its top edge and grows downward. */
 const ISL_TOP = -195;
-const anchor = track([[0, 0], [10.0, 1, SNAPPY], [12.0, 0, SNAPPY], [14.0, 1, SNAPPY], [16.0, 0, SNAPPY]]);
-const anchorTop = track([[0, ISL_TOP], [13.0, -215, spring(900, 60)], [17.0, ISL_TOP, spring(900, 60)]]);
+const anchor = track([[0, 0], [10.0, 1, SNAPPY], [12.0, 0, SNAPPY], [14.0, 1, SNAPPY], [19.0, 0, SNAPPY]]);
+const anchorTop = track([[0, ISL_TOP], [13.0, -215, spring(900, 60)], [20.0, ISL_TOP, spring(900, 60)]]);
 const DRAG_SHEET = [5.0, 5.5];
 const DRAG_DY = 230;
 const sheetDragDy = (t) => lerp(0, DRAG_DY, smooth((t - 5.02) / 0.4));
@@ -562,7 +562,7 @@ const cCtrl = el(`<div style="position:relative;width:700px;height:420px">
   <div class="key ctl" style="left:362px;top:308px;width:338px;height:94px;justify-content:flex-start;gap:22px;padding:0 32px;border-radius:30px"><span style="width:16px;height:16px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px color-mix(in srgb, var(--acc) 70%, transparent)"></span><span class="ctl-label">EACH DAY</span></div>
 </div>`);
 const ctPlus = cCtrl.querySelector('#ct-plus'), ctNum = cCtrl.querySelector('#ct-num');
-const CT_NUMS = [['30', 14.0], ['35', 14.25]].map(([n, at]) => {
+const CT_NUMS = [['30', 14.0], ['35', 14.5]].map(([n, at]) => {
   const sp = document.createElement('span');
   sp.style.cssText = 'position:absolute;left:0;right:0;top:0;text-align:center;line-height:112px';
   sp.textContent = n;
@@ -573,7 +573,7 @@ const CT_NUMS = [['30', 14.0], ['35', 14.25]].map(([n, at]) => {
 /* The Blossom, as the app draws it: thirty caps from @dayflow/blossom-color-picker,
    laid out by the library and captured from the running app (positions, colours,
    stacking, split halves), shaded with EffortBloom.module.css's cap recipe. */
-const BLOOM_DATA = {"petals": [[0, -48.5, 70, "rgb(255, 177, 168)", 0.9444444444444444, 303, "none"], [43.27, -17.06, 70, "rgb(148, 205, 255)", 0.9490740740740741, 304, "none"], [26.74, 33.81, 70, "rgb(195, 194, 255)", 0.9305555555555556, 300, "polygon(0% -50%, 50% -50%, 50% 150%, 0% 150%)"], [26.74, 33.81, 70, "rgb(195, 194, 255)", 1.0, 315, "polygon(50% -50%, 100% -50%, 100% 150%, 50% 150%)"], [-26.74, 33.81, 70, "rgb(238, 170, 253)", 0.9351851851851852, 301, "none"], [-43.27, -17.06, 70, "rgb(255, 168, 210)", 0.9398148148148148, 302, "none"], [45.26, -65.29, 70, "rgb(239, 115, 108)", 0.49537037037037035, 206, "none"], [73.23, -26.79, 70, "rgb(255, 179, 128)", 0.5, 207, "none"], [73.23, 20.79, 70, "rgb(237, 193, 100)", 0.5046296296296297, 208, "none"], [45.26, 59.29, 70, "rgb(152, 221, 136)", 0.5092592592592593, 209, "none"], [0, 74, 70, "rgb(108, 224, 195)", 0.4675925925925926, 200, "polygon(0% -50%, 50% -50%, 50% 150%, 0% 150%)"], [0, 74, 70, "rgb(108, 224, 195)", 0.5601851851851852, 220, "polygon(50% -50%, 100% -50%, 100% 150%, 50% 150%)"], [-45.26, 59.29, 70, "rgb(109, 219, 238)", 0.4722222222222222, 201, "none"], [-73.23, 20.79, 70, "rgb(54, 166, 247)", 0.47685185185185186, 202, "none"], [-73.23, -26.79, 70, "rgb(150, 142, 250)", 0.48148148148148145, 203, "none"], [-45.26, -65.29, 70, "rgb(201, 124, 218)", 0.4861111111111111, 204, "none"], [0, -80, 70, "rgb(228, 114, 173)", 0.49074074074074076, 205, "none"], [33.53, -106.19, 70, "rgb(159, 52, 50)", 0.041666666666666664, 108, "none"], [72.6, -83.63, 70, "rgb(230, 128, 45)", 0.046296296296296294, 109, "none"], [99.12, -47.13, 70, "rgb(143, 71, 0)", 0.05092592592592592, 110, "none"], [108.5, -3, 70, "rgb(122, 90, 0)", 0.05555555555555555, 111, "none"], [99.12, 41.13, 70, "rgb(199, 149, 0)", 0.06018518518518518, 112, "none"], [72.6, 77.63, 70, "rgb(38, 110, 18)", 0.06481481481481481, 113, "none"], [33.53, 100.19, 70, "rgb(102, 182, 84)", 0.06944444444444445, 114, "none"], [-12.48, 115.7, 70, "rgb(0, 184, 153)", 0.004629629629629629, 100, "polygon(0% -50%, 50% -50%, 50% 150%, 0% 150%)"], [-12.48, 115.7, 70, "rgb(0, 184, 153)", 0.12037037037037036, 125, "polygon(50% -50%, 100% -50%, 100% 150%, 50% 150%)"], [-54.25, 90.96, 70, "rgb(0, 112, 93)", 0.009259259259259259, 101, "none"], [-87.78, 60.77, 70, "rgb(0, 176, 199)", 0.013888888888888888, 102, "none"], [-106.13, 19.56, 70, "rgb(0, 108, 122)", 0.018518518518518517, 103, "none"], [-106.13, -25.56, 70, "rgb(0, 100, 158)", 0.023148148148148147, 104, "none"], [-87.78, -66.77, 70, "rgb(88, 77, 168)", 0.027777777777777776, 105, "none"], [-54.25, -96.96, 70, "rgb(128, 61, 143)", 0.032407407407407406, 106, "none"], [-11.34, -110.91, 70, "rgb(147, 52, 104)", 0.037037037037037035, 107, "none"]], "grain": "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.4 0 0 0 0.3 0.4 0 0 0 0.3 0.4 0 0 0 0.3 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)'/%3E%3C/svg%3E\")", "core": 70};
+const BLOOM_DATA = {"petals": [[0, -48.5, 70, "rgb(255, 177, 168)", 0.9444444444444444, 303, "none"], [43.27, -17.06, 70, "rgb(148, 205, 255)", 0.9490740740740741, 304, "none"], [26.74, 33.81, 70, "rgb(195, 194, 255)", 0.9305555555555556, 300, "polygon(0% -50%, 50% -50%, 50% 150%, 0% 150%)"], [26.74, 33.81, 70, "rgb(195, 194, 255)", 1.0, 315, "polygon(50% -50%, 100% -50%, 100% 150%, 50% 150%)"], [-26.74, 33.81, 70, "rgb(238, 170, 253)", 0.9351851851851852, 301, "none"], [-43.27, -17.06, 70, "rgb(255, 168, 210)", 0.9398148148148148, 302, "none"], [45.26, -65.29, 70, "rgb(239, 115, 108)", 0.49537037037037035, 206, "none"], [73.23, -26.79, 70, "rgb(255, 179, 128)", 0.5, 207, "none"], [73.23, 20.79, 70, "rgb(237, 193, 100)", 0.5046296296296297, 208, "none"], [45.26, 59.29, 70, "rgb(152, 221, 136)", 0.5092592592592593, 209, "none"], [0, 74, 70, "rgb(108, 224, 195)", 0.4675925925925926, 200, "polygon(0% -50%, 50% -50%, 50% 150%, 0% 150%)"], [0, 74, 70, "rgb(108, 224, 195)", 0.5601851851851852, 220, "polygon(50% -50%, 100% -50%, 100% 150%, 50% 150%)"], [-45.26, 59.29, 70, "rgb(109, 219, 238)", 0.4722222222222222, 201, "none"], [-73.23, 20.79, 70, "rgb(54, 166, 247)", 0.47685185185185186, 202, "none"], [-73.23, -26.79, 70, "rgb(150, 142, 250)", 0.48148148148148145, 203, "none"], [-45.26, -65.29, 70, "rgb(201, 124, 218)", 0.4861111111111111, 204, "none"], [0, -80, 70, "rgb(228, 114, 173)", 0.49074074074074076, 205, "none"], [33.53, -106.19, 70, "rgb(159, 52, 50)", 0.041666666666666664, 108, "none"], [72.6, -83.63, 70, "rgb(230, 128, 45)", 0.046296296296296294, 109, "none"], [99.12, -47.13, 70, "rgb(143, 71, 0)", 0.05092592592592592, 110, "none"], [108.5, -3, 70, "rgb(122, 90, 0)", 0.05555555555555555, 111, "none"], [99.12, 41.13, 70, "rgb(199, 149, 0)", 0.06018518518518518, 112, "none"], [72.6, 77.63, 70, "rgb(38, 110, 18)", 0.06481481481481481, 113, "none"], [33.53, 100.19, 70, "rgb(102, 182, 84)", 0.06944444444444445, 114, "none"], [-12.48, 115.7, 70, "rgb(0, 184, 153)", 0.004629629629629629, 100, "polygon(0% -50%, 50% -50%, 50% 150%, 0% 150%)"], [-12.48, 115.7, 70, "rgb(0, 184, 153)", 0.12037037037037036, 125, "polygon(50% -50%, 100% -50%, 100% 150%, 50% 150%)"], [-54.25, 90.96, 70, "rgb(0, 112, 93)", 0.009259259259259259, 101, "none"], [-87.78, 60.77, 70, "rgb(0, 176, 199)", 0.013888888888888888, 102, "none"], [-106.13, 22.56, 70, "rgb(0, 108, 122)", 0.018518518518518517, 103, "none"], [-106.13, -25.56, 70, "rgb(0, 100, 158)", 0.023148148148148147, 104, "none"], [-87.78, -66.77, 70, "rgb(88, 77, 168)", 0.027777777777777776, 105, "none"], [-54.25, -96.96, 70, "rgb(128, 61, 143)", 0.032407407407407406, 106, "none"], [-11.34, -110.91, 70, "rgb(147, 52, 104)", 0.037037037037037035, 107, "none"]], "grain": "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0.4 0 0 0 0.3 0.4 0 0 0 0.3 0.4 0 0 0 0.3 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23g)'/%3E%3C/svg%3E\")", "core": 70};
 const BK = 2.05;                         // the flower's scale in the block
 document.documentElement.style.setProperty('--grain', BLOOM_DATA.grain);
 const BL = BLOOM_DATA.petals.map(([x, y, w, cap, lift, z, clip]) => ({ x, y, w, cap, lift, z, clip }));
@@ -595,15 +595,15 @@ const cBloom = el(`<div id="bl-clip" style="position:relative;width:100%;height:
       <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.6 4.5L19 7.5"/></svg>
     </div>
   </div>
-  <div id="bl-back" class="key" style="left:-338px;top:212px;width:84px;height:66px;border-radius:33px;color:var(--ink)">
+  <div id="bl-back" class="key" style="left:-346px;top:206px;width:84px;height:66px;border-radius:33px;color:var(--ink)">
     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></svg>
   </div>
-  <div id="bl-port" style="position:absolute;left:290px;top:226px;width:40px;height:40px;border-radius:50%;background:#2c2c30;box-shadow:inset 0 3px 5px rgb(0 0 0/0.6),0 1px 0 rgb(255 255 255/0.5)"></div>
+  <div id="bl-port" style="position:absolute;left:300px;top:220px;width:40px;height:40px;border-radius:50%;background:#2c2c30;box-shadow:inset 0 3px 5px rgb(0 0 0/0.6),0 1px 0 rgb(255 255 255/0.5)"></div>
 </div></div>`);
 const blHost = cBloom.querySelector('#bl-host'), blCore = cBloom.querySelector('#bl-core');
 const blBack = cBloom.querySelector('#bl-back'), blPort = cBloom.querySelector('#bl-port');
 const capEls = [...blHost.querySelectorAll('.cap:not(#bl-core)')];
-const OPEN_AT = 14.5, GRAB_AT = 14.72, BLOOM_END = 15.5;
+const OPEN_AT = 15.0, GRAB_AT = 15.25, BLOOM_END = 17.5;
 const BLOOM = [GRAB_AT, BLOOM_END];
 
 function bezier(x1, y1, x2, y2) {
@@ -626,9 +626,11 @@ const outer = BL.map((p, i) => ({ i, a: Math.atan2(p.y, p.x), r: Math.hypot(p.x,
 const pick = BL[PICK_CAP];
 const aStart = Math.atan2(40, 120), aEnd = Math.atan2(pick.y, pick.x);
 const WAY = [[120, 40]];
-for (let k = 1; k <= 5; k++) {
-  const a = aStart + ((((aEnd - aStart) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) * (k / 6);
-  WAY.push([Math.cos(a) * 118, Math.sin(a) * 118]);
+const SWEEP = ((((aEnd - aStart) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) + 2 * Math.PI;
+for (let k = 1; k <= 13; k++) {
+  const a = aStart + SWEEP * (k / 14);
+  const r = k < 9 ? 118 : lerp(118, 70, (k - 8) / 6);
+  WAY.push([Math.cos(a) * r, Math.sin(a) * r]);
 }
 WAY.push([pick.x, pick.y]);
 function catmull(pts, u) {
@@ -637,7 +639,7 @@ function catmull(pts, u) {
   const c = (a, b, c2, d) => 0.5 * (2 * b + (-a + c2) * s + (2 * a - 5 * b + 4 * c2 - d) * s * s + (-a + 3 * b - 3 * c2 + d) * s * s * s);
   return [c(p0[0], p1[0], p2[0], p3[0]), c(p0[1], p1[1], p2[1], p3[1])];
 }
-const bloomHand = (t) => { const [x, y] = catmull(WAY, smooth((t - GRAB_AT) / 0.7)); return [x * BK, y * BK]; };
+const bloomHand = (t) => { const [x, y] = catmull(WAY, smooth((t - GRAB_AT) / (BLOOM_END - GRAB_AT - 0.3))); return [x * BK, y * BK]; };
 /* the topmost cap under the finger, honouring split halves */
 function capAt([X, Y]) {
   const [x, y] = [X / BK, Y / BK];
@@ -699,7 +701,7 @@ const tileRest = tiles.map((n) => n.querySelector('.rest'));
 const bx = cBento.querySelector('#bx'), bxClose = cBento.querySelector('#bx-close'), bxRail = cBento.querySelector('#bx-rail');
 const bxParts = [cBento.querySelector('#bx-head'), ...bx.children].filter((n, i, a) => a.indexOf(n) === i && n.id !== 'bx-head');
 const bxRows = [...cBento.querySelectorAll('.bx-row')];
-const EXPAND = [16.5, 17.5];
+const EXPAND = [19.5, 20.5];
 /* Framer's layout springs from BentoStats: open duration 0.4 / bounce 0.2, close 0.28 / bounce 0. */
 const SECTION_OPEN = spring(247, 25.1), SECTION_CLOSE = spring(503, 44.9);
 const tileEdges = [0, 1, 2, 3].map((k) => track([[0, tileRect(0)[k]], [EXPAND[0], FULL[k], SECTION_OPEN], [EXPAND[1], tileRect(0)[k], SECTION_CLOSE]]));
@@ -725,7 +727,7 @@ const cPal = el(`<div style="position:relative;width:640px;height:0">
 const palSearch = cPal.querySelector('#pal-search'), palRule = cPal.querySelector('#pal-rule'), palHl = cPal.querySelector('#pal-hl');
 const palPh = cPal.querySelector('#pal-ph'), palTx = cPal.querySelector('#pal-tx'), palCaret = cPal.querySelector('#pal-caret');
 const cmdEls = [...cPal.querySelectorAll('.cmd')];
-const QUERY = 'log', TYPE_AT = [18.5, 18.62, 18.74], FILTER_AT = 18.76;
+const QUERY = 'log', TYPE_AT = [21.5, 21.62, 21.74], FILTER_AT = 21.76;
 
 /* ── toast ── */
 const cToast = el(`<div style="position:relative;width:560px;height:100px;display:flex;align-items:center;gap:22px;color:#F0EEE9">
@@ -764,26 +766,27 @@ const CUR = [
   [13.05, ...toScreen('tabs', 150, 12)],
   [13.62, ...toScreen('controls', 150, 330)],
   [13.98, ...toScreen('controls', 294, BASE_TOP + 235 - 210 + 206)],
-  [14.32, ...toScreen('controls', swX(7), SWATCH_Y + 4)],
-  [14.56, ...toScreen('controls', WAY[0][0] * BK, WAY[0][1] * BK + (BASE_TOP + 300 + 34))],
-  [GRAB_AT, ...toScreen('controls', pick.x * BK, pick.y * BK + (BASE_TOP + 300 + 34))],   // held: the hand's own path takes over
-  [15.62, ...toScreen('controls', swX(7) + 60, SWATCH_Y + 120)],
-  [16.05, ...toScreen('bento', -170, -120)],
-  [16.62, ...toScreen('bento', 250, 60)],
-  [16.92, ...toScreen('bento', 120, 162)],
-  [17.2, ...toScreen('bento', 278, -284)],
-  [17.62, ...toScreen('palette', 190, 260)],
-  [19.1, ...toScreen('toast', 150, 120)],
-  [19.3, ...REST],
+  [14.66, ...toScreen('controls', swX(7), SWATCH_Y + 4)],
+  [15.06, ...toScreen('controls', WAY[0][0] * BK, WAY[0][1] * BK + (BASE_TOP + 300))],
+  [GRAB_AT, ...toScreen('controls', pick.x * BK, pick.y * BK + (BASE_TOP + 300))],   // held: the hand's own path takes over
+  [17.62, ...toScreen('controls', swX(7) + 60, SWATCH_Y + 120)],
+  [18.3, ...toScreen('controls', 120, 300)],
+  [19.05, ...toScreen('bento', -170, -120)],
+  [19.62, ...toScreen('bento', 250, 60)],
+  [19.92, ...toScreen('bento', 120, 162)],
+  [20.2, ...toScreen('bento', 278, -284)],
+  [20.62, ...toScreen('palette', 190, 260)],
+  [22.1, ...toScreen('toast', 150, 120)],
+  [22.3, ...REST],
 ];
 const curX = track(CUR.map(([t, x]) => [t, x]), HAND);
 const curY = track(CUR.map(([t, , y]) => [t, y]), HAND);
-const CLICKS = [[0.50, 0.58], [2.0, 2.5], [2.96, 3.04], [3.46, 3.54], [3.96, 4.04], [4.46, 4.54], [5.0, 5.5], [7.96, 8.04], [8.5, 9.5], [10.46, 10.54], [10.98, 11.04], [11.23, 11.29], [11.48, 11.54], [12.46, 12.54], [13.46, 13.54], [14.21, 14.29], [14.46, 14.54], [GRAB_AT, BLOOM_END], [16.46, 16.54], [17.46, 17.54]];
+const CLICKS = [[0.50, 0.58], [2.0, 2.5], [2.96, 3.04], [3.46, 3.54], [3.96, 4.04], [4.46, 4.54], [5.0, 5.5], [7.96, 8.04], [8.5, 9.5], [10.46, 10.54], [10.98, 11.04], [11.23, 11.29], [11.48, 11.54], [12.46, 12.54], [13.46, 13.54], [14.46, 14.54], [14.96, 15.04], [GRAB_AT, BLOOM_END], [19.46, 19.54], [20.46, 20.54]];
 const curPress = track([[0, 0], ...CLICKS.flatMap(([a, b]) => [[a, 1], [b, 0]])], SNAPPY);
 function cursorAt(t) {
   if (t >= DRAG_SHEET[0] && t < DRAG_SHEET[1]) return toScreen('sheet', 0, SHEET_GRAB_Y + sheetDragDy(t));
   if (t >= SCRUB[0] && t < SCRUB[1]) return toScreen('timer', scrubHandX(t), KNOB_Y);
-  if (t >= BLOOM[0] && t < BLOOM[1]) { const [x, y] = bloomHand(t); return toScreen('controls', x, y + (BASE_TOP + 300 + 34)); }
+  if (t >= BLOOM[0] && t < BLOOM[1]) { const [x, y] = bloomHand(t); return toScreen('controls', x, y + (BASE_TOP + 300)); }
   return [curX(t), curY(t)];
 }
 
@@ -811,13 +814,13 @@ function seek(tIn) {
   const shapeTop = lerp(-h / 2, anchorTop(t), an) + sy;
   shape.style.top = `${shapeTop.toFixed(2)}px`;
   filament.style.opacity = (t >= 9.8 && t < 12.4 ? an : 0).toFixed(3);
-  shape.style.setProperty('--wall', `${(4 + (t >= 13.8 && t < 16.3 ? 18 * an : 0)).toFixed(2)}px`);
+  shape.style.setProperty('--wall', `${(4 + (t >= 13.8 && t < 19.3 ? 18 * an : 0)).toFixed(2)}px`);
   shape.style.borderRadius = `${r.toFixed(2)}px`;
   shape.style.transform = `scale(${p.toFixed(4)})`;
   for (const k of SRF) S_EL[k].style.opacity = clamp(srfW[k](t)).toFixed(4);
 
   /* bar 1: plus → loader → check */
-  place(cPlus, vis(t, 19.56, 0.56, 0.08), 0, 0, `scale(${p.toFixed(4)})`);
+  place(cPlus, vis(t, 22.56, 0.56, 0.08), 0, 0, `scale(${p.toFixed(4)})`);
   place(cLoad, vis(t, 0.56, 1.5, 0.04), 0, 0, `scale(${p.toFixed(4)})`);
   const closeArc = smooth((t - 0.98) / 0.16);
   ldArc.setAttribute('stroke-dasharray', `${lerp(30, 100, closeArc).toFixed(2)} 100`);
@@ -946,17 +949,17 @@ function seek(tIn) {
   tabP.style.color = `color-mix(in oklab, var(--ink-faint), var(--ink) ${(on * 100).toFixed(1)}%)`;
 
   /* bar 7: swatch row → Blossom → back to the row, wearing the pick */
-  place(cSwatch, vis(t, 14.0, 16.0, 0.1), 0, SWATCH_Y);
+  place(cSwatch, vis(t, 14.0, 19.0, 0.1), 0, SWATCH_Y);
   const baseMid = shapeTop + h / 2;
-  const ctrlV = visAny(t, [[14.0, 14.5, 0.12], [15.62, 16.0, 0.06]]);
+  const ctrlV = visAny(t, [[14.0, 15.0, 0.12], [17.62, 19.0, 0.06]]);
   place(cCtrl, ctrlV, 0, baseMid);
-  keyPress(ctPlus, pressAt(t, 14.21, 14.29));
+  keyPress(ctPlus, pressAt(t, 14.46, 14.54));
   CT_NUMS.forEach(([n, at], i) => {
-    const next = CT_NUMS[i + 1] ? CT_NUMS[i + 1][1] : 16.2;
+    const next = CT_NUMS[i + 1] ? CT_NUMS[i + 1][1] : 19.2;
     rollIn(n, vis(t, at, next, i === 0 ? 0.12 : 0.02), at, t, 18);
   });
-  keyPress(swBloom, pressAt(t, 14.46, 14.54));
-  const picked = t >= 15.5 && t < 16.3;
+  keyPress(swBloom, pressAt(t, 14.96, 15.04));
+  const picked = t >= 17.5 && t < 19.3;
   swBloom.style.background = picked ? 'var(--acc)' : '';
   swBloom.style.color = picked ? '#fff' : '';
   const bo = SEAT((t - OPEN_AT) / 0.3);
@@ -964,7 +967,7 @@ function seek(tIn) {
   const shownB = inWin(t, OPEN_AT, BLOOM_END + 0.2);
   cBloom.style.width = `${w.toFixed(2)}px`;
   cBloom.style.height = `${h.toFixed(2)}px`;
-  place(cBloom, { o: shownB ? 1 - out : 0, blur: 0, s: 1 }, 0, baseMid + 34);
+  place(cBloom, { o: shownB ? 1 - out : 0, blur: 0, s: 1 }, 0, baseMid);
   blHost.style.transform = `scale(${(BK * (0.86 + 0.14 * bo) * (1 - 0.26 * out)).toFixed(4)})`;
   const dk = draftAt(t), onCap = BL[DRAFT[dk][1]].cap;
   const dragging = t >= GRAB_AT && t < BLOOM_END;
@@ -991,7 +994,7 @@ function seek(tIn) {
   blPort.style.scale = (0.5 + 0.5 * pu).toFixed(3);
 
   /* bar 8: bento — the tile becomes the section; the others step back */
-  place(cBento, vis(t, 16.0, 18.0, 0.12));
+  place(cBento, vis(t, 19.0, 21.0, 0.12));
   const isOpenB = t >= EXPAND[0] && t < EXPAND[1];
   const sOpen = since(t, EXPAND[0]), sClose = since(t, EXPAND[1]);
   const sib = isOpenB ? OUT_CUBIC(sOpen / 0.18) : (sClose >= 0 && sClose < 0.3 ? 1 - OUT_CUBIC(sClose / 0.18) : 0);
@@ -1002,7 +1005,7 @@ function seek(tIn) {
     n.style.width = `${(x1 - x0).toFixed(2)}px`; n.style.height = `${(y1 - y0).toFixed(2)}px`;
     n.style.opacity = i === 0 ? 1 : (1 - sib).toFixed(3);
     n.style.zIndex = i === 0 ? 2 : 1;
-    if (i === 0) keyPress(n, pressAt(t, 16.46, 16.54));
+    if (i === 0) keyPress(n, pressAt(t, 19.46, 19.54));
   });
   let restO = 1, exO = 0;
   // Framer's shared-layout crossfade: both states are on screen through the morph.
@@ -1019,13 +1022,13 @@ function seek(tIn) {
     const a = isOpenB ? smooth((sOpen - 0.2 - i * 0.05) / 0.18) : 1;
     r.style.opacity = a.toFixed(3);
     r.style.transform = `translateY(${((1 - a) * 10).toFixed(2)}px)`;
-    const hover = i === 0 && t >= 17.0 && t < 17.3 ? smooth((t - 17.0) / 0.08) * (1 - smooth((t - 17.22) / 0.08)) : 0;
+    const hover = i === 0 && t >= 20.0 && t < 20.3 ? smooth((t - 20.0) / 0.08) * (1 - smooth((t - 20.22) / 0.08)) : 0;
     r.style.background = `color-mix(in oklab, var(--ink) ${(hover * 6).toFixed(2)}%, transparent)`;
   });
-  keyPress(bxClose, pressAt(t, 17.46, 17.54));
+  keyPress(bxClose, pressAt(t, 20.46, 20.54));
 
   /* bar 9: ⌘K — type, filter, enter → toast → plus */
-  place(cPal, vis(t, 18.0, 19.0, 0.12));
+  place(cPal, vis(t, 21.0, 22.0, 0.12));
   const top = -shapeH(t) / 2 + 30;
   palSearch.style.top = `${top.toFixed(2)}px`;
   palRule.style.top = `${(top + 106).toFixed(2)}px`;
@@ -1033,9 +1036,9 @@ function seek(tIn) {
   palTx.textContent = QUERY.slice(0, typed);
   palPh.style.opacity = typed ? 0 : 1;
   palCaret.style.left = `${(palTx.getBoundingClientRect().width / s + 4).toFixed(1)}px`;
-  palCaret.style.opacity = t >= 18.3 || Math.floor(t / BEAT) % 2 === 0 ? 1 : 0;
+  palCaret.style.opacity = t >= 21.3 || Math.floor(t / BEAT) % 2 === 0 ? 1 : 0;
   const mv = SNAPPY(since(t, FILTER_AT));
-  const filtered = inWin(t, FILTER_AT, 19.2);
+  const filtered = inWin(t, FILTER_AT, 22.2);
   cmdEls.forEach((n, i) => {
     const keep = CMDS[i][2];
     const kept = CMDS.slice(0, i).filter((c) => c[2]).length;
@@ -1044,8 +1047,8 @@ function seek(tIn) {
     fade(n, { o: 1 - g, blur: 8 * g });
   });
   palHl.style.top = `${(top + 124).toFixed(2)}px`;
-  palHl.style.opacity = t >= 18.5 ? clamp(SNAPPY(since(t, 18.5))).toFixed(3) : 0;
-  place(cToast, vis(t, 19.0, 19.5, 0.1));
+  palHl.style.opacity = t >= 21.5 ? clamp(SNAPPY(since(t, 21.5))).toFixed(3) : 0;
+  place(cToast, vis(t, 22.0, 22.5, 0.1));
 
   /* cursor */
   const [x, y] = cursorAt(t);
@@ -1084,19 +1087,19 @@ window.CUES = [
   [13.0, 'tick', { volume: 0.7 }],
   [13.46, 'navigate', { direction: 1 }],
   [14.0, 'tick', { volume: 0.7 }],
-  [14.21, 'tick'],
-  [14.46, 'click'],
+  [14.46, 'tick'],
+  [14.96, 'click'],
   [GRAB_AT, 'bloomPress', { cap: BL[DRAFT[0][1]].cap }],
   ...BLOOM_TICKS.map(([t, i]) => [t, 'bloomTick', { cap: BL[i].cap }]),
   [BLOOM_END, 'bloomCommit', { cap: BL[PICK_CAP].cap }],
-  [15.6, 'tick', { volume: 0.6 }],
-  [16.0, 'tick', { volume: 0.7 }],
-  [16.46, 'click'],
-  [17.46, 'back'],
-  [18.0, 'tick', { volume: 0.7 }],
+  [17.6, 'tick', { volume: 0.6 }],
+  [19.0, 'tick', { volume: 0.7 }],
+  [19.46, 'click'],
+  [20.46, 'back'],
+  [21.0, 'tick', { volume: 0.7 }],
   ...TYPE_AT.map((a) => [a, 'type']),
-  [19.0, 'commit'],
-  [19.5, 'back'],
+  [22.0, 'commit'],
+  [22.5, 'back'],
 ];
 window.REEL = { T, BLOOM_TICKS, PICK_CAP };
 
