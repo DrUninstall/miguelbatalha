@@ -93,10 +93,15 @@
 @media (forced-colors: active) {
   .thumb {
     background: transparent;
+    box-shadow: none;
   }
 
+  /* adjust: none stops the browser drawing a Canvas-coloured backplate behind
+     the label; the colours and the focus ring are then ours to set. */
   .option.selected {
+    forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
+    outline-color: CanvasText;
   }
 }

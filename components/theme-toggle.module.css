@@ -168,8 +168,12 @@
     background: transparent;
   }
 
+  /* adjust: none stops the browser drawing a Canvas-coloured backplate behind
+     the label; the colours and the focus ring are then ours to set. */
   .option[aria-checked="true"] {
+    forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
+    outline-color: CanvasText;
   }
 }

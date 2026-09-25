@@ -134,9 +134,8 @@ animate(x, -index * step, { ...RELEASE_SPRING, velocity });
         changes mid-flight, a spring carries its current velocity into the new
         move. A CSS transition also starts from wherever the element is, but
         from a standstill, so something moving fast stalls and sets off again.
-        You type faster than a meter settles, dialog steps change before the
-        height has finished, and you can tap through the pill’s states as fast
-        as you like.
+        You type faster than a meter settles, and a dialog can move to its
+        next step before its height has finished changing.
       </p>
       <p>
         The bar under the field shows how many of the four rules you’ve met,

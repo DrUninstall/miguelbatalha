@@ -232,3 +232,11 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* Forced colors replace the dot's fill with the page colour; keep it visible. */
+@media (forced-colors: active) {
+  .pulsingDotInner,
+  .pulsingDotOuter {
+    background: CanvasText;
+  }
+}

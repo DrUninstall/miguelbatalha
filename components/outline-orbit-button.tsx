@@ -76,9 +76,10 @@ export function OutlineOrbitButton({ children, onClick }: OutlineOrbitButtonProp
   useEffect(() => {
     const el = buttonRef.current;
     if (!el || !hasRings || reduceMotion) return;
-    const rings = el
-      .getAnimations({ subtree: true })
-      .filter((a) => a instanceof CSSAnimation && a.animationName.startsWith("orbit"));
+    // The rects' CSS animations are the orbit; their stroke colour transitions are left alone.
+    const rings = Array.from(el.querySelectorAll("rect"), (rect) => rect.getAnimations())
+      .flat()
+      .filter((a) => a instanceof CSSAnimation);
     const setRate = (rate: number) => {
       rateRef.current = rate;
       for (const ring of rings) ring.playbackRate = rate;
