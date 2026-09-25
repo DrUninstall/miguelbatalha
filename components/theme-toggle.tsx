@@ -12,9 +12,9 @@ import styles from "./theme-toggle.module.css";
 
 // next-themes runs with disableTransitionOnChange, which turns every CSS
 // *transition* off for the frame the theme class changes. CSS *animations* are
-// unaffected, so the icon swap and the highlight slide are keyframes. They're
-// only switched on once the person has toggled the theme (data-theme-switched
-// on <html>), so nothing animates on page load.
+// unaffected, so the header's icon swap is keyframes. They're only switched on
+// once the person has changed the theme (data-theme-switched on <html>), so
+// nothing animates on page load.
 function markSwitched() {
   document.documentElement.setAttribute("data-theme-switched", "");
 }
@@ -108,6 +108,8 @@ type ThemeChoice = (typeof OPTIONS)[number]["value"];
 
 const HIGHLIGHT_SLIDE = { duration: 300, easing: "cubic-bezier(0.215, 0.61, 0.355, 1)" };
 
+const ARROW_STEP: Partial<Record<string, 1 | -1>> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+
 // The highlight's resting position, one column (its own width + the 8px gap) per option.
 const highlightX = (index: number) => `calc(${index} * (100% + 8px))`;
 
@@ -154,7 +156,7 @@ export function ThemeToggleExpanded() {
   };
 
   const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
-    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+    const step = ARROW_STEP[event.key];
     if (step === undefined) return;
     event.preventDefault();
     const target = (index + step + OPTIONS.length) % OPTIONS.length;

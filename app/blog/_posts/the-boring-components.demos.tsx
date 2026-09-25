@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 import { SegmentedControl } from "@/components/ui/segmented-control";
-import { TabSelector } from "@/components/ui/tab-selector";
+import { TabSelector, getTabId } from "@/components/ui/tab-selector";
 import { Stages } from "@/components/ui/stages";
-import { useToast } from "@/components/toast";
+import { toast } from "@/components/toast";
 import {
   AnimatedHeart,
   AnimatedStar,
@@ -23,6 +23,25 @@ import {
   DownloadButton,
 } from "@/components/animated-icons";
 import ui from "../_components/post.module.css";
+import styles from "./the-boring-components.module.css";
+
+export function ButtonsDemo() {
+  const deleteDraft = () =>
+    toast("Draft deleted", {
+      action: { label: "Undo", onClick: () => toast.success("Draft restored") },
+    });
+  return (
+    <div className={ui.row}>
+      <Button variant="primary" tone="brand">Save</Button>
+      <Button variant="secondary" tone="brand">Preview</Button>
+      <Button variant="tertiary" tone="brand">Cancel</Button>
+      <Button variant="primary" tone="destructive" onClick={deleteDraft}>
+        Delete
+      </Button>
+      <Button variant="secondary">Export</Button>
+    </div>
+  );
+}
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -49,10 +68,19 @@ export function FieldDemo() {
   );
 }
 
+const TABS = [
+  { id: "overview", label: "Overview", content: "Three open tasks, one due today." },
+  { id: "analytics", label: "Analytics", content: "142 visits this week, up 12% on the last." },
+  { id: "settings", label: "Settings", content: "Who can see this project, and who gets emailed." },
+];
+
 export function SelectionDemo() {
   const [view, setView] = useState("grid");
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState(TABS[0].id);
   const [notify, setNotify] = useState(true);
+  const tablistId = useId();
+  const panelId = `${tablistId}-panel`;
+  const activeTab = TABS.find((t) => t.id === tab) ?? TABS[0];
   return (
     <div className={`${ui.stack} ${ui.stackCentered}`}>
       <SegmentedControl
@@ -65,16 +93,24 @@ export function SelectionDemo() {
         value={view}
         onChange={setView}
       />
-      <TabSelector
-        aria-label="Project sections"
-        tabs={[
-          { id: "overview", label: "Overview" },
-          { id: "analytics", label: "Analytics" },
-          { id: "settings", label: "Settings" },
-        ]}
-        activeTab={tab}
-        onTabChange={setTab}
-      />
+      <div className={styles.tabs}>
+        <TabSelector
+          id={tablistId}
+          aria-label="Project sections"
+          tabs={TABS.map(({ id, label }) => ({ id, label, panelId }))}
+          activeTab={tab}
+          onTabChange={setTab}
+        />
+        <div
+          role="tabpanel"
+          id={panelId}
+          aria-labelledby={getTabId(tablistId, activeTab.id)}
+          tabIndex={0}
+          className={styles.panel}
+        >
+          {activeTab.content}
+        </div>
+      </div>
       <Toggle label="Email notifications" checked={notify} onChange={setNotify} />
     </div>
   );
@@ -95,7 +131,6 @@ export function StagesDemo() {
         aria-label="Sign-up progress"
         stages={STEPS}
         currentStage={step}
-        onBack={() => setStep((s) => Math.max(0, s - 1))}
       />
       <div className={ui.row}>
         <Button
@@ -120,20 +155,31 @@ export function StagesDemo() {
   );
 }
 
+const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+const retry = () =>
+  toast.promise(wait(1200), {
+    loading: "Reconnecting…",
+    success: "Connected",
+    error: "Still can’t reach the server",
+  });
+
 export function ToastDemo() {
-  const toast = useToast();
   return (
     <div className={ui.row}>
       <Button size="small" onClick={() => toast.success("Changes saved")}>
         Success
       </Button>
-      <Button size="small" onClick={() => toast.error("Couldn’t reach the server. Try again.")}>
+      <Button
+        size="small"
+        onClick={() => toast.error("Couldn’t reach the server.", { action: { label: "Retry", onClick: retry } })}
+      >
         Error
       </Button>
       <Button
         size="small"
         onClick={() =>
-          toast.promise(new Promise((resolve) => setTimeout(resolve, 1500)), {
+          toast.promise(wait(1500), {
             loading: "Uploading…",
             success: "Upload complete",
             error: "Upload failed",

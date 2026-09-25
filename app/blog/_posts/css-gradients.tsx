@@ -241,9 +241,9 @@ background: linear-gradient(to right in oklch decreasing hue, blue, yellow);
         This keeps the real <code>border-radius</code>.{" "}
         <code>border-image</code> takes a gradient directly, but it ignores{" "}
         <code>border-radius</code>, so the corners come out square. If the card
-        needs to be see-through inside, the padding-box layer can’t hide the
-        gradient; there you put the gradient on a pseudo-element and cut out
-        the middle with <code>mask-composite: exclude</code>.
+        needs to be see-through inside, there’s no opaque layer to cover the
+        middle of the gradient. Then the gradient goes on a pseudo-element, and{" "}
+        <code>mask-composite: exclude</code> cuts the middle out.
       </p>
       <p>
         It also repaints every frame. The alternative, a rotating{" "}
@@ -287,7 +287,8 @@ background:
         that one token instead of picking them, so changing the token moves the
         whole gradient. <code>color-mix()</code> does it, and so does relative
         colour syntax, which lets you edit one channel. Here it lightens and
-        pulls chroma back, so the tint stays inside sRGB:
+        pulls chroma back, because a lighter colour at the same chroma can
+        easily leave sRGB:
       </p>
       <Code label="CSS">{`
 background: linear-gradient(

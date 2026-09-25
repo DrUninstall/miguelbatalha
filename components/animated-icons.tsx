@@ -17,6 +17,7 @@ import {
   ChevronDown,
   Send,
   CheckCircle,
+  ThumbsUp,
 } from "lucide-react";
 import styles from "./animated-icons.module.css";
 
@@ -172,11 +173,9 @@ export function PulsingDot({
 export function AnimatedIconSwitch({
   iconKey,
   children,
-  className = styles.iconSwitchWrapper,
 }: {
   iconKey: string;
   children: React.ReactNode;
-  className?: string;
 }) {
   const reduceMotion = useReducedMotion();
   const hidden = reduceMotion
@@ -193,7 +192,7 @@ export function AnimatedIconSwitch({
         animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
         exit={exit}
         transition={{ type: "spring", duration: 0.3, bounce: 0 }}
-        className={className}
+        className={styles.iconSwitchWrapper}
       >
         {children}
       </motion.span>
@@ -226,9 +225,9 @@ export function LikeButton({
       aria-pressed={isLiked}
     >
       <AnimatedIconSwitch iconKey={isLiked ? "liked" : "unliked"}>
-        <Heart
+        <ThumbsUp
           size={size}
-          className={isLiked ? styles.likedHeart : styles.defaultIcon}
+          className={isLiked ? styles.liked : styles.defaultIcon}
           fill={isLiked ? "currentColor" : "none"}
           aria-hidden="true"
         />
@@ -449,14 +448,10 @@ const SUBMIT_SUCCESS_MS = 1500;
 export function SubmitButton({
   size = 20,
   onSubmit,
-  disabled = false,
   label = "Send",
 }: {
   size?: number;
   onSubmit?: () => void;
-  disabled?: boolean;
-  /** @deprecated Ignored: the button now runs its own loading/success sequence. */
-  isSubmitted?: boolean;
   /** Accessible name; keep it equal to any visible caption */
   label?: string;
 }) {
@@ -466,7 +461,7 @@ export function SubmitButton({
   const busy = phase !== "idle";
 
   const handleClick = () => {
-    if (busy || disabled) return;
+    if (busy) return;
     onSubmit?.();
     setPhase("loading");
     timer.start(() => {
@@ -480,9 +475,9 @@ export function SubmitButton({
       <button
         type="button"
         onClick={handleClick}
-        className={`${styles.iconButton} ${disabled ? styles.disabled : ""}`}
+        className={styles.iconButton}
         aria-label={label}
-        aria-disabled={busy || disabled}
+        aria-disabled={busy}
       >
         <AnimatedIconSwitch iconKey={phase}>
           {phase === "success" ? (

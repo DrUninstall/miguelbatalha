@@ -55,7 +55,6 @@
 
 .gradientBox {
   height: 120px;
-  border: 1px solid transparent;
   border-radius: 12px;
   box-shadow: var(--stroke-weak);
 }
@@ -216,14 +215,12 @@
   flex-shrink: 0;
   width: 20px;
   height: 20px;
-  border: 1px solid transparent;
   border-radius: 6px;
   box-shadow: var(--stroke-weak);
 }
 
 .colorSpaceGradient {
   height: 56px;
-  border: 1px solid transparent;
   border-radius: 12px;
   box-shadow: var(--stroke-weak);
 }
@@ -444,7 +441,6 @@
 
 .layeredBox {
   height: 140px;
-  border: 1px solid transparent;
   border-radius: 12px;
   box-shadow: var(--stroke-weak);
 }
@@ -560,13 +556,27 @@
 
 /* ─────────── Forced colors ─────────── */
 
-/* Box-shadows are dropped here, so the transparent borders carry the edges. */
+/*
+ * The swatches are the content, so they keep their colours. Box-shadows are
+ * dropped here, so real borders draw their edges; only here, because a
+ * transparent border would show the gradient's repeat at the rounded ends.
+ */
 @media (forced-colors: active) {
   .gradientBox,
   .colorSpaceGradient,
   .midpointSwatch,
-  .layeredBox {
-    border-color: CanvasText;
+  .segmentChip,
+  .layeredBox,
+  .animatedGradient {
+    forced-color-adjust: none;
+  }
+
+  .gradientBox,
+  .colorSpaceGradient,
+  .midpointSwatch,
+  .layeredBox,
+  .animatedGradient {
+    border: 1px solid CanvasText;
   }
 
   .segment {

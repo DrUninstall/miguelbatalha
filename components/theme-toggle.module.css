@@ -7,6 +7,8 @@
   justify-content: center;
   width: 32px;
   height: 32px;
+  /* Invisible normally; the button's edge in forced colors. */
+  border: 1px solid transparent;
   border-radius: 8px;
   color: rgb(var(--text-weak));
   transition:
@@ -15,11 +17,11 @@
     transform 100ms ease;
 }
 
-/* 44px tap target without changing the visual size */
+/* 44px tap target without changing the visual size (inset from inside the border) */
 .themeToggle::before {
   content: "";
   position: absolute;
-  inset: -6px;
+  inset: -7px;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -30,7 +32,7 @@
 }
 
 .themeToggle:active {
-  transform: scale(0.94);
+  transform: scale(0.96);
 }
 
 /* Both icons are stacked in the same spot; the theme class picks one. */
@@ -102,20 +104,22 @@
 
 /* ---------- Expanded theme toggle ---------- */
 
-/* Two equal columns so one highlight can slide between them with a transform */
+/* Three equal columns so one highlight can slide between them with a translate. */
 .expandedToggle {
   position: relative;
   display: inline-grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  padding: 4px;
-  background: rgb(var(--fill-weak));
+  /* 3px + the 1px border: options sit 4px from the edge. The border is
+     invisible normally and is the control's edge in forced colors. */
+  padding: 3px;
+  border: 1px solid transparent;
   border-radius: 8px;
-  border: none;
+  background: rgb(var(--fill-weak));
   box-shadow: var(--stroke-weak);
 }
 
-.toggleButton {
+.option {
   position: relative;
   display: flex;
   align-items: center;
@@ -125,70 +129,47 @@
   border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
-  background: transparent;
-  border: none;
-  cursor: pointer;
   color: rgb(var(--text-weak));
   transition: color var(--duration-fast) var(--ease-out-cubic);
 }
 
-/* Active option: light unless <html> has .dark */
-.optionLight,
-:global(.dark) .optionDark {
+.option[aria-checked="true"] {
   color: rgb(var(--text-strong));
 }
 
-:global(.dark) .optionLight {
-  color: rgb(var(--text-weak));
-}
-
 @media (hover: hover) and (pointer: fine) {
-  button.toggleButton:hover {
+  button.option:hover {
     color: rgb(var(--text-strong));
   }
 }
 
-.toggleIcon {
+.optionIcon {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
 }
 
-/* One highlight for the whole control: column width is (100% - 2*4px padding
-   - 8px gap) / 2, and moving one column over is its own width + the gap. */
+/* One column wide: (100% - 2 × 3px padding - 2 × 8px gap) / 3. Positioned by
+   an inline translate, one column plus the gap per option. */
 .highlight {
   position: absolute;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
-  width: calc(50% - 8px);
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 22px) / 3);
   border-radius: 6px;
   background: rgb(var(--background-base));
   box-shadow: var(--stroke-weak), var(--elevation-raised);
   pointer-events: none;
 }
 
-:global(.dark) .highlight {
-  transform: translateX(calc(100% + 8px));
-}
-
-/* Slide, 300ms ease-out; keyframes for the same reason as the icon swap. */
-@keyframes highlightToLight {
-  from {
-    transform: translateX(calc(100% + 8px));
+@media (forced-colors: active) {
+  .highlight {
+    background: transparent;
   }
-}
 
-@keyframes highlightToDark {
-  from {
-    transform: none;
+  .option[aria-checked="true"] {
+    background: Highlight;
+    color: HighlightText;
   }
-}
-
-:global(html[data-theme-switched]:not(.dark)) .highlight {
-  animation: highlightToLight var(--duration-normal) var(--ease-out-cubic);
-}
-
-:global(html[data-theme-switched].dark) .highlight {
-  animation: highlightToDark var(--duration-normal) var(--ease-out-cubic);
 }

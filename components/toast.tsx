@@ -212,13 +212,6 @@ export const toast = Object.assign(
 );
 
 // ============================================
-// Hook API (for convenience)
-// ============================================
-export function useToast() {
-  return toast;
-}
-
-// ============================================
 // Toast Component
 // ============================================
 const ICONS: Record<ToastType, React.ReactNode> = {

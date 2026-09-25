@@ -175,7 +175,7 @@
 /* Draws the card's focus ring. Framer transforms the card while it morphs, and
    an outline on the card would be stretched with it; this wrapper never moves. */
 .cardFrame {
-  width: 200px;
+  width: 224px;
   max-width: 100%;
   border-radius: 12px;
 }

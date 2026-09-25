@@ -30,16 +30,16 @@ function nearestEdge(rect: DOMRect, clientX: number, clientY: number): Edge {
 
 // Follow a ray from a point inside `rect` in direction (dx, dy): which edge
 // does it leave through? Each edge is some distance away along the ray, and
-// the ray hits the nearest one first.
-function edgeAlong(rect: DOMRect, from: Point, dx: number, dy: number): Edge {
-  const x = from.x - rect.left;
-  const y = from.y - rect.top;
+// the ray hits the nearest one first. Null when there is no direction.
+function edgeAlong(rect: DOMRect, x: number, y: number, dx: number, dy: number): Edge | null {
+  const left = x - rect.left;
+  const top = y - rect.top;
   const hits: [Edge, number][] = [];
-  if (dy < 0) hits.push(["top", y / -dy]);
-  if (dx > 0) hits.push(["right", (rect.width - x) / dx]);
-  if (dy > 0) hits.push(["bottom", (rect.height - y) / dy]);
-  if (dx < 0) hits.push(["left", x / -dx]);
-  if (hits.length === 0) return nearestEdge(rect, from.x, from.y);
+  if (dy < 0) hits.push(["top", top / -dy]);
+  if (dx > 0) hits.push(["right", (rect.width - left) / dx]);
+  if (dy > 0) hits.push(["bottom", (rect.height - top) / dy]);
+  if (dx < 0) hits.push(["left", left / -dx]);
+  if (hits.length === 0) return null;
   return hits.reduce((a, b) => (b[1] < a[1] ? b : a))[0];
 }
 
@@ -90,12 +90,15 @@ export function CardHover({ title, subtitle, children }: CardHoverProps) {
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType === "touch") return;
-    const point = { x: e.clientX, y: e.clientY };
     if (entering.current) {
       entering.current = false;
-      show(edgeAlong(e.currentTarget.getBoundingClientRect(), point, -e.movementX, -e.movementY));
+      const rect = e.currentTarget.getBoundingClientRect();
+      show(
+        edgeAlong(rect, e.clientX, e.clientY, -e.movementX, -e.movementY) ??
+          nearestEdge(rect, e.clientX, e.clientY)
+      );
     }
-    lastInside.current = point;
+    lastInside.current = { x: e.clientX, y: e.clientY };
   };
 
   const handlePointerLeave = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -105,9 +108,8 @@ export function CardHover({ title, subtitle, children }: CardHoverProps) {
     const last = lastInside.current;
     lastInside.current = null;
     hide(
-      last
-        ? edgeAlong(rect, last, e.clientX - last.x, e.clientY - last.y)
-        : nearestEdge(rect, e.clientX, e.clientY)
+      (last && edgeAlong(rect, last.x, last.y, e.clientX - last.x, e.clientY - last.y)) ??
+        nearestEdge(rect, e.clientX, e.clientY)
     );
   };
 
