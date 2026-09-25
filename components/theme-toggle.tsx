@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./theme-toggle.module.css";
@@ -43,24 +43,23 @@ function toggleThemeWithTransition(
   });
 }
 
-export function ThemeToggle() {
-  const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+// The theme is unknown during prerender, so render a placeholder until hydrated.
+const noopSubscribe = () => () => {};
+function useIsClient() {
+  return useSyncExternalStore(noopSubscribe, () => true, () => false);
+}
 
-  // Prevent hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+export function ThemeToggle() {
+  const mounted = useIsClient();
+  const { resolvedTheme, setTheme } = useTheme();
 
   if (!mounted) {
     return (
-      <div className={styles.skeleton} aria-label="Toggle theme">
-        <div className={styles.skeletonIcon} />
-      </div>
+      <span className={styles.skeleton} aria-hidden="true" />
     );
   }
 
-  const isDark = theme === "dark";
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button
@@ -93,12 +92,8 @@ export function ThemeToggle() {
 }
 
 export function ThemeToggleExpanded() {
-  const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsClient();
+  const { resolvedTheme: theme, setTheme } = useTheme();
 
   if (!mounted) {
     return (
@@ -127,7 +122,8 @@ export function ThemeToggleExpanded() {
       />
 
       <button
-        onClick={(e) => toggleThemeWithTransition(e, theme === "dark", setTheme)}
+        onClick={(e) => theme !== "light" && toggleThemeWithTransition(e, true, setTheme)}
+        aria-pressed={theme === "light"}
         className={`${styles.toggleButton} ${
           theme === "light" ? styles.active : styles.inactive
         }`}
@@ -137,7 +133,8 @@ export function ThemeToggleExpanded() {
       </button>
 
       <button
-        onClick={(e) => toggleThemeWithTransition(e, theme === "dark", setTheme)}
+        onClick={(e) => theme !== "dark" && toggleThemeWithTransition(e, false, setTheme)}
+        aria-pressed={theme === "dark"}
         className={`${styles.toggleButton} ${
           theme === "dark" ? styles.active : styles.inactive
         }`}

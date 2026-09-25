@@ -57,7 +57,7 @@ export default function CursorInteractions() {
       <div className={styles.demo}>
         <div className={styles.demoLabel}>Live Demo — Hover over the card</div>
         <div className={styles.demoInner}>
-          <CardHover />
+          <CardHover title="Project name" subtitle="Project description" />
         </div>
       </div>
 

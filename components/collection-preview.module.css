@@ -130,8 +130,8 @@
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
-  background: rgb(var(--fill-brand));
-  color: rgb(var(--text-on-brand));
+  background: rgb(var(--fill-brand-strong));
+  color: rgb(var(--text-inverse-strong));
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -142,9 +142,9 @@
 }
 
 .viewAllButton:hover {
-  background: rgb(var(--fill-brand-hover));
+  background: rgb(var(--fill-brand-strong) / 0.9);
 }
 
 .viewAllButton:active {
-  background: rgb(var(--fill-brand-press));
+  background: rgb(var(--fill-brand-strong) / 0.8);
 }

@@ -72,11 +72,11 @@
 }
 
 .iconButton:hover {
-  background: rgb(var(--bg-overlay-hover));
+  background: rgb(var(--fill-weak));
 }
 
 .iconButton:active {
-  background: rgb(var(--bg-overlay-active));
+  background: rgb(var(--grey-light-100));
 }
 
 .iconButton:disabled {
@@ -126,7 +126,7 @@
 
 .downloadButton svg {
   grid-area: 1/1;
-  color: rgb(var(--icon-default));
+  color: rgb(var(--text-strong));
   transition: transform 200ms cubic-bezier(0.785, 0.135, 0.15, 0.86);
 }
 

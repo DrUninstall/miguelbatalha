@@ -1,12 +1,7 @@
-import { type ClassValue, clsx } from "clsx";
-
-export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs);
-}
-
-export function formatDate(date: string) {
+export function formatDate(date: string, month: "long" | "short" = "long") {
   return new Date(date).toLocaleDateString("en-US", {
-    month: "long",
+    month,
     year: "numeric",
+    timeZone: "UTC",
   });
 }

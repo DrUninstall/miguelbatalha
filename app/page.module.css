@@ -1,420 +1,102 @@
-/* Homepage styles using design system CSS variables */
+/* Intro */
 
-.page {
-  min-height: 100vh;
-}
-
-/* Navigation */
-.nav {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 50;
-  border-bottom: 1px solid rgb(var(--stroke-color-weak));
-  background: rgba(var(--background-base), 0.8);
-  backdrop-filter: blur(4px);
-}
-
-.navContainer {
-  max-width: 1024px;
-  margin: 0 auto;
-  padding: 0 24px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  font-weight: 600;
-  color: rgb(var(--text-strong));
-}
-
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.navLink {
-  font-size: 14px;
-  line-height: 20px;
-  color: rgb(var(--text-weak));
-  transition: color var(--duration-fast) var(--ease-out-cubic);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .navLink:hover {
-    color: rgb(var(--text-strong));
-  }
-}
-
-/* Hero Wrapper - Full width for gradient */
-.heroWrapper {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* Hero Section */
-.hero {
-  position: relative;
-  max-width: 1024px;
-  margin: 0 auto;
-  padding: 128px 24px 64px;
-}
-
-.heroContent {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* Typography per DESIGN_SYSTEM.md - Display: 40px mobile / 56px desktop */
-.heroTitle {
-  font-size: 40px;
-  line-height: 48px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  color: rgb(var(--text-strong));
-}
-
-@media (min-width: 768px) {
-  .heroTitle {
-    font-size: 56px;
-    line-height: 64px;
-  }
-}
-
-.heroDescription {
-  font-size: 20px;
-  line-height: 1.625;
-  color: rgb(var(--text-weak));
-  max-width: 672px;
-}
-
-.heroActions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding-top: 16px;
-}
-
-.primaryButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: rgb(var(--fill-brand-strong));
-  color: rgb(var(--text-inverse-strong));
-  border-radius: 8px;
+.headline {
+  font-size: 22px;
+  line-height: 30px;
   font-weight: 500;
-  transition: opacity var(--duration-fast) var(--ease-out-cubic);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .primaryButton:hover {
-    opacity: 0.9;
-  }
-}
-
-.secondaryButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border: none;
-  box-shadow: var(--stroke-weak);
-  border-radius: 8px;
-  transition: background-color var(--duration-fast) var(--ease-out-cubic),
-              box-shadow var(--duration-fast) var(--ease-out-cubic);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .secondaryButton:hover {
-    background: rgb(var(--fill-weak));
-    box-shadow: var(--stroke-weak-hover);
-  }
-}
-
-.icon {
-  width: 16px;
-  height: 16px;
-}
-
-/* Work Experience Section - Timeline */
-.work {
-  max-width: 1024px;
-  margin: 0 auto;
-  padding: 64px 24px;
-}
-
-.workTitle {
-  font-size: 28px;
-  line-height: 36px;
-  font-weight: 600;
-  margin-bottom: 48px;
-}
-
-/* Timeline Container */
-.timeline {
-  position: relative;
-  padding-left: 24px;
-}
-
-/* Vertical line */
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 5px;
-  top: 8px;
-  bottom: 8px;
-  width: 2px;
-  background: rgb(var(--stroke-color-weak));
-}
-
-/* Timeline Item */
-.timelineItem {
-  position: relative;
-  padding-bottom: 32px;
-  padding-left: 24px;
-  cursor: pointer;
-  border-radius: 8px;
-  margin-left: -8px;
-  padding-right: 8px;
-  padding-top: 8px;
-  padding-left: 32px;
-  transition: box-shadow var(--duration-fast) var(--ease-out-cubic);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .timelineItem:hover {
-    box-shadow: var(--fill-hover);
-  }
-
-  .timelineItem:hover .timelineDot {
-    transform: scale(1.2);
-    box-shadow: var(--stroke-focus);
-  }
-
-  .timelineItem:hover .timelineChevron {
-    color: rgb(var(--text-strong));
-  }
-}
-
-.timelineItem:active {
-  box-shadow: var(--fill-press);
-}
-
-.timelineItem:last-child {
-  padding-bottom: 8px;
-}
-
-/* Timeline Dot */
-.timelineDot {
-  position: absolute;
-  left: -16px;
-  top: 6px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgb(var(--fill-brand-strong));
-  border: 2px solid rgb(var(--background-base));
-  box-shadow: 0 0 0 2px rgb(var(--fill-brand-strong));
-  transition: transform var(--duration-fast) var(--ease-out-cubic),
-              box-shadow var(--duration-fast) var(--ease-out-cubic);
-}
-
-/* Timeline Year */
-.timelineYear {
-  font-size: 12px;
-  font-weight: 500;
-  color: rgb(var(--text-weak));
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Timeline Content */
-.timelineContent {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.timelineTitle {
-  font-size: 18px;
-  line-height: 24px;
-  font-weight: 600;
-  color: rgb(var(--text-strong));
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.timelineSeparator {
-  color: rgb(var(--text-weak));
-  font-weight: 400;
-}
-
-.timelineCompany {
-  font-size: 14px;
-  font-weight: 400;
-  color: rgb(var(--text-weak));
-}
-
-/* Timeline Chevron - Expand affordance */
-.timelineChevron {
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  width: 16px;
-  height: 16px;
-  color: rgb(var(--text-weak));
-  transition: transform var(--duration-fast) var(--ease-out-cubic),
-              color var(--duration-fast) var(--ease-out-cubic);
-}
-
-.timelineChevronOpen {
-  transform: rotate(180deg);
+  letter-spacing: -0.015em;
   color: rgb(var(--text-strong));
 }
 
-/* Timeline Bullets - Click to expand */
-.timelineBullets {
-  overflow: hidden;
+.lede {
   margin-top: 12px;
+  font-size: 16px;
+  line-height: 26px;
+  color: rgb(var(--text-weak));
 }
 
-.timelineBullets ul {
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+}
+
+.link {
+  border-radius: 2px;
+  color: rgb(var(--text-strong));
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--text-strong) / 0.2);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link:hover {
+    text-decoration-color: rgb(var(--text-strong));
+  }
+}
+
+.section {
+  margin-top: 64px;
+}
+
+/* Experience: native <details>, animated where the browser can interpolate to auto. */
+
+.job > summary {
+  list-style: none;
+}
+
+.job > summary::-webkit-details-marker {
+  display: none;
+}
+
+.chevron {
+  color: rgb(var(--icon-neutral));
+  transition: transform 200ms var(--ease-out-cubic);
+}
+
+.job[open] .chevron {
+  transform: rotate(180deg);
+}
+
+.highlights {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  margin: 4px 10px 16px;
   padding-left: 16px;
-  border-left: 2px solid rgb(var(--stroke-color-weak));
-  list-style: none;
-  margin: 0;
-}
-
-.timelineBullets li {
+  list-style: disc;
   font-size: 14px;
-  line-height: 20px;
+  line-height: 22px;
   color: rgb(var(--text-weak));
-  position: relative;
 }
 
-.timelineBullets li::before {
-  content: '';
-  position: absolute;
-  left: -18px;
-  top: 9px;
-  width: 6px;
-  height: 2px;
-  background: rgb(var(--stroke-color-weak));
+.highlights li::marker {
+  color: rgb(var(--icon-neutral));
 }
 
-/* Education Section - Compact */
-.education {
-  max-width: 1024px;
-  margin: 0 auto;
-  padding: 48px 24px;
-}
-
-.educationTitle {
-  font-size: 28px;
-  line-height: 36px;
-  font-weight: 600;
-  margin-bottom: 24px;
-}
-
-.educationGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 640px) {
-  .educationGrid {
-    grid-template-columns: 1fr;
+@supports (interpolate-size: allow-keywords) {
+  .job {
+    interpolate-size: allow-keywords;
   }
-}
 
-.educationCard {
-  padding: 16px;
-  border-radius: 8px;
-  background: rgb(var(--background-raised));
-  box-shadow: var(--elevation-raised);
-  transition: box-shadow var(--duration-fast) var(--ease-out-cubic),
-              transform var(--duration-fast) var(--ease-out-cubic);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .educationCard:hover {
-    box-shadow: var(--stroke-brand-weak), var(--elevation-raised);
-    transform: translateY(-2px);
+  .job::details-content {
+    block-size: 0;
+    overflow: clip;
+    opacity: 0;
+    transition:
+      block-size 250ms var(--ease-out-cubic),
+      opacity 200ms ease,
+      content-visibility 250ms allow-discrete;
   }
-}
 
-.educationDegree {
-  font-size: 14px;
-  font-weight: 600;
-  color: rgb(var(--text-strong));
-  margin-bottom: 4px;
-}
-
-.educationSchool {
-  font-size: 13px;
-  color: rgb(var(--text-weak));
-  margin-bottom: 4px;
-}
-
-.educationDate {
-  font-size: 12px;
-  color: rgb(var(--text-weak));
-}
-
-/* Footer */
-.footer {
-  border-top: 1px solid rgb(var(--stroke-color-weak));
-  margin-top: 96px;
-}
-
-.footerContainer {
-  max-width: 1024px;
-  margin: 0 auto;
-  padding: 48px 24px;
-}
-
-.footerContent {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.footerText {
-  font-size: 14px;
-  line-height: 20px;
-  color: rgb(var(--text-weak));
-}
-
-.footerLinks {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.footerLink {
-  font-size: 14px;
-  line-height: 20px;
-  color: rgb(var(--text-weak));
-  transition: color var(--duration-fast) var(--ease-out-cubic);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .footerLink:hover {
-    color: rgb(var(--text-strong));
+  .job[open]::details-content {
+    block-size: auto;
+    opacity: 1;
   }
 }

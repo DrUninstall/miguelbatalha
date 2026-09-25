@@ -1,32 +1,30 @@
 # miguelbatalha.com
 
-My personal website. Built with Next.js 15, TypeScript, and CSS Modules.
+Personal site: a short résumé and a blog of interface experiments, each post with the live components it describes.
 
-## Stack
-
-- Next.js 15 (App Router)
-- TypeScript
-- CSS Modules with design tokens
-- Framer Motion
-- Lucide icons
-
-## Development
+Next.js 16 (App Router, static export), TypeScript, CSS Modules, Framer Motion.
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Deployment
-
-Deploys automatically to GitHub Pages on push to `main`.
+Pushing to `main` builds and deploys to GitHub Pages.
 
 ## Structure
 
 ```
-app/           → pages (home, blog, components)
-components/    → reusable UI components
-lib/           → utilities
+app/
+  page.tsx            home
+  _data/resume.ts     experience, education, links
+  blog/_data/posts.ts post index
+  blog/_posts/        one component per post
+components/
+  site/               header, footer, shared list rows
+  ui/                 design-system primitives used in posts
+  *.tsx               the demo components posts embed
 ```
 
-See `DESIGN_SYSTEM.md` for design tokens and patterns.
+To add a post: write `app/blog/_posts/<slug>.tsx`, add an entry to `posts.ts`, and register it in `app/blog/[slug]/page.tsx`.
+
+See `DESIGN_SYSTEM.md` for tokens.

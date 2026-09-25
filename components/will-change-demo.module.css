@@ -96,8 +96,8 @@
   padding: 10px 24px;
   font-size: 14px;
   font-weight: 500;
-  color: rgb(var(--text-on-brand));
-  background: rgb(var(--fill-brand));
+  color: rgb(var(--text-inverse-strong));
+  background: rgb(var(--fill-brand-strong));
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -105,11 +105,11 @@
 }
 
 .triggerButton:hover {
-  background: rgb(var(--fill-brand-hover));
+  background: rgb(var(--fill-brand-strong) / 0.9);
 }
 
 .triggerButton:active {
-  background: rgb(var(--fill-brand-press));
+  background: rgb(var(--fill-brand-strong) / 0.8);
 }
 
 .codeComparison {

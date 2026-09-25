@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { BackgroundGradient } from "@/components/background-gradient";
+import { ReducedMotionProvider } from "@/components/reduced-motion-provider";
+import { SiteHeader } from "@/components/site/site-header";
+import { SiteFooter } from "@/components/site/site-footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +17,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Miguel Batalha - Head of Product & Strategy",
-  description: "Product strategy, UI/UX design, and technical implementation portfolio.",
+  metadataBase: new URL("https://miguelbatalha.com"),
+  title: {
+    default: "Miguel Batalha",
+    template: "%s — Miguel Batalha",
+  },
+  description:
+    "Head of Product & Strategy at KovaaK Games. Writing on interface design, motion, and building products.",
 };
 
 export default function RootLayout({
@@ -26,17 +33,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <BackgroundGradient />
-          {children}
+          <ReducedMotionProvider>
+            <SiteHeader />
+            {children}
+            <SiteFooter />
+          </ReducedMotionProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -3,7 +3,7 @@
 .container {
   position: relative;
   display: flex;
-  border-bottom: 1px solid var(--stroke-color-weak);
+  border-bottom: 1px solid rgb(var(--stroke-color-weak));
 }
 
 .tab {

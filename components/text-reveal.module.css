@@ -43,5 +43,5 @@
 }
 
 .button:hover {
-  background: rgb(var(--background-raised-hover));
+  background: rgb(var(--background-raised));
 }

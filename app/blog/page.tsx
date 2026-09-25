@@ -1,95 +1,45 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
-import { ThemeToggle } from "@/components/theme-toggle";
+import site from "@/components/site/site.module.css";
+import list from "@/components/site/list.module.css";
 import { blogPosts } from "./_data/posts";
 import styles from "./page.module.css";
 
+export const metadata: Metadata = {
+  title: "Writing",
+  description: "Notes on interface design, motion, and building products.",
+};
+
 export default function BlogPage() {
   return (
-    <div className={styles.page}>
-      {/* Navigation */}
-      <nav className={styles.nav}>
-        <div className={styles.navContainer}>
-          <Link href="/" className={styles.logo}>
-            Miguel Batalha
-          </Link>
-          <div className={styles.navLinks}>
-            <Link href="/#work" className={styles.navLink}>
-              Work
-            </Link>
-            <Link href="/blog" className={styles.navLinkActive}>
-              Blog
-            </Link>
-            <Link href="/components" className={styles.navLink}>
-              Components
-            </Link>
-            <ThemeToggle />
-          </div>
-        </div>
-      </nav>
+    <main className={site.page}>
+      <h1 className={styles.title}>Writing</h1>
+      <p className={styles.lede}>
+        Notes on interface design, motion, and building products. Most posts
+        include the live components they describe.
+      </p>
 
-      {/* Blog Header */}
-      <section className={styles.header}>
-        <h1 className={styles.title}>
-          Blog
-        </h1>
-        <p className={styles.description}>
-          Thoughts on product strategy, design, and building great experiences.
-        </p>
-      </section>
-
-      {/* Blog Posts */}
-      <section className={styles.posts}>
-        <div className={styles.postsList}>
-          {blogPosts.map((post) => (
+      <ul className={`${list.list} ${styles.posts}`}>
+        {blogPosts.map((post) => (
+          <li key={post.slug}>
             <Link
-              key={post.slug}
               href={`/blog/${post.slug}`}
-              className={styles.postLink}
+              className={`${list.row} ${list.interactive}`}
             >
-              <article className={styles.post}>
-                <div className={styles.postHeader}>
-                  <h2 className={styles.postTitle}>
-                    {post.title}
-                  </h2>
-                  <time className={styles.postDate}>
-                    {formatDate(post.date)}
-                  </time>
-                </div>
-                <p className={styles.postDescription}>
+              <span className={styles.entry}>
+                <span className={styles.entryTitle}>{post.title}</span>
+                <span className={styles.entryDescription}>
                   {post.description}
-                </p>
-              </article>
+                </span>
+              </span>
+              <time className={list.meta} dateTime={post.date}>
+                {formatDate(post.date, "short")}
+              </time>
             </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContainer}>
-          <div className={styles.footerContent}>
-            <p className={styles.footerText}>
-              © 2025 Miguel Batalha. All rights reserved.
-            </p>
-            <div className={styles.footerLinks}>
-              <Link
-                href="https://www.linkedin.com/in/miguelbatalha"
-                target="_blank"
-                className={styles.footerLink}
-              >
-                LinkedIn
-              </Link>
-              <Link
-                href="mailto:miguelbatalhamusic@gmail.com"
-                className={styles.footerLink}
-              >
-                Contact
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
+          </li>
+        ))}
+      </ul>
+    </main>
   );
 }

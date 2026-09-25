@@ -1,315 +1,126 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ChevronDown } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
-import { OutlineOrbitButton } from "@/components/outline-orbit-button";
+import { formatDate } from "@/lib/utils";
+import { blogPosts } from "./blog/_data/posts";
+import { education, experience, links } from "./_data/resume";
+import site from "@/components/site/site.module.css";
+import list from "@/components/site/list.module.css";
 import styles from "./page.module.css";
 
-// Animation variants per DESIGN_SYSTEM.md
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3, ease: [0.215, 0.61, 0.355, 1] as const }
-  }
-};
-
-const timelineItemVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.3, ease: [0.215, 0.61, 0.355, 1] as const }
-  }
-};
-
-// Timeline data
-const timelineData = [
-  {
-    year: "2024 - Present",
-    title: "Head of Product & Strategy",
-    company: "KovaaK Games",
-    bullets: [
-      "Define and execute product strategies that drive growth and engagement",
-      "Collaborate closely with the CEO to inform critical product and business decisions",
-      "Develop UI/UX systems that improve user satisfaction, acquisition and retention",
-      "Oversee team alignment, financial planning, and internal processes",
-      "Contribute to product development through web apps, AI workflows, Discord Bots, and Unreal Engine"
-    ]
-  },
-  {
-    year: "2021 - 2024",
-    title: "Senior Product Manager",
-    company: "The Meta",
-    bullets: [
-      "Created design documents, UI/UX mockups and coordinated with engineering",
-      "Identified product enhancements to improve UX, ROI, and product appeal",
-      "Designed gameplay and maps for product and partners, including pro esports teams",
-      "Communicated vision and value of new products; assisted with roadmap prioritization"
-    ]
-  },
-  {
-    year: "2020 - 2021",
-    title: "Product Marketing Manager",
-    company: "The Meta",
-    bullets: [
-      "Analyzed community feedback, competitor trends, and user data for high-ROI features",
-      "Contributed to product design and implementation, including UI/UX improvements",
-      "Identified and advocated influencer activities to improve audience growth"
-    ]
-  },
-  {
-    year: "2019 - 2023",
-    title: "Marketing & Design Consultant",
-    company: "Freelance",
-    bullets: [
-      "Consulted for audio and gaming clients: Stam Audio, KHE Audio, Golden Age Project, Fuse Audio Labs, ALOFT Gaming"
-    ]
-  },
-  {
-    year: "2016 - 2020",
-    title: "Product Marketing Manager",
-    company: "Stam Audio Engineering",
-    bullets: [
-      "Negotiated with retailers and manufacturers to ensure product standards",
-      "Managed artist relations, press/media outreach, and event coordination",
-      "Oversaw product design (aesthetics and functionality)",
-      "Handled social media, newsletters, and customer support"
-    ]
-  }
-];
-
-// Timeline Item Component - Click accordion
-function TimelineItem({
-  item,
-  index,
-  isActive,
-  onToggle
-}: {
-  item: typeof timelineData[0];
-  index: number;
-  isActive: boolean;
-  onToggle: (index: number | null) => void;
-}) {
-  return (
-    <motion.div
-      className={styles.timelineItem}
-      variants={timelineItemVariants}
-      onClick={() => onToggle(isActive ? null : index)}
-    >
-      <motion.div
-        className={styles.timelineDot}
-        animate={{ scale: isActive ? 1.2 : 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      />
-      <ChevronDown
-        className={`${styles.timelineChevron} ${isActive ? styles.timelineChevronOpen : ""}`}
-        aria-hidden="true"
-      />
-      <span className={styles.timelineYear}>{item.year}</span>
-      <div className={styles.timelineContent}>
-        <h3 className={styles.timelineTitle}>
-          {item.title}
-          <span className={styles.timelineSeparator}>·</span>
-          <span className={styles.timelineCompany}>{item.company}</span>
-        </h3>
-      </div>
-
-      {/* Expandable bullets */}
-      <AnimatePresence>
-        {isActive && (
-          <motion.div
-            className={styles.timelineBullets}
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0, y: -8 }}
-            transition={{ duration: 0.2, ease: [0.215, 0.61, 0.355, 1] }}
-          >
-            <ul>
-              {item.bullets.map((bullet, i) => (
-                <li key={i}>{bullet}</li>
-              ))}
-            </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
 export default function Home() {
-  const [activeItem, setActiveItem] = useState<number | null>(null);
-
-  const scrollToWork = () => {
-    document.getElementById("work")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
-    <div className={styles.page}>
-      {/* Navigation */}
-      <nav className={styles.nav}>
-        <div className={styles.navContainer}>
-          <Link href="/" className={styles.logo}>
-            Miguel Batalha
-          </Link>
-          <div className={styles.navLinks}>
-            <Link href="#work" className={styles.navLink}>
-              Work
-            </Link>
-            <Link href="/components" className={styles.navLink}>
-              Components
-            </Link>
-            <ThemeToggle />
-          </div>
-        </div>
-      </nav>
+    <main className={site.page}>
+      <section>
+        <h1 className={styles.headline}>
+          Head of Product & Strategy at KovaaK Games.
+        </h1>
+        <p className={styles.lede}>
+          I guide roadmap, design, development, budgets, and day-to-day
+          execution, and stay hands-on across UI/UX, feature specs,
+          prototyping, and implementation.
+        </p>
+        <ul className={styles.links}>
+          {links.map((link) => {
+            const external = link.href.startsWith("http");
+            return (
+              <li key={link.label}>
+                <a
+                  href={link.href}
+                  className={styles.link}
+                  {...(external && { target: "_blank", rel: "noreferrer" })}
+                >
+                  {link.label}
+                  {external && <span aria-hidden="true"> ↗</span>}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
 
-      {/* Hero Section */}
-      <div className={styles.heroWrapper}>
-        <section className={styles.hero}>
-          <motion.div
-          className={styles.heroContent}
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.h1 className={styles.heroTitle} variants={itemVariants}>
-            Head of Product & Strategy
-          </motion.h1>
-          <motion.p className={styles.heroDescription} variants={itemVariants}>
-            I run Product & Strategy at KovaaK Games, guiding roadmap, design, development, budgets, and day-to-day execution. I'm hands-on across UI/UX, design docs, feature specs, prototyping, and technical implementation.
-          </motion.p>
-          <motion.div className={styles.heroActions} variants={itemVariants}>
-            <OutlineOrbitButton
-              href="https://www.linkedin.com/in/miguelbatalha"
-              target="_blank"
-            >
-              Connect on LinkedIn
-              <ArrowRight size={16} />
-            </OutlineOrbitButton>
-            <Button
-              variant="secondary"
-              tone="neutral"
-              onClick={scrollToWork}
-            >
-              View Work
-            </Button>
-          </motion.div>
-          </motion.div>
-        </section>
-      </div>
-
-      {/* Work Experience Section - Timeline */}
-      <section id="work" className={styles.work}>
-        <motion.h2
-          className={styles.workTitle}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.3, ease: [0.215, 0.61, 0.355, 1] }}
-        >
+      <section className={styles.section} aria-labelledby="experience">
+        <h2 id="experience" className={list.heading}>
           Experience
-        </motion.h2>
-        <motion.div
-          className={styles.timeline}
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          {timelineData.map((item, index) => (
-            <TimelineItem
-              key={index}
-              item={item}
-              index={index}
-              isActive={activeItem === index}
-              onToggle={setActiveItem}
-            />
+        </h2>
+        <ul className={list.list}>
+          {experience.map((job) => (
+            <li key={`${job.role}-${job.years}`}>
+              <details className={styles.job}>
+                <summary className={`${list.row} ${list.interactive}`}>
+                  <span className={list.primary}>
+                    {job.role}
+                    <span className={list.secondary}>{job.company}</span>
+                  </span>
+                  <span className={list.meta}>
+                    {job.years}
+                    <svg
+                      className={styles.chevron}
+                      width="10"
+                      height="10"
+                      viewBox="0 0 10 10"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M2 3.5 5 6.5 8 3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                </summary>
+                <ul className={styles.highlights}>
+                  {job.highlights.map((highlight) => (
+                    <li key={highlight}>{highlight}</li>
+                  ))}
+                </ul>
+              </details>
+            </li>
           ))}
-        </motion.div>
+        </ul>
       </section>
 
-      {/* Education Section - Compact */}
-      <section id="education" className={styles.education}>
-        <motion.h2
-          className={styles.educationTitle}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.3, ease: [0.215, 0.61, 0.355, 1] }}
-        >
+      <section className={styles.section} aria-labelledby="writing">
+        <h2 id="writing" className={list.heading}>
+          Writing
+        </h2>
+        <ul className={list.list}>
+          {blogPosts.slice(0, 4).map((post) => (
+            <li key={post.slug}>
+              <Link
+                href={`/blog/${post.slug}`}
+                className={`${list.row} ${list.interactive}`}
+              >
+                <span className={list.primary}>{post.title}</span>
+                <time className={list.meta} dateTime={post.date}>
+                  {formatDate(post.date, "short")}
+                </time>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link href="/blog" className={list.more}>
+          All writing <span aria-hidden="true">→</span>
+        </Link>
+      </section>
+
+      <section className={styles.section} aria-labelledby="education">
+        <h2 id="education" className={list.heading}>
           Education
-        </motion.h2>
-        <motion.div
-          className={styles.educationGrid}
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          <motion.div className={styles.educationCard} variants={itemVariants}>
-            <p className={styles.educationDegree}>AI & Data for Business</p>
-            <p className={styles.educationSchool}>Nova SBE</p>
-            <p className={styles.educationDate}>2025 - 2026</p>
-          </motion.div>
-          <motion.div className={styles.educationCard} variants={itemVariants}>
-            <p className={styles.educationDegree}>Applied Management</p>
-            <p className={styles.educationSchool}>Nova SBE</p>
-            <p className={styles.educationDate}>2024 - 2025</p>
-          </motion.div>
-          <motion.div className={styles.educationCard} variants={itemVariants}>
-            <p className={styles.educationDegree}>Audio Science & Technology</p>
-            <p className={styles.educationSchool}>Lusófona</p>
-            <p className={styles.educationDate}>2014 - 2017</p>
-          </motion.div>
-        </motion.div>
+        </h2>
+        <ul className={list.list}>
+          {education.map((item) => (
+            <li key={item.degree} className={list.row}>
+              <span className={list.primary}>
+                {item.degree}
+                <span className={list.secondary}>{item.school}</span>
+              </span>
+              <span className={list.meta}>{item.years}</span>
+            </li>
+          ))}
+        </ul>
       </section>
-
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContainer}>
-          <div className={styles.footerContent}>
-            <p className={styles.footerText}>
-              © 2026 Miguel Batalha. All rights reserved.
-            </p>
-            <div className={styles.footerLinks}>
-              <Link
-                href="https://www.linkedin.com/in/miguelbatalha"
-                target="_blank"
-                className={styles.footerLink}
-              >
-                LinkedIn
-              </Link>
-              <Link
-                href="https://github.com/druninstall"
-                target="_blank"
-                className={styles.footerLink}
-              >
-                GitHub
-              </Link>
-              <Link
-                href="mailto:miguelbatalhamusic@gmail.com"
-                className={styles.footerLink}
-              >
-                Contact
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </main>
   );
 }

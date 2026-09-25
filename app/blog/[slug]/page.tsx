@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { blogPosts, getPostBySlug, getAllSlugs } from "../_data/posts";
+import { getPostBySlug, getAllSlugs } from "../_data/posts";
 import { formatDate } from "@/lib/utils";
+import site from "@/components/site/site.module.css";
 import styles from "./page.module.css";
 
 // Post component imports — static for tree-shaking with static export
@@ -42,7 +42,7 @@ export async function generateMetadata({
   const post = getPostBySlug(slug);
   if (!post) return {};
   return {
-    title: `${post.title} — Miguel Batalha`,
+    title: post.title,
     description: post.description,
   };
 }
@@ -60,76 +60,20 @@ export default async function BlogPostPage({
   if (!PostContent) notFound();
 
   return (
-    <div className={styles.page}>
-      {/* Navigation */}
-      <nav className={styles.nav}>
-        <div className={styles.navContainer}>
-          <Link href="/" className={styles.logo}>
-            Miguel Batalha
-          </Link>
-          <div className={styles.navLinks}>
-            <Link href="/#work" className={styles.navLink}>
-              Work
-            </Link>
-            <Link href="/blog" className={styles.navLinkActive}>
-              Blog
-            </Link>
-            <Link href="/components" className={styles.navLink}>
-              Components
-            </Link>
-            <ThemeToggle />
-          </div>
-        </div>
-      </nav>
-
-      {/* Article */}
-      <article className={styles.article}>
-        <Link href="/blog" className={styles.backLink}>
-          &larr; Back to Blog
-        </Link>
-
+    <main className={site.page}>
+      <article>
         <header className={styles.postHeader}>
+          <Link href="/blog" className={styles.backLink}>
+            <span aria-hidden="true">←</span> Writing
+          </Link>
           <h1 className={styles.postTitle}>{post.title}</h1>
-          <div className={styles.postMeta}>
-            <time className={styles.postDate}>{formatDate(post.date)}</time>
-            <div className={styles.tags}>
-              {post.tags.map((tag) => (
-                <span key={tag} className={styles.tag}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
+          <time className={styles.postDate} dateTime={post.date}>
+            {formatDate(post.date)}
+          </time>
         </header>
 
         <PostContent />
       </article>
-
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContainer}>
-          <div className={styles.footerContent}>
-            <p className={styles.footerText}>
-              &copy; 2025 Miguel Batalha. All rights reserved.
-            </p>
-            <div className={styles.footerLinks}>
-              <Link
-                href="https://www.linkedin.com/in/miguelbatalha"
-                target="_blank"
-                className={styles.footerLink}
-              >
-                LinkedIn
-              </Link>
-              <Link
-                href="mailto:miguelbatalhamusic@gmail.com"
-                className={styles.footerLink}
-              >
-                Contact
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </main>
   );
 }

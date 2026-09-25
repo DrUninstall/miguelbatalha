@@ -5,38 +5,33 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
+  margin-right: -8px;
   border-radius: 8px;
-  border: none;
-  box-shadow: var(--stroke-weak);
-  background: transparent;
-  overflow: hidden;
-  cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-out-cubic);
+  color: rgb(var(--text-weak));
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    transform 100ms ease;
 }
 
-/* Extend tap target to 44px minimum without changing visual size */
+/* 44px tap target without changing the visual size */
 .themeToggle::before {
-  content: '';
+  content: "";
   position: absolute;
-  inset: -4px;
+  inset: -6px;
 }
 
-.themeToggle:hover {
-  box-shadow: var(--stroke-weak-hover), var(--fill-hover);
-}
-
-.themeToggle:focus-visible {
-  box-shadow: var(--stroke-focus);
-}
-
-.themeToggle:hover:focus-visible {
-  box-shadow: var(--fill-hover-focus);
+@media (hover: hover) and (pointer: fine) {
+  .themeToggle:hover {
+    color: rgb(var(--text-strong));
+    background: rgb(var(--fill-weak));
+  }
 }
 
 .themeToggle:active {
-  transform: scale(0.95);
+  transform: scale(0.94);
 }
 
 .iconWrapper {
@@ -50,7 +45,6 @@
 .icon {
   width: 16px;
   height: 16px;
-  color: rgb(var(--text-strong));
 }
 
 /* Expanded theme toggle */
@@ -106,22 +100,12 @@
               width var(--duration-normal) var(--ease-out-cubic);
 }
 
-/* Skeleton loading state */
+/* Placeholder until the theme is known, so the header doesn't shift */
 .skeleton {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: none;
-  box-shadow: var(--stroke-weak);
-  background: rgb(var(--fill-weak));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.skeletonIcon {
-  width: 16px;
-  height: 16px;
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  margin-right: -8px;
 }
 
 .skeletonExpanded {

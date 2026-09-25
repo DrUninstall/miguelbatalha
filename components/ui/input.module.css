@@ -68,7 +68,7 @@
 }
 
 .input:hover:not(:disabled) {
-  background: rgba(var(--fill-weak), 0.5);
+  background: rgb(var(--fill-weaker));
   box-shadow: var(--stroke-weak-hover);
 }
 
@@ -125,7 +125,7 @@
 }
 
 .textarea:hover:not(:disabled) {
-  background: rgba(var(--fill-weak), 0.5);
+  background: rgb(var(--fill-weaker));
   box-shadow: var(--stroke-weak-hover);
 }
 

@@ -1,133 +1,43 @@
-/* Blog post page styles */
+/* Article page. Post bodies (../_posts) share these classes. */
 
-.page {
-  min-height: 100vh;
-}
-
-/* Navigation — matches blog listing */
-.nav {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 50;
-  border-bottom: 1px solid var(--stroke-color-weak);
-  background: rgba(var(--background-base), 0.8);
-  backdrop-filter: blur(4px);
-}
-
-.navContainer {
-  max-width: 1024px;
-  margin: 0 auto;
-  padding: 0 24px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  font-weight: 600;
-  color: rgb(var(--text-strong));
-}
-
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.navLink {
-  font-size: 14px;
-  line-height: 20px;
-  color: rgb(var(--text-weak));
-  transition: color var(--duration-fast) var(--ease-out-cubic);
-}
-
-.navLink:hover {
-  color: rgb(var(--text-strong));
-}
-
-.navLinkActive {
-  font-size: 14px;
-  line-height: 20px;
-  color: rgb(var(--text-strong));
-  font-weight: 500;
-}
-
-/* Article layout */
-.article {
-  max-width: 672px;
-  margin: 0 auto;
-  padding: 128px 24px 96px;
-}
-
-/* Back link */
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  line-height: 20px;
-  color: rgb(var(--text-weak));
-  margin-bottom: 48px;
-  transition: color var(--duration-fast) var(--ease-out-cubic);
-}
-
-.backLink:hover {
-  color: rgb(var(--text-strong));
-}
-
-/* Post header */
 .postHeader {
-  margin-bottom: 48px;
+  margin-bottom: 40px;
 }
 
-.postTitle {
-  font-size: 36px;
-  line-height: 44px;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  margin-bottom: 16px;
+.backLink {
+  display: inline-block;
+  margin-bottom: 24px;
+  font-size: 14px;
+  line-height: 20px;
+  border-radius: 4px;
+  color: rgb(var(--text-weak));
+  transition: color 150ms ease;
 }
 
-@media (min-width: 768px) {
-  .postTitle {
-    font-size: 44px;
-    line-height: 52px;
+@media (hover: hover) and (pointer: fine) {
+  .backLink:hover {
+    color: rgb(var(--text-strong));
   }
 }
 
-.postMeta {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+.postTitle {
+  font-size: 30px;
+  line-height: 38px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .postDate {
+  display: block;
+  margin-top: 8px;
   font-size: 14px;
   line-height: 20px;
   color: rgb(var(--text-weak));
-}
-
-.tags {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.tag {
-  font-size: 12px;
-  line-height: 16px;
-  padding: 2px 10px;
-  border-radius: 9999px;
-  color: rgb(var(--text-weak));
-  background: rgb(var(--fill-weak));
 }
 
 /* Prose content */
 .prose p {
-  font-size: 17px;
+  font-size: 16px;
   line-height: 28px;
   color: rgb(var(--text-weak));
   margin-bottom: 24px;
@@ -167,11 +77,12 @@
 
 /* Section headings */
 .sectionHeading {
-  font-size: 24px;
-  line-height: 32px;
+  font-size: 20px;
+  line-height: 28px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   color: rgb(var(--text-strong));
-  margin-top: 56px;
+  margin-top: 48px;
   margin-bottom: 16px;
 }
 
@@ -186,6 +97,8 @@
 
 /* Demo section — breaks out of prose width */
 .demo {
+  /* Never let a wide demo push the page sideways. */
+  overflow-x: clip;
   margin: 32px -24px;
   padding: 32px 24px;
   border-radius: 12px;
@@ -274,50 +187,9 @@
 /* Separator */
 .separator {
   height: 1px;
-  background: var(--stroke-color-weak);
+  background: rgb(var(--stroke-color-weak));
   margin: 56px 0;
   border: none;
-}
-
-/* Footer */
-.footer {
-  border-top: 1px solid var(--stroke-color-weak);
-  margin-top: 96px;
-}
-
-.footerContainer {
-  max-width: 1024px;
-  margin: 0 auto;
-  padding: 48px 24px;
-}
-
-.footerContent {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.footerText {
-  font-size: 14px;
-  line-height: 20px;
-  color: rgb(var(--text-weak));
-}
-
-.footerLinks {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-
-.footerLink {
-  font-size: 14px;
-  line-height: 20px;
-  color: rgb(var(--text-weak));
-  transition: color var(--duration-fast) var(--ease-out-cubic);
-}
-
-.footerLink:hover {
-  color: rgb(var(--text-strong));
 }
 
 /* Form system specific */
@@ -366,4 +238,25 @@
   width: 100%;
   max-width: 400px;
   margin: 0 auto;
+}
+
+/* List items in the list demos */
+.listItem {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 80px;
+  padding: 16px;
+  border-bottom: 1px solid rgb(var(--stroke-color-weak));
+}
+
+.listItemTitle {
+  font-weight: 500;
+  color: rgb(var(--text-strong));
+}
+
+.listItemDescription {
+  font-size: 14px;
+  line-height: 20px;
+  color: rgb(var(--text-weak));
 }

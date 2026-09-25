@@ -68,3 +68,13 @@
 .tooltipArrow {
   fill: rgb(var(--background-overlay));
 }
+
+@media (max-width: 479px) {
+  .container {
+    padding-inline: 0;
+  }
+
+  .dock {
+    gap: 8px;
+  }
+}

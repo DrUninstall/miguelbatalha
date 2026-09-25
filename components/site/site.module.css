@@ -1,0 +1,69 @@
+.header,
+.footer {
+  width: 100%;
+  max-width: calc(var(--measure) + var(--gutter) * 2);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: rgb(var(--text-strong));
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.navLink {
+  font-size: 14px;
+  color: rgb(var(--text-weak));
+  transition: color 150ms ease;
+}
+
+.navLink[aria-current="page"] {
+  color: rgb(var(--text-strong));
+}
+
+.name,
+.navLink {
+  border-radius: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .navLink:hover {
+    color: rgb(var(--text-strong));
+  }
+}
+
+.footer {
+  padding-block: 48px;
+  font-size: 13px;
+  color: rgb(var(--text-weak));
+}
+
+/* Page body: one reading column, pushes the footer down on short pages. */
+.page {
+  flex: 1;
+  width: 100%;
+  max-width: calc(var(--measure) + var(--gutter) * 2);
+  margin: 0 auto;
+  padding: 48px var(--gutter) 0;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding-top: 88px;
+  }
+}

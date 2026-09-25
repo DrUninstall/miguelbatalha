@@ -1,0 +1,83 @@
+/* Shared row list used on the home and writing pages. */
+
+.heading {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  color: rgb(var(--text-weak));
+  margin-bottom: 12px;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  /* Rows bleed into the gutter so their hover fill doesn't crowd the text. */
+  margin-inline: -10px;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.interactive {
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .interactive:hover {
+    background: rgb(var(--fill-weak));
+  }
+}
+
+.primary {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  min-width: 0;
+  color: rgb(var(--text-strong));
+}
+
+.secondary {
+  color: rgb(var(--text-weak));
+}
+
+.meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  font-size: 14px;
+  color: rgb(var(--text-weak));
+  font-variant-numeric: tabular-nums;
+}
+
+.more {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  border-radius: 4px;
+  color: rgb(var(--text-weak));
+  transition: color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .more:hover {
+    color: rgb(var(--text-strong));
+  }
+}
+
+/* On phones, the secondary label always sits under the primary so rows stay uniform. */
+@media (max-width: 559px) {
+  .primary {
+    flex-direction: column;
+  }
+}

@@ -146,7 +146,7 @@
 .dividerLine {
   flex: 1;
   height: 1px;
-  background: var(--stroke-color-weak);
+  background: rgb(var(--stroke-color-weak));
 }
 
 .dividerText {

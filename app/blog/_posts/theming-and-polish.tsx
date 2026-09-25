@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { ThemeToggle, ThemeToggleExpanded } from "@/components/theme-toggle";
 import { Toaster, useToast } from "@/components/toast";
 import { PaginatedList } from "@/components/ui/paginated-list";
-import { SimpleList, List } from "@/components/ui/list";
+import { List } from "@/components/ui/list";
 import { Button } from "@/components/ui/button";
 import styles from "../[slug]/page.module.css";
 
@@ -92,7 +91,16 @@ export default function ThemingAndPolish() {
         <div className={styles.demo}>
           <div className={styles.demoLabel}>Paginated List</div>
           <div className={styles.listContainer}>
-            <PaginatedList items={items} />
+            <PaginatedList
+              items={items}
+              itemsPerPage={5}
+              renderItem={(item) => (
+                <div className={styles.listItem}>
+                  <p className={styles.listItemTitle}>{item.title}</p>
+                  <p className={styles.listItemDescription}>{item.description}</p>
+                </div>
+              )}
+            />
           </div>
         </div>
 
@@ -107,7 +115,16 @@ export default function ThemingAndPolish() {
         <div className={styles.demo}>
           <div className={styles.demoLabel}>Virtualized Scrollable List</div>
           <div className={styles.listContainer}>
-            <List items={items} />
+            <List
+              items={items}
+              itemHeight={80}
+              renderItem={(item) => (
+                <div className={styles.listItem}>
+                  <p className={styles.listItemTitle}>{item.title}</p>
+                  <p className={styles.listItemDescription}>{item.description}</p>
+                </div>
+              )}
+            />
           </div>
         </div>
 

@@ -83,7 +83,7 @@
 }
 
 .indicatorCircle.active {
-  background: rgba(var(--fill-brand-strong), 0.2);
+  background: rgb(var(--fill-brand-strong) / 0.2);
   color: rgb(var(--text-brand));
   border: 2px solid rgb(var(--stroke-brand-strong));
 }

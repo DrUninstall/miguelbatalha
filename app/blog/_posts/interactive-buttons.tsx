@@ -42,7 +42,7 @@ export default function InteractiveButtons() {
       <div className={styles.demo}>
         <div className={styles.demoLabel}>Live Demo — Watch the border</div>
         <div className={styles.demoInner}>
-          <OutlineOrbitButton />
+          <OutlineOrbitButton>Hover me</OutlineOrbitButton>
         </div>
       </div>
 
