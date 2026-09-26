@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { spawn } from 'child_process';
 const FF = process.env.FFMPEG || 'ffmpeg';
 const theme = process.env.THEME || 'light';
-const FPS = 60, SUB = 4, T = 23, SHUTTER = 0.5;
+const FPS = 60, SUB = 4, T = 26, SHUTTER = 0.5;
 const limit = Number(process.env.LIMIT || T * FPS);
 const b = await chromium.launch(); const p = await (await b.newContext({viewport:{width:1440,height:1440}})).newPage();
 await p.goto('http://localhost:4199/reel.html?theme='+theme); await p.waitForFunction(()=>window.READY);
