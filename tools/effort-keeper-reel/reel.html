@@ -198,6 +198,7 @@ const rand = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 214
 /* ─── The shape's states ─────────────────────────────────────────────────── */
 const GEO = {
   plus:    { w: 132, h: 132, r: 66,  srf: 'orange' },
+  hatch:   { w: 250, h: 250, r: 125, srf: 'none', cam: 'plus' },
   row:     { w: 740, h: 224, r: 34,  srf: 'cream' },
   sheet:   { w: 760, h: 780, r: 52,  srf: 'cream' },
   display: { w: 780, h: 300, r: 46,  srf: 'dark' },
@@ -220,6 +221,7 @@ const camScale = (g) => Math.min(2.6, 1060 / Math.max(g.camW || g.w, (g.camH || 
 
 const SCHEDULE = [
   [0.00, 'plus'],
+  [0.56, 'hatch'],
   [1.50, 'row'],
   [3.50, 'sheet'],
   [6.50, 'display'],
@@ -326,6 +328,15 @@ const cLoad = el(`<svg width="72" height="72" viewBox="0 0 72 72" fill="none" st
     <path id="ld-check" d="M23 37l9 9 17-19" pathLength="100" stroke-dasharray="100 100"/>
   </svg>`);
 const ldArc = cLoad.querySelector('#ld-arc'), ldCheck = cLoad.querySelector('#ld-check');
+cLoad.style.display = 'none';
+/* The opening: tapping + hatches the Effort's blob out of the key. The key is
+   already the blob's orange, so it is one shape changing, not a swap. */
+const cHatch = el(`<div id="hb" style="position:absolute;left:0;top:0">
+  ${['calm', 'happy'].map((m) => `<img class="hb-face" src="blobs/reading-${m}.png" alt="" style="position:absolute;inset:0;width:100%;height:100%">`).join('')}
+</div>`);
+const hb = cHatch.querySelector('#hb'), hbFaces = [...cHatch.querySelectorAll('.hb-face')];
+const HATCH = spring(300, 17);             // a small Honk-style bounce: this is a character arriving
+const HATCH_AT = 0.56, HATCH_POKE = 0.96, HATCH_TO_ROW = 1.5;
 
 /* ── effort row + hold pad ── */
 const WEEK = [1, 1, 0.55, 1, 1, 0.8];
@@ -747,7 +758,9 @@ const REST = [1040, 1100];
 const CUR = [
   [0.00, ...REST],
   [0.10, ...toScreen('plus', 8, 12)],
-  [0.70, ...toScreen('plus', 150, 170)],
+  [0.62, ...toScreen('plus', 30, 40)],
+  [0.80, ...toScreen('plus', 16, 10)],
+  [1.10, ...toScreen('plus', 150, 170)],
   [1.62, ...toScreen('row', -40, 10)],
   [2.56, ...toScreen('row', -205, 6)],
   [3.10, ...toScreen('row', 40, 0)],
@@ -785,7 +798,7 @@ const CUR = [
 ];
 const curX = track(CUR.map(([t, x]) => [t, x]), HAND);
 const curY = track(CUR.map(([t, , y]) => [t, y]), HAND);
-const CLICKS = [[0.50, 0.58], [2.0, 2.5], [2.96, 3.04], [3.46, 3.54], [3.96, 4.04], [4.46, 4.54], [6.0, 6.5], [9.46, 9.54], [10.0, 11.0], [11.96, 12.04], [12.98, 13.04], [13.23, 13.29], [13.48, 13.54], [14.46, 14.54], [15.46, 15.54], [16.46, 16.54], [16.96, 17.04], [GRAB_AT, DRAG_END], [BLOOM_END - 0.04, BLOOM_END + 0.04], [21.46, 21.54], [22.96, 23.04]];
+const CLICKS = [[0.50, 0.58], [HATCH_POKE, HATCH_POKE + 0.08], [2.0, 2.5], [2.96, 3.04], [3.46, 3.54], [3.96, 4.04], [4.46, 4.54], [6.0, 6.5], [9.46, 9.54], [10.0, 11.0], [11.96, 12.04], [12.98, 13.04], [13.23, 13.29], [13.48, 13.54], [14.46, 14.54], [15.46, 15.54], [16.46, 16.54], [16.96, 17.04], [GRAB_AT, DRAG_END], [BLOOM_END - 0.04, BLOOM_END + 0.04], [21.46, 21.54], [22.96, 23.04]];
 const curPress = track([[0, 0], ...CLICKS.flatMap(([a, b]) => [[a, 1], [b, 0]])], SNAPPY);
 function cursorAt(t) {
   if (t >= DRAG_SHEET[0] && t < DRAG_SHEET[1]) return toScreen('sheet', 0, SHEET_GRAB_Y + sheetDragDy(t));
@@ -868,13 +881,29 @@ function seekCore(tIn) {
 
   /* bar 1: plus → loader → check */
   place(cPlus, vis(t, 25.56, 0.56, 0.08), 0, 0, `scale(${p.toFixed(4)})`);
-  place(cLoad, vis(t, 0.56, 1.5, 0.04), 0, 0, `scale(${p.toFixed(4)})`);
-  const closeArc = smooth((t - 0.98) / 0.16);
-  ldArc.setAttribute('stroke-dasharray', `${lerp(30, 100, closeArc).toFixed(2)} 100`);
-  ldArc.setAttribute('stroke-opacity', (1 - 0.7 * closeArc).toFixed(3));
-  ldArc.style.transform = `rotate(${(Math.max(0, since(t, 0.56)) * 900).toFixed(1)}deg)`;
-  ldArc.style.transformOrigin = '36px 36px';
-  ldCheck.setAttribute('stroke-dashoffset', (100 * (1 - easeOut((t - 1.04) / 0.24))).toFixed(2));
+  {
+    const since0 = t - HATCH_AT;
+    const on = t >= HATCH_AT && t < HATCH_TO_ROW + 0.5;
+    const grow = HATCH(since0);
+    const land = SNAPPY(t - HATCH_TO_ROW);                 // into the row's icon tile
+    const tile = [-290, 0], tileSize = 108;
+    const size = lerp(lerp(150, 320, grow), tileSize, land);
+    const x = lerp(0, tile[0], land), y = lerp(0, tile[1], land);
+    const q = SQUASH(t - HATCH_POKE) - SQUASH(t - HATCH_POKE - 0.08);
+    const born = 1 - SQUASH(since0) * 1;                  // arrives a little stretched, settles round
+    const fadeOut = smooth((t - HATCH_TO_ROW - 0.3) / 0.18);
+    cHatch.style.opacity = on ? (clamp(since0 / 0.06) * (1 - fadeOut)).toFixed(3) : 0;
+    cHatch.style.visibility = on ? 'visible' : 'hidden';
+    cHatch.style.transform = 'none';
+    hb.style.width = hb.style.height = `${size.toFixed(2)}px`;
+    hb.style.left = `${(x - size / 2).toFixed(2)}px`;
+    hb.style.top = `${(y - size / 2).toFixed(2)}px`;
+    hb.style.transformOrigin = '50% 88%';
+    hb.style.transform = `scale(${(1 - 0.08 * born + 0.12 * q).toFixed(4)}, ${(1 + 0.12 * born - 0.16 * q).toFixed(4)})`;
+    const happy = t >= HATCH_POKE + 0.03;
+    hbFaces[0].style.opacity = happy ? 0 : 1;
+    hbFaces[1].style.opacity = happy ? 1 : 0;
+  }
 
   /* bar 2: row, hold, pad, stamp */
   place(cRow, visAny(t, [[1.5, 2.5, 0.12], [3.0, 3.5, 0.02]]), 0, 0, `scale(${p.toFixed(4)})`);
@@ -1109,7 +1138,8 @@ window.seek = (t) => { seekCore(t); applyShared(((t % T) + T) % T); };
 const PENT = (n) => 523.25 * Math.pow(2, ([0, 2, 4, 7, 9][((n % 5) + 5) % 5] + 12 * Math.floor(n / 5)) / 12);
 window.CUES = [
   [0.50, 'click'],
-  [1.04, 'commit'],
+  [0.56, 'pop'],
+  [0.96, 'blobPoke'],
   [2.00, 'holdStep', { progress: 0.2 }], [2.16, 'holdStep', { progress: 0.55 }], [2.32, 'holdStep', { progress: 0.9 }],
   [2.50, 'pop'],
   [2.96, 'log'],
@@ -1139,6 +1169,15 @@ window.CUES = [
   [24.5, 'commit'],
   [25.5, 'back'],
 ];
+/* Cinematic air on the big spatial moves only: up for opening, down for closing. */
+window.SWOOSHES = [
+  [3.5, 'swoosh', { dir: 1 }],                 // the sheet rises
+  [6.5, 'swoosh', { dir: -1 }],                // the sheet is let go
+  [12.0, 'swoosh', { dir: 1, gain: 0.8 }],     // the island opens
+  [OPEN_AT, 'swoosh', { dir: 1 }],             // the Blossom blooms
+  [EXPAND[0], 'swoosh', { dir: 1, gain: 0.8 }],// the bento section opens
+  [25.5, 'swoosh', { dir: -1, gain: 0.8 }],    // back to the key
+];
 window.REEL = { T, BLOOM_TICKS, PICK_CAP };
 
 /* Offline render through the app's own audio engine. */
@@ -1163,6 +1202,23 @@ window.renderAudio = async function (cues, seconds, sampleRate = 48000) {
   for (const [t, name, opts] of cues) {
     now = t;
     Date.now = () => 1e9 + t * 1000;
+    if (name === 'swoosh') {
+      // band-passed noise whose band travels with the motion
+      const dur = 0.42, g = 0.085 * ((opts && opts.gain) || 1), up = (opts && opts.dir) > 0;
+      const n = off.createBuffer(1, Math.ceil(dur * sampleRate), sampleRate);
+      const d = n.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const src = off.createBufferSource(); src.buffer = n;
+      const bp = off.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.1;
+      bp.frequency.setValueAtTime(up ? 500 : 4200, t);
+      bp.frequency.exponentialRampToValueAtTime(up ? 4200 : 500, t + dur * 0.8);
+      const amp = off.createGain();
+      amp.gain.setValueAtTime(0.0001, t);
+      amp.gain.exponentialRampToValueAtTime(g, t + 0.09);
+      amp.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(bp); bp.connect(amp); amp.connect(off.destination);
+      src.start(t); src.stop(t + dur);
+      continue;
+    }
     const o = { ...(opts || {}) };
     if (o.cap) { const hex = '#' + o.cap.match(/\d+/g).slice(0, 3).map((n) => Number(n).toString(16).padStart(2, '0')).join(''); o.frequency = window.EK.bloomPitch(hex); delete o.cap; }
     window.EK.playRecipe(name, o);

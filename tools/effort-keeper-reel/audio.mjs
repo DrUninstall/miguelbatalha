@@ -5,7 +5,7 @@ const ctx = await b.newContext();
 const SR = 48000;
 const fresh = async () => { const p = await ctx.newPage(); await p.goto('http://localhost:4199/reel.html'); await p.waitForFunction(()=>window.READY); return p; };
 let p = await fresh();
-const cues = await p.evaluate(() => window.CUES);
+const cues = await p.evaluate((sw) => sw ? window.CUES.concat(window.SWOOSHES) : window.CUES, Boolean(process.env.SWOOSH));
 await p.close();
 // measure each cue's first peak once, rendered alone
 const offsets = {};
