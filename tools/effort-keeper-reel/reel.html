@@ -482,6 +482,7 @@ const cTimer = el(`
   <div style="position:relative;width:690px;height:230px;color:#F0EEE9">
     <span class="kicker" style="position:absolute;left:0;top:0;color:rgb(240 238 233/0.5)">FOCUS · READING</span>
     <div id="tm-digits" class="mono" style="position:absolute;left:-6px;top:40px;font-size:112px;font-weight:500;letter-spacing:-0.03em;line-height:1"></div>
+    <div class="key" id="tm-min" style="left:452px;top:-6px;width:76px;height:62px;border-radius:22px;color:var(--ink-weak)">${ICON('<path d="m6 9 6 6 6-6"/>', 32, 2.4)}</div>
     <div class="key" style="right:0;top:26px;width:132px;height:132px;border-radius:36px">
       <svg width="64" height="64" viewBox="0 0 24 24"><path id="tm-a" fill="currentColor"/><path id="tm-b" fill="currentColor"/></svg>
     </div>
@@ -490,10 +491,11 @@ const cTimer = el(`
     <div id="tm-knob" style="position:absolute;top:209px;border-radius:14px;background:repeating-linear-gradient(90deg, #F0EEE9 0 4px, rgb(206 202 196) 4px 6px);box-shadow:inset 0 0 0 1.5px rgb(255 255 255/0.6),0 3px 0 rgb(0 0 0/0.4)"></div>
   </div>`);
 const tmDigits = cTimer.querySelector('#tm-digits'), tmA = cTimer.querySelector('#tm-a'), tmB = cTimer.querySelector('#tm-b');
+const tmMin = cTimer.querySelector('#tm-min');
 const tmTrack = cTimer.querySelector('#tm-track'), tmFill = cTimer.querySelector('#tm-fill'), tmKnob = cTimer.querySelector('#tm-knob');
 const PLAY = [[[8, 5], [13.5, 8.5], [13.5, 15.5], [8, 19]], [[13.5, 8.5], [19, 12], [19, 12], [13.5, 15.5]]];
 const PAUSE = [[[6.5, 5], [10.5, 5], [10.5, 19], [6.5, 19]], [[13.5, 5], [17.5, 5], [17.5, 19], [13.5, 19]]];
-const playMorph = track([[0, 0], [9.5, 1, SNAPPY], [11.4, 0]], SNAPPY);
+const playMorph = track([[0, 0], [9.5, 1, SNAPPY], [14.0, 0]], SNAPPY);   // stays on pause: the timer keeps running in the pill
 const SCRUB = [10.0, 11.0];
 const P0 = 0.06, PAST = 190;
 /* While held, the hand is the value. Past the end it keeps going and the bar resists. */
@@ -772,7 +774,8 @@ const CUR = [
   [9.08, ...toScreen('timer', 280, -34)],
   [9.62, ...toScreen('timer', TRACK_L + SPAN * P0, KNOB_Y)],
   [10.00, ...toScreen('timer', TRACK_R + PAST, KNOB_Y)],
-  [11.12, ...toScreen('pill', 40, ISL_TOP + 62)],
+  [11.08, ...toScreen('timer', -345 + 452 + 38, -115 - 6 + 31)],
+  [11.56, ...toScreen('pill', 40, ISL_TOP + 62)],
   [12.12, ...toScreen('island', -170, -40)],
   [13.08, ...toScreen('island', -150, -64)],
   [13.30, ...toScreen('island', -186, -30)],
@@ -798,7 +801,7 @@ const CUR = [
 ];
 const curX = track(CUR.map(([t, x]) => [t, x]), HAND);
 const curY = track(CUR.map(([t, , y]) => [t, y]), HAND);
-const CLICKS = [[0.50, 0.58], [HATCH_POKE, HATCH_POKE + 0.08], [2.0, 2.5], [2.96, 3.04], [3.46, 3.54], [3.96, 4.04], [4.46, 4.54], [6.0, 6.5], [9.46, 9.54], [10.0, 11.0], [11.96, 12.04], [12.98, 13.04], [13.23, 13.29], [13.48, 13.54], [14.46, 14.54], [15.46, 15.54], [16.46, 16.54], [16.96, 17.04], [GRAB_AT, DRAG_END], [BLOOM_END - 0.04, BLOOM_END + 0.04], [21.46, 21.54], [22.96, 23.04]];
+const CLICKS = [[0.50, 0.58], [HATCH_POKE, HATCH_POKE + 0.08], [2.0, 2.5], [2.96, 3.04], [3.46, 3.54], [3.96, 4.04], [4.46, 4.54], [6.0, 6.5], [9.46, 9.54], [10.0, 11.0], [11.42, 11.5], [11.96, 12.04], [12.98, 13.04], [13.23, 13.29], [13.48, 13.54], [14.46, 14.54], [15.46, 15.54], [16.46, 16.54], [16.96, 17.04], [GRAB_AT, DRAG_END], [BLOOM_END - 0.04, BLOOM_END + 0.04], [21.46, 21.54], [22.96, 23.04]];
 const curPress = track([[0, 0], ...CLICKS.flatMap(([a, b]) => [[a, 1], [b, 0]])], SNAPPY);
 function cursorAt(t) {
   if (t >= DRAG_SHEET[0] && t < DRAG_SHEET[1]) return toScreen('sheet', 0, SHEET_GRAB_Y + sheetDragDy(t));
@@ -986,6 +989,7 @@ function seekCore(tIn) {
   tmKnob.style.height = `${gh.toFixed(2)}px`;
   tmKnob.style.left = `${(end + 345 + pull - 15 - pull * 0.9).toFixed(2)}px`;
   tmKnob.style.marginTop = `${(-gh / 2).toFixed(2)}px`;
+  keyPress(tmMin, pressAt(t, 11.42, 11.5));
   tmKnob.style.transform = `scale(${(1 + 0.08 * (t >= 9.95 && t < 11.3 ? clamp(curPress(t)) : 0)).toFixed(3)})`;
 
   /* bar 6: the floating timer — pill, tap to open, poke the blob */
@@ -1146,14 +1150,15 @@ window.CUES = [
   [3.46, 'click'],
   [3.50, 'sheetOpen'],
   [3.96, 'log'],
-  [4.46, 'complete'],
+  [4.46, 'achievement'],
   [6.50, 'sheetClose'],
   [7.00, 'milestone', { progress: 1 }],
-  [8.00, 'closure'],
+  [8.00, 'checkIn'],
   [9.46, 'timerStart'],
   [10.00, 'gauge', { progress: 0.1 }], [10.16, 'gauge', { progress: 0.4 }], [10.32, 'gauge', { progress: 0.75 }], [10.45, 'gauge', { progress: 1 }],
   [11.00, 'tick'],
   [11.96, 'click'],
+  [11.42, 'back'],
   [12.0, 'sheetOpen'],
   [13.0, 'blobPoke'], [13.25, 'blobPoke'], [13.5, 'blobPoke'],
   [14.46, 'toggleOn'],
