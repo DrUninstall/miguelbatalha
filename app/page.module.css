@@ -1,22 +1,39 @@
-/* Intro */
+/* Intro: the page speaks first, in Newsreader. */
 
-.headline {
-  font: var(--type-title);
-  letter-spacing: -0.015em;
-  color: rgb(var(--text-strong));
+.intro {
+  max-width: 760px;
 }
 
-.lede {
-  margin-top: 12px;
-  font: var(--type-body);
+.say {
+  font: var(--type-hero);
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  color: rgb(var(--text-strong));
+  text-wrap: pretty;
+}
+
+.say + .say {
+  margin-top: 0.7em;
+}
+
+.soft {
   color: rgb(var(--text-weak));
+}
+
+.say a {
+  border-radius: 2px;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: rgb(var(--text-strong) / 0.25);
+  transition: text-decoration-color 150ms ease;
 }
 
 .links {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 20px;
-  margin-top: 20px;
+  margin-top: 28px;
   padding: 0;
   list-style: none;
   font: var(--type-row);
@@ -33,53 +50,232 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
+  .say a:hover,
   .link:hover {
     text-decoration-color: rgb(var(--text-strong));
   }
 }
 
-.section {
-  margin-top: 64px;
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-/* Building */
+/* The bench: the reel, a working demo from each post, and the record.
+   Each post is a figure — a framed demo with its title under it. Only the
+   title is a link, so the demo above it stays free to use. */
 
-.project {
-  margin: 0;
+.bench {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px 16px;
+  margin-top: 72px;
 }
 
-.projectCaption {
-  margin-top: 14px;
-  padding-inline: 10px;
+@media (min-width: 640px) {
+  .bench {
+    margin-top: 96px;
+  }
+}
+
+.feature {
+  grid-column: span 2;
+  grid-row: span 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* The same frame as a demo inside a post. */
+.stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 24px 16px;
+  border-radius: 12px;
+  background: rgb(var(--background-raised));
+  box-shadow: var(--ring-weak);
+  /* Invisible normally; forced-colors mode removes the shadow and paints this. */
+  outline: 1px solid transparent;
+  outline-offset: -1px;
+  overflow: clip;
+}
+
+.stage > * {
+  max-width: 100%;
+}
+
+/* A post without a demo shows its description. */
+.stage > p {
   font: var(--type-small);
   color: rgb(var(--text-weak));
+  text-align: center;
 }
 
-.projectName {
-  display: inline-block;
-  margin-bottom: 2px;
-  border-radius: 2px;
-  font: var(--type-row);
+.caption {
+  margin-top: 14px;
+}
+
+.title {
+  margin-top: 12px;
+  font: var(--type-figure);
+  letter-spacing: -0.01em;
   color: rgb(var(--text-strong));
+}
+
+.caption .title {
+  margin-top: 0;
+}
+
+.title a {
+  border-radius: 2px;
   text-decoration: underline;
-  text-decoration-color: rgb(var(--text-strong) / 0.2);
   text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: rgb(var(--text-strong) / 0.2);
   transition: text-decoration-color 150ms ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .projectName:hover {
+  .title a:hover {
     text-decoration-color: rgb(var(--text-strong));
   }
 }
 
-/* Experience: native <details>, animated where the browser can interpolate to auto. */
+.description {
+  margin-top: 4px;
+  max-width: 52ch;
+  font: var(--type-small);
+  color: rgb(var(--text-weak));
+}
 
+/* The record sits in the grid as text, not a frame. */
+.record {
+  grid-column: span 2;
+  font: var(--type-caption);
+}
+
+.record .title {
+  margin-top: 0;
+  margin-bottom: 6px;
+}
+
+.record .subtitle {
+  margin-top: 16px;
+}
+
+.rows {
+  padding: 0;
+  list-style: none;
+}
+
+.rows li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 3px;
+  color: rgb(var(--text-strong));
+}
+
+.rows li > span:last-child {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.weak {
+  color: rgb(var(--text-weak));
+}
+
+/* Tablet: two columns. The reel keeps its square and sits beside its caption. */
+@media (max-width: 899px) {
+  .bench {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .feature {
+    grid-row: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: end;
+  }
+
+  .caption {
+    margin-top: 0;
+  }
+}
+
+/* Phone: one column. */
+@media (max-width: 559px) {
+  .bench {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 32px;
+  }
+
+  .feature,
+  .record {
+    grid-column: auto;
+  }
+
+  .feature {
+    display: flex;
+  }
+
+  .caption {
+    margin-top: 14px;
+  }
+}
+
+.after {
+  margin-top: 24px;
+}
+
+/* The roles in detail, below the grid. Native <details>, animated where the
+   browser can interpolate to auto. */
+
+.full {
+  margin-top: 40px;
+  max-width: var(--measure);
+}
+
+.fullSummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  font: var(--type-small);
+  color: rgb(var(--text-weak));
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fullSummary:hover {
+    color: rgb(var(--text-strong));
+  }
+}
+
+.fullList {
+  margin-top: 12px;
+}
+
+.full > summary,
 .job > summary {
   list-style: none;
 }
 
+.full > summary::-webkit-details-marker,
 .job > summary::-webkit-details-marker {
   display: none;
 }
@@ -89,7 +285,8 @@
   transition: transform 200ms var(--ease-out-cubic);
 }
 
-.job[open] .chevron {
+.full[open] > summary .chevron,
+.job[open] > summary .chevron {
   transform: rotate(180deg);
 }
 
@@ -111,10 +308,12 @@
 }
 
 @supports (interpolate-size: allow-keywords) {
+  .full,
   .job {
     interpolate-size: allow-keywords;
   }
 
+  .full::details-content,
   .job::details-content {
     block-size: 0;
     overflow: clip;
@@ -125,6 +324,7 @@
       content-visibility 250ms allow-discrete;
   }
 
+  .full[open]::details-content,
   .job[open]::details-content {
     block-size: auto;
     opacity: 1;
@@ -132,10 +332,17 @@
 
   /* The global reduced-motion rule doesn't reach ::details-content. */
   @media (prefers-reduced-motion: reduce) {
+    .full::details-content,
     .job::details-content {
       transition:
         opacity 150ms ease,
         content-visibility 150ms allow-discrete;
     }
+  }
+}
+
+@media (forced-colors: active) {
+  .stage {
+    outline-color: CanvasText;
   }
 }

@@ -155,6 +155,11 @@ function GradientSwatch({ className, label, description, describe }: Swatch) {
   );
 }
 
+/** The conic swatch on its own: the home page's preview of the gradients post. */
+export function ConicGradientSwatch() {
+  return <GradientSwatch {...SWATCHES[2]} />;
+}
+
 export function GradientTypes() {
   return (
     <div className={styles.typesContainer}>

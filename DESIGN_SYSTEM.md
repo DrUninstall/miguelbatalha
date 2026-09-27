@@ -26,6 +26,8 @@ background: rgb(var(--fill-brand-strong) / 0.2);
 
 Never pass a `--stroke-*` token to `rgb()` or use it in `border`: it isn't a colour, and the whole declaration is silently dropped.
 
+A colour token that already carries an alpha (`--grey-light-700` is `0 9 51 / 0.65`) can't take a second one: `rgb(0 9 51 / 0.65 / 0.2)` is invalid and the declaration is dropped. `--text-strong` is opaque in both themes for this reason, so `rgb(var(--text-strong) / 0.2)` works; don't add an alpha to `--text-weak`, `--text-disabled` or `--icon-*`.
+
 ## Focus
 
 One global rule draws focus as a 2px brand `outline` with a 2px offset. It's an outline rather than a box-shadow so component shadows can't override it. Don't set `outline: none`; inside an `overflow: hidden` parent, use a negative `outline-offset`.
@@ -34,12 +36,16 @@ One global rule draws focus as a 2px brand `outline` with a 2px offset. It's an 
 
 One reading column: `--measure` (540px) plus `--gutter` (24px) either side. Post demos break out wider on larger screens.
 
+The header, the footer and the home page use `--frame` (1080px), so the site name and nav sit in the same place on every page. The home page is a four-column grid under the intro: the reel (square, two columns by two rows), six posts, and the record. Each post is a figure: a framed stage holding one working demo from the post (`app/_components/post-preview.tsx`), with the title under it. Only the title is a link, so the demo stays usable. Every demo there waits for input. Two columns below 900px, one below 560px.
+
 ## Type
 
-Geist Sans and Geist Mono, used through role tokens. Each size has exactly one line height; apply a role with `font: var(--type-body)` and adjust only the weight.
+Geist Sans and Geist Mono, used through role tokens. Newsreader (`--font-serif`) is the home page's voice: the intro and the figure titles, nowhere else. Each size has exactly one line height; apply a role with `font: var(--type-body)` and adjust only the weight.
 
 | Token | Size / line height | Use |
 | --- | --- | --- |
+| `--type-hero` | 26–36 / 1.24, serif | Home intro (rem, follows the reader's font size) |
+| `--type-figure` | 20 / 1.3, 500, serif | Home figure titles |
 | `--type-display` | 30 / 38, 600 | Post title |
 | `--type-title` | 22 / 30, 500 | Page title |
 | `--type-heading` | 20 / 28, 600 | Section heading in a post |

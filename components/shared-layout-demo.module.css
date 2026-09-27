@@ -112,6 +112,9 @@
 /* ─────────── Shared Layout Swap Demo ─────────── */
 
 .swapContainer {
+  /* Measured against its own width, so it fits a narrow frame on the home page. */
+  container-type: inline-size;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -129,6 +132,17 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
+}
+
+@container (max-width: 279px) {
+  .swapCircles {
+    gap: var(--space-4);
+  }
+
+  .swapCircle {
+    width: 48px;
+    height: 48px;
+  }
 }
 
 .circleBrand {
