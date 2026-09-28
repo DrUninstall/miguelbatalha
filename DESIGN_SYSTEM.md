@@ -40,13 +40,13 @@ The header, the footer and the home page use `--frame` (1080px), so the site nam
 
 ## Type
 
-Geist Sans and Geist Mono, used through role tokens. Newsreader (`--font-serif`) is the home page's voice: the intro and the figure titles, nowhere else. Each size has exactly one line height; apply a role with `font: var(--type-body)` and adjust only the weight.
+Geist Sans and Geist Mono, used through role tokens. Newsreader (`--font-serif`) is the site's voice: the home intro, the figure titles and post titles, nowhere else. Each size has exactly one line height; apply a role with `font: var(--type-body)` and adjust only the weight.
 
 | Token | Size / line height | Use |
 | --- | --- | --- |
 | `--type-hero` | 26–36 / 1.24, serif | Home intro (rem, follows the reader's font size) |
 | `--type-figure` | 20 / 1.3, 500, serif | Home figure titles |
-| `--type-display` | 30 / 38, 600 | Post title |
+| `--type-display` | 32 / 1.2, 500, serif | Post title (rem) |
 | `--type-title` | 22 / 30, 500 | Page title |
 | `--type-heading` | 20 / 28, 600 | Section heading in a post |
 | `--type-body` | 16 / 28 | Reading text |
