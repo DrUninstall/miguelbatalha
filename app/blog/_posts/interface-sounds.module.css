@@ -1,0 +1,109 @@
+/* Drop demo: a 24px ball falls 96px onto a floor (FALL_PX in the demos file). */
+.drop {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.ball {
+  position: absolute;
+  top: 0;
+  left: 48px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgb(var(--fill-brand-strong));
+}
+
+.floor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgb(var(--text-strong) / 0.3);
+}
+
+/* Repetition demo: one mark per tap, offset by its pitch. */
+.taps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+}
+
+.tapMark {
+  width: 4px;
+  height: 14px;
+  border-radius: 2px;
+  background: rgb(var(--text-strong));
+}
+
+/* Count demo: five dots that rise with the note each one played. */
+.melody {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  height: 48px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.melodyDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px rgb(var(--text-strong) / 0.3);
+  transition: translate 200ms var(--ease-out-cubic);
+}
+
+.melodyDot[data-filled] {
+  background: rgb(var(--text-strong));
+  box-shadow: none;
+}
+
+.melodyDot[data-done] {
+  background: rgb(var(--fill-brand-strong));
+}
+
+/* Alarm demo: two envelopes, each with its button. */
+.pair {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+}
+
+.shape {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.shape svg {
+  width: 120px;
+  height: 40px;
+  fill: none;
+  stroke: rgb(var(--text-strong));
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+@media (forced-colors: active) {
+  .ball,
+  .tapMark,
+  .melodyDot[data-filled],
+  .floor {
+    background: CanvasText;
+  }
+
+  .melodyDot {
+    border: 1.5px solid CanvasText;
+  }
+
+  .shape svg {
+    stroke: CanvasText;
+  }
+}

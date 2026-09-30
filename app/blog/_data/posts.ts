@@ -8,6 +8,14 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "interface-sounds",
+    title: "Designing Interface Sounds",
+    description:
+      "What studio work teaches about UI sound: land it on the contact, never play the same sound twice, let pitch count, and keep “done” from sounding like an alarm.",
+    date: "2026-09-30",
+    tags: ["sound", "interaction", "web-audio"],
+  },
+  {
     slug: "motion-foundations",
     title: "Transform, Opacity, and the Exceptions",
     description:

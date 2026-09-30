@@ -7,6 +7,7 @@ import { SharedLayoutSwap } from "@/components/shared-layout-demo";
 import { ConicGradientSwatch } from "@/components/gradient-demos";
 import { Toggle } from "@/components/ui/toggle";
 import { SparklesButton } from "@/components/sparkles-button";
+import { CountDemo } from "@/app/blog/_posts/interface-sounds.demos";
 
 function TogglePreview() {
   const [on, setOn] = useState(true);
@@ -19,6 +20,7 @@ function TogglePreview() {
  * without an entry here shows its description instead.
  */
 const previews: Record<string, () => React.ReactNode> = {
+  "interface-sounds": () => <CountDemo />,
   "motion-foundations": () => <CoinFlip />,
   "springs-and-gestures": () => <MorphingPill />,
   "layout-animations": () => <SharedLayoutSwap />,
